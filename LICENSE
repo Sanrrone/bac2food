@@ -1,0 +1,37 @@
+bac2food — licensing overview
+=============================
+
+This project ships two different kinds of thing under two different licences.
+Which one applies to you depends on what you are using.
+
+  SOFTWARE  ->  GNU Affero General Public License v3.0     (see LICENSE-CODE.md)
+                Free for academic and research use. A separate commercial
+                licence is available from the authors.
+
+  DATA      ->  CC BY 4.0 for most of it, with two partitions that keep the
+                terms they inherited from their source (see LICENSE-DATA.md)
+
+Why the data cannot carry one blanket licence
+---------------------------------------------
+
+The harmonized composition table is assembled from 15 independently licensed
+food-composition databases. Two of those licences are copyleft and they are not
+compatible with each other, let alone with a single project-wide term:
+
+  * AFCD (Australia) is CC BY-SA 3.0 AU. ShareAlike means a derivative must
+    stay ShareAlike, which permits commercial use. It CANNOT be relicensed
+    as NonCommercial.
+  * The three FAO/INFOODS tables are CC BY-NC-SA 3.0 IGO. NonCommercial means
+    a derivative must stay NonCommercial. It CANNOT be relicensed as
+    permissive, and it cannot be sold.
+
+There is no single licence that satisfies both. Anyone proposing to put the
+whole table under one term — including a NonCommercial one — should read those
+two lines again first. The release is therefore partitioned by source, and
+`licences.tsv` in the deposit says which rows carry which terms, joined to the
+composition table on `source_db`. Filtering to a licence you can live with is
+one join.
+
+The per-source terms, versions and required attribution strings are in
+`licences.tsv` and in Supplementary Table S1 of the accompanying Data
+Descriptor. Each was confirmed against the provider's own primary terms.

@@ -1,0 +1,126 @@
+# bac2food — what must NOT go to a public repository.
+#
+# The software here is small: ~10 MB across ~90 files. Everything else in this working
+# directory is data, and it is excluded for one of three reasons, in order of severity.
+#
+# 1. LICENCE. Several source databases may not be redistributed, and one may not be
+#    redistributed at all. Committing raw source files would contradict the Data
+#    Availability statement in the manuscript, which names NEVO as excluded.
+# 2. PRIVACY. The cohort annotations carry the source cohort's sample identifiers in
+#    their filenames, and the published work anonymizes those.
+# 3. SIZE. GitHub rejects any file over 100 MB; chebi.obo (248 MB) and the BRENDA
+#    extract (117 MB) both exceed it.
+#
+# Rule of thumb: parsers and pipeline code are tracked, the tables they read are not.
+# Every excluded input is fetched by, or documented in, the readme of its own folder.
+
+# ---------------------------------------------------------------- 1. licensed data
+# Raw national/regional composition tables. These are the providers' own files, under
+# eleven different licences (Supplementary Table S1). NEVO2025_v9.0.* is the restricted
+# one: its terms permit use "only unchanged", so it must never be published here.
+food_DBs/**/*.xlsx
+food_DBs/**/*.xls
+food_DBs/**/*.ods
+food_DBs/**/*.zip
+food_DBs/**/*.csv
+food_DBs/**/*.tsv
+food_DBs/**/*.json
+food_DBs/**/*.mdb
+food_DBs/**/*.accdb
+food_DBs/canadian_nutrientfile_canada/NUTRIENT*
+food_DBs/fooddatacentral_usa/
+# The parsers and merge scripts in those folders ARE the software — keep them.
+!food_DBs/**/*.py
+!food_DBs/**/readme*
+!food_DBs/**/README*
+
+# ------------------------------------------------------------------- 2. cohort data
+# Sample labels were anonymized to B_1..B_41 on 2026-08-05, so what is left to exclude is
+# bulk and third-party ownership rather than identity. Patterns are written by TIMEPOINT,
+# never by the old cohort prefix: a .gitignore is itself published, so naming the prefix
+# here would leak the string being withheld.
+#   - gene_annot/         110 metagenome annotation files, 365 MB, produced elsewhere
+#   - *_1_month* etc.     per-sample predictor outputs and their zips, anywhere in the tree
+#   - 3_magmapper/*.txt   the sample list (readme.txt is re-included below)
+#
+# Do NOT add a bare `*_ec.tsv` rule here. It reads as "cohort EC tables", but it also
+# matches 0_building/3_nutrient_to_ec.tsv — the core nutrient↔EC map that every scoring
+# script reads. Excluding it ships a repository that cannot run. gene_annot/ already
+# covers the cohort tables, so the rule buys nothing.
+gene_annot/
+*_1_month*
+*_6_months*
+*_12_months*
+3_magmapper/*.txt
+!3_magmapper/readme.txt
+
+# --------------------------------------------------------------- 3. oversize inputs
+# Third-party downloads, and most of them also exceed GitHub's 100 MB hard limit:
+# chebi.obo/chebi.json.gz from the EBI, ec_species_substrate from BRENDA.
+#
+# brenda_2026_1.{json,txt}.tar.gz are the official BRENDA release files (154 MB), and
+# BRENDA's own README says plainly: "The full BRENDA contents are copyright-protected."
+# What this repository ships instead is the DERIVED digest (eggnog/2_digest_*.tsv), which
+# is what the pipeline actually reads. Download the release yourself from
+# https://www.brenda-enzymes.org/download.php if you need to rebuild the digest;
+# eggnog/readme.txt gives the two commands.
+chebi/chebi.obo
+chebi/chebi.json.gz
+chebi/rheaDB/
+eggnog/*.tar.xz
+eggnog/*.tar.gz
+brenda/*.tar.gz
+brenda/*.tar.xz
+2_differential/boss_matrices/
+
+# A saved copy of BRENDA's download page, with its bundled CSS and JS. Third-party assets
+# that document nothing the readme does not.
+brenda/*.html
+brenda/*_files/
+
+# RIVM's conditions-of-use document for NEVO. It is their document, and this repository
+# redistributes no NEVO material of any kind; the terms are published at
+# https://www.rivm.nl/en/dutch-food-composition-database.
+food_DBs/**/*.pdf
+
+# ------------------------------------------------------- derived / regenerable state
+# Parquet stores and caches are rebuilt by the pipeline from the inputs above; none is
+# an artifact a reader needs. The deposited resource is the four TSVs on Zenodo.
+#
+# exports.tar.xz is that deposit, archived (71 MB). It holds food_nutrients.tsv, and
+# food_nutrients.tsv carries NEVO-derived rows -- so committing the archive would publish
+# exactly the source the Data Availability statement says is withheld. The repository
+# ships the code that builds it, never the table itself.
+*.parquet
+*_bucketed/
+exports/
+exports_*/
+5_export/exports.tar.xz
+
+# ------------------------------------------------- superseded example outputs
+# Sample results from runs of March and April 2026, kept locally as a record. They must
+# not ship: their fdc_ids come from the retired offset keying (values above 51,000,000,
+# e.g. 93,060,118), which no longer exists anywhere in the released resource. A reader
+# joining them against the deposit would match nothing and have no way to know why.
+# Regenerate them from the current tables instead; both scripts take one command.
+1_query/enzyme_ec2food.*.tsv
+2_differential/heptest.*
+
+# ------------------------------------------------------------- environments, cruft
+# 2_differential/ec2food_env is a checked-in virtualenv (288 MB). Requirements belong
+# in a requirements.txt; the tree itself never does.
+ec2food_env/
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+.Rhistory
+.RData
+*.swp
+*.bak
+.DS_Store
+
+# NOTE, deliberately NOT ignored: 0_building/novel_nutrients/novel_*.csv. Those list only
+# the component NAMES and units each source declares, not its values. For NEVO that file is
+# precisely what the manuscript promises to ship in place of the data ("nutrient mappings
+# plus regeneration code"), so a user holding their own licensed copy can rebuild those rows.

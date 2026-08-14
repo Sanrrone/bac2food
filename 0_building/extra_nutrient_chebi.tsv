@@ -1,0 +1,75 @@
+nutrient_id	nutrient_name	chebi_id	justification
+1017	Pectin	CHEBI:17309	exact ChEBI synonym match
+1018	Alcohol, ethyl	CHEBI:16236	verified single canonical form
+1022	Cellulose	CHEBI:18233	exact ChEBI synonym match
+1030	Chlorogenic acid	CHEBI:16112	exact ChEBI synonym match
+1033	Fumaric acid	CHEBI:18012	exact ChEBI synonym match
+1035	Gallic acid	CHEBI:30778	exact ChEBI synonym match
+1041	Oxalic acid	CHEBI:16995	exact ChEBI synonym match
+1042	Phytic acid	CHEBI:17401	exact ChEBI synonym match
+1045	Salicylic acid	CHEBI:16914	exact ChEBI synonym match
+1046	Succinic acid	CHEBI:15741	exact ChEBI synonym match
+1047	Tartaric acid	CHEBI:26986	exact ChEBI synonym match
+1055	Mannitol	CHEBI:29864	exact ChEBI synonym match
+1056	Sorbitol	CHEBI:17924	exact ChEBI synonym match
+1071	Resistant starch	CHEBI:28017	parent compound — biologically defensible for EC traversal
+1073	Arabinose	CHEBI:22599	exact ChEBI synonym match
+1074	Xylose	CHEBI:18222	exact ChEBI synonym match
+1076	Raffinose	CHEBI:16634	exact ChEBI synonym match
+1077	Stachyose	CHEBI:17164	exact ChEBI synonym match
+1078	Xylitol	CHEBI:17151	exact ChEBI synonym match
+1080	Lignin	CHEBI:74565	exact ChEBI synonym match
+1119	Zeaxanthin	CHEBI:27547	exact ChEBI synonym match
+1121	Lutein	CHEBI:28838	exact ChEBI synonym match
+1122	Lycopene	CHEBI:15948	exact ChEBI synonym match
+1181	Inositol	CHEBI:24848	exact ChEBI synonym match
+1193	Tetrahydrofolic acid (THF)	CHEBI:20506	verified single canonical form
+1198	Betaine	CHEBI:17750	exact ChEBI synonym match
+1201	Caffeic acid	CHEBI:36281	exact ChEBI synonym match
+1202	p-Coumaric acid	CHEBI:36090	exact ChEBI synonym match
+1207	Vanillic acid	CHEBI:30816	exact ChEBI synonym match
+1234	Taurine	CHEBI:15891	exact ChEBI synonym match
+1285	Stigmasterol	CHEBI:28824	exact ChEBI synonym match
+1286	Campesterol	CHEBI:28623	exact ChEBI synonym match
+1288	Beta-sitosterol	CHEBI:27693	exact ChEBI synonym match
+1294	Beta-sitostanol	CHEBI:89400	exact ChEBI synonym match
+1296	Delta-5-avenasterol	CHEBI:166888	verified single canonical form
+1340	Daidzein	CHEBI:28197	exact ChEBI synonym match
+1341	Genistein	CHEBI:28088	exact ChEBI synonym match
+1342	Glycitein	CHEBI:28615	exact ChEBI synonym match
+1349	Cyanidin	CHEBI:27812	exact ChEBI synonym match
+1357	Delphinidin	CHEBI:28436	exact ChEBI synonym match
+1358	Malvidin	CHEBI:28490	exact ChEBI synonym match
+1359	Pelargonidin	CHEBI:28310	exact ChEBI synonym match
+1364	Catechin	CHEBI:23053	exact ChEBI synonym match
+1377	Naringenin	CHEBI:50202	exact ChEBI synonym match
+1379	Apigenin	CHEBI:18388	exact ChEBI synonym match
+1382	Luteolin	CHEBI:15864	exact ChEBI synonym match
+1388	Kaempferol	CHEBI:28499	exact ChEBI synonym match
+1390	Myricetin	CHEBI:18152	exact ChEBI synonym match
+1391	Quercetin	CHEBI:16243	exact ChEBI synonym match
+2050	Genistin	CHEBI:42112	exact ChEBI synonym match
+95005	Ferulic acid	CHEBI:193350	exact ChEBI synonym match
+96076	Alpha-carotene	CHEBI:28425	exact ChEBI synonym match
+96078	Alpha-tocopherol	CHEBI:22470	exact ChEBI synonym match
+96081	Alpha-tocotrienol	CHEBI:33270	exact ChEBI synonym match
+96113	Beta-carotene	CHEBI:17579	exact ChEBI synonym match
+96114	Beta-cryptoxanthin	CHEBI:10362	exact ChEBI synonym match
+96115	Beta-tocopherol	CHEBI:47771	exact ChEBI synonym match
+96287	Cadaverine	CHEBI:18127	exact ChEBI synonym match
+96406	Delta-tocopherol	CHEBI:47772	exact ChEBI synonym match
+96824	Gamma-tocopherol	CHEBI:18185	exact ChEBI synonym match
+96826	Gamma-tocotrienol	CHEBI:33277	exact ChEBI synonym match
+96855	Histamine	CHEBI:18295	exact ChEBI synonym match
+96890	Isolariciresinol	CHEBI:67250	lignan family parent
+96925	Lariciresinol	CHEBI:67246	exact ChEBI synonym match
+96951	Matairesinol	CHEBI:6698	exact ChEBI synonym match
+97044	Ornithine	CHEBI:15729	exact ChEBI synonym match
+97069	Phenylethylamine	CHEBI:18397	exact ChEBI synonym match
+97139	Putrescine	CHEBI:17148	exact ChEBI synonym match
+97181	Secoisolariciresinol	CHEBI:67250	exact ChEBI synonym match
+97187	Serotonin	CHEBI:28790	exact ChEBI synonym match
+97207	Spermine	CHEBI:15746	exact ChEBI synonym match
+97240	Syringaresinol	CHEBI:49211	exact ChEBI synonym match
+97286	Tyramine	CHEBI:15760	exact ChEBI synonym match
+96062	Alcohol	CHEBI:16236	source column "Alcohol" means ethanol; the matcher hits CHEBI:30879, the generic any-R-OH class

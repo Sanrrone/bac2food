@@ -1,0 +1,39 @@
+nutrient_id	nutrient_name	chebi_id
+200001	N-acetyl-D-glucosamine (GlcNAc)	CHEBI:506227
+200002	N-acetyl-D-galactosamine (GalNAc)	CHEBI:28037
+200003	N-acetylneuraminic acid (sialic acid)	CHEBI:17012
+200004	Sialic acid (generic)	CHEBI:26667
+200005	L-fucose	CHEBI:18287
+200006	Fucose (generic)	CHEBI:33984
+200007	Xylan	CHEBI:37166
+200008	Arabinoxylan	CHEBI:28427
+200009	Dextran	CHEBI:52071
+200010	Cellobiose	CHEBI:17057
+200011	Pullulan	CHEBI:27941
+200012	Alginate	CHEBI:58187
+200013	Agarose	CHEBI:2511
+200014	2'-Fucosyllactose (2-FL, HMO)	CHEBI:147155
+200015	3-Fucosyllactose (3-FL, HMO)	CHEBI:90065
+200016	2,2'-Difucosyllactose (HMO)	CHEBI:147668
+200017	Fucosyllactose (generic HMO)	CHEBI:175787
+200018	3'-Sialyl-3-fucosyllactose (HMO)	CHEBI:88442
+200019	Resistant starch (RS, type 2)	CHEBI:28017
+200020	Fucoidan (sulfated fucan)	CHEBI:53472
+200021	Laminarin (β-1,3-glucan, algal)	CHEBI:6087
+200022	Porphyran (red algal polysaccharide)	CHEBI:62936
+200023	Carrageenan (sulfated red algal polysaccharide)	CHEBI:3568
+200024	Glucomannan (β-1,4-mannan)	CHEBI:50317
+200025	Arabinogalactan (type II)	CHEBI:22404
+200026	Glucuronoxylan (hardwood hemicellulose)	CHEBI:36218
+200027	β-1,3/1,4-glucan (mixed-linkage, oat/barley)	CHEBI:27512
+200028	β-1,4-mannan (linear)	CHEBI:33532
+200029	Mucin glycan (intestinal, generic)	CHEBI:33282
+200030	Chitobiose (GlcNAc disaccharide)	CHEBI:28681
+200031	Fructooligosaccharide (FOS, generic)	CHEBI:190523
+200032	Galactooligosaccharide (GOS, generic)	CHEBI:33920
+200033	Lacto-N-tetraose (LNT, neutral HMO)	CHEBI:73537
+200034	Lacto-N-neotetraose (LNnT, neutral HMO)	CHEBI:73536
+200035	6'-Sialyllactose (6'-SL, sialylated HMO)	CHEBI:84033
+200036	3'-Sialyllactose (3'-SL, sialylated HMO)	CHEBI:84032
+200037	Pectic oligosaccharide (POS)	CHEBI:17309
+200038	β-Mannan-derived oligosaccharide	CHEBI:28796

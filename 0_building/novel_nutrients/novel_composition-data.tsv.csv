@@ -1,0 +1,94 @@
+id,name,unit_name,source
+107000,(+)-Catechin,MG,composition-data.tsv
+107001,(+)-Gallocatechin,MG,composition-data.tsv
+107002,(-)-Epicatechin,MG,composition-data.tsv
+107003,(-)-Epicatechin 3-O-gallate,MG,composition-data.tsv
+107004,(-)-Epigallocatechin,MG,composition-data.tsv
+107005,(-)-Epigallocatechin 3-O-gallate,MG,composition-data.tsv
+107006,02 mers,MG,composition-data.tsv
+107007,03 mers,MG,composition-data.tsv
+107008,04-06 mers,MG,composition-data.tsv
+107009,07-10 mers,MG,composition-data.tsv
+107010,"1,4-Naphtoquinone",MG,composition-data.tsv
+107011,"2,3-Dihydroxy-1-guaiacylpropanone",MG,composition-data.tsv
+107012,"3,7-Dimethylquercetin",MG,composition-data.tsv
+107013,3-Methylcatechol,MG,composition-data.tsv
+107014,4-Ethylcatechol,MG,composition-data.tsv
+107015,4-Ethylguaiacol,MG,composition-data.tsv
+107016,4-Ethylphenol,MG,composition-data.tsv
+107017,4-Hydroxybenzaldehyde,MG,composition-data.tsv
+107018,4-Hydroxycoumarin,MG,composition-data.tsv
+107019,4-Methylcatechol,MG,composition-data.tsv
+107020,4-Vinylguaiacol,MG,composition-data.tsv
+107021,4-Vinylphenol,MG,composition-data.tsv
+107022,5-Heneicosenylresorcinol,MG,composition-data.tsv
+107023,5-Heneicosylresorcinol,MG,composition-data.tsv
+107024,5-Heptadecylresorcinol,MG,composition-data.tsv
+107025,5-Nonadecenylresorcinol,MG,composition-data.tsv
+107026,5-Nonadecylresorcinol,MG,composition-data.tsv
+107027,5-Pentacosenylresorcinol,MG,composition-data.tsv
+107028,5-Pentacosylresorcinol,MG,composition-data.tsv
+107029,5-Pentadecylresorcinol,MG,composition-data.tsv
+107030,5-Tricosenylresorcinol,MG,composition-data.tsv
+107031,5-Tricosylresorcinol,MG,composition-data.tsv
+107032,6-Geranylnaringenin,MG,composition-data.tsv
+107033,6-Prenylnaringenin,MG,composition-data.tsv
+107034,8-Prenylnaringenin,MG,composition-data.tsv
+107035,Alkylmethoxyphenols,MG,composition-data.tsv
+107036,Alkylphenols,MG,composition-data.tsv
+107037,Anthocyanins,MG,composition-data.tsv
+107038,Arctigenin,MG,composition-data.tsv
+107039,Catechol,MG,composition-data.tsv
+107040,Chalcones,MG,composition-data.tsv
+107041,Cinnamtannin A2,MG,composition-data.tsv
+107042,Dihydroflavonols,MG,composition-data.tsv
+107043,Esculetin,MG,composition-data.tsv
+107044,Esculin,MG,composition-data.tsv
+107045,Ferulaldehyde,MG,composition-data.tsv
+107046,Flavanols,MG,composition-data.tsv
+107047,Galangin,MG,composition-data.tsv
+107048,Hydroxybenzaldehydes,MG,composition-data.tsv
+107049,Hydroxybenzoketones,MG,composition-data.tsv
+107050,Hydroxycinnamaldehydes,MG,composition-data.tsv
+107051,Hydroxycoumarins,MG,composition-data.tsv
+107052,Hydroxytyrosol,MG,composition-data.tsv
+107053,Isolariciresinol,MG,composition-data.tsv
+107054,Isoxanthohumol,MG,composition-data.tsv
+107055,Juglone,MG,composition-data.tsv
+107056,Lariciresinol,MG,composition-data.tsv
+107057,Lignans,MG,composition-data.tsv
+107058,Matairesinol,MG,composition-data.tsv
+107059,Medioresinol,MG,composition-data.tsv
+107060,Naphtoquinones,MG,composition-data.tsv
+107061,Naringin,MG,composition-data.tsv
+107062,Other polyphenols,MG,composition-data.tsv
+107063,Piceatannol,MG,composition-data.tsv
+107064,Pigment A,MG,composition-data.tsv
+107065,Pinoresinol,MG,composition-data.tsv
+107066,Pinosylvin,MG,composition-data.tsv
+107067,Pinotin A,MG,composition-data.tsv
+107068,Polymers (>10 mers),MG,composition-data.tsv
+107069,Protocatechuic aldehyde,MG,composition-data.tsv
+107070,Pterostilbene,MG,composition-data.tsv
+107071,Pyrogallol,MG,composition-data.tsv
+107072,Resveratrol,MG,composition-data.tsv
+107073,Rhamnetin,MG,composition-data.tsv
+107074,Scopoletin,MG,composition-data.tsv
+107075,Secoisolariciresinol,MG,composition-data.tsv
+107076,Sinapaldehyde,MG,composition-data.tsv
+107077,Stilbenes,MG,composition-data.tsv
+107078,Syringaldehyde,MG,composition-data.tsv
+107079,Syringaresinol,MG,composition-data.tsv
+107080,Trachelogenin,MG,composition-data.tsv
+107081,Tyrosols,MG,composition-data.tsv
+107082,Umbelliferone,MG,composition-data.tsv
+107083,Vanillin,MG,composition-data.tsv
+107084,Vitisin A,MG,composition-data.tsv
+107085,Xanthohumol,MG,composition-data.tsv
+107086,compound,MG,composition-data.tsv
+107087,d-Viniferin,MG,composition-data.tsv
+107088,e-Viniferin,MG,composition-data.tsv
+107089,max,MG,composition-data.tsv
+107090,mean,MG,composition-data.tsv
+107091,min,MG,composition-data.tsv
+107092,nb_of_publications,MG,composition-data.tsv

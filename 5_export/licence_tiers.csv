@@ -1,0 +1,17 @@
+source_db,database,provider_country,licence,version,tier,derived_values_redistributable,attribution_string
+afcd,AFCD / ASNUT,FSANZ (Australia),CC BY-SA 3.0 AU (plus database term),2019,Copyleft,conditional - derivatives must be ShareAlike,"Food Standards Australia New Zealand, Australian Food Composition Database."
+biofoodcomp,BioFoodComp,FAO/INFOODS,CC BY-NC-SA 3.0 IGO,4.0,NonCommercial + ShareAlike,conditional - NonCommercial and ShareAlike,FAO/INFOODS Food Composition Database for Biodiversity.
+ciqual,CIQUAL,ANSES (France),CC BY 4.0,2025,Open,yes,ANSES-CIQUAL French food composition table.
+cnf,Canadian Nutrient File,Health Canada,Open Government Licence - Canada,2015,Open,yes,"Health Canada, Canadian Nutrient File."
+fdc,FoodData Central,USDA (USA),Public domain (US Government work),2025,Open,yes,"U.S. Department of Agriculture, Agricultural Research Service, FoodData Central."
+fineli,Fineli,THL (Finland),CC BY 4.0,2023,Open,yes,"National Institute for Health and Welfare (THL), Fineli Food Composition Database."
+frida,Frida,DTU Food (Denmark),Reproduction permitted with clear source acknowledgement,2024,Open,yes,"Frida Food Data, National Food Institute, Technical University of Denmark."
+japan,STFCJ,MEXT (Japan),Government of Japan Standard Terms of Use v2.0 (CC BY 4.0 compatible),2020 (8th rev.),Open,yes,"Standard Tables of Food Composition in Japan, MEXT."
+mccance,McCance & Widdowson's CoFID,PHE/OHID (UK),Open Government Licence v3.0,2021 (CoFID),Open,yes,Contains public sector information licensed under the Open Government Licence v3.0.
+nevo,NEVO,RIVM (Netherlands),"Use permitted only unchanged, stating source and version; user is not entitled to make amendment",2025/9.0,Restricted,no - excluded from the release,"NEVO-online version 2025/9.0, RIVM, Bilthoven, The Netherlands."
+phenol_explorer,Phenol-Explorer,INRAE (France),CC BY 3.0 (NonCommercial applied to v1.0 only),3.6,Open,yes,Phenol-Explorer: database on polyphenol content in foods.
+phyfoodcomp,PhyFoodComp,FAO/INFOODS,CC BY-NC-SA 3.0 IGO,1.0,NonCommercial + ShareAlike,conditional - NonCommercial and ShareAlike,FAO/INFOODS Food Composition Database for Phytate.
+swedish,Livsmedelsdatabasen,Livsmedelsverket (Sweden),CC BY 4.0,2024,Open,yes,"Swedish Food Agency, Livsmedelsdatabasen."
+swiss,Swiss Food Composition Database,FSVO (Switzerland),Free reuse with source acknowledgement,2023,Open,yes (see sub-source note),"Swiss Food Composition Database, Federal Food Safety and Veterinary Office."
+synthetic_bacterial,Curated bacterial substrates,This work,CC0 1.0,1.0,Open,yes,"Curated bacterial substrate set, this work."
+wafct,WAFCT,FAO/INFOODS,CC BY-NC-SA 3.0 IGO,2019,NonCommercial + ShareAlike,conditional - NonCommercial and ShareAlike,FAO/INFOODS Food Composition Table for Western Africa.

@@ -1,0 +1,5 @@
+nutrient_id	nutrient_name	chebi_id	justification
+1038	Lactic acid	CHEBI:78320	exact ChEBI synonym match
+1044	Quinic acid	CHEBI:17521	exact ChEBI synonym match
+2049	Daidzin	CHEBI:42210	exact ChEBI synonym match
+2051	Glycitin	CHEBI:42203	exact ChEBI synonym match

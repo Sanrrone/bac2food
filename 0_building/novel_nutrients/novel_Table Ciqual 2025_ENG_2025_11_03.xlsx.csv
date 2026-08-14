@@ -1,0 +1,64 @@
+id,name,unit_name,source
+98000,Alcohol (g 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98001,Alpha-tocopherol (vitamine E)(mg 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98002,Beta-carotene (µg 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98003,Calcium (mg 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98004,Cholesterol (mg 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98005,Copper (mg 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98006,FA mono (g 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98007,FA poly (g 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98008,FA saturated (g 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98009,FA 10:0 (g 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98010,FA 12:0 (g 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98011,FA 14:0 (g 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98012,FA 16:0 (g 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98013,FA 18:0 (g 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98014,FA 18:1 n-9 cis (g 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98015,"FA 18:2 9c,12c (n-6) (g 100g)",MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98016,"FA 18:3 c9,c12,c15 (n-3) (g 100g)",MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98017,"FA 20:4 5c,8c,11c,14c (n-6) (g 100g)",MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98018,FA 4:0 (g 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98019,FA 6:0 (g 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98020,FA 8:0 (g 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98021,Fibres (g 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98022,Fructose (g 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98023,Galactose (g 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98024,Glucose (g 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98025,INFDSTAG,MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98026,Intrinsic folate (µg 100 g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98027,Iodine (µg 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98028,Iron (mg 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98029,Lactose (g 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98030,Magnesium (mg 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98031,Maltose (g 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98032,Manganese (mg 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98033,ORIGCPCD,MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98034,Phosphorus (mg 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98035,Polyols (g 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98036,Potassium (mg 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98037,Retinol (µg 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98038,Salt (g 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98039,Selenium (µg 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98040,Sodium (mg 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98041,Starch (g 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98042,Sucrose (g 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98043,Sugars (g 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98044,Vitamin B1 or Thiamin (mg 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98045,Vitamin B12 (µg 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98046,Vitamin B2 or Riboflavin (mg 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98047,Vitamin B3 or Niacin (mg 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98048,Vitamin B6 (mg 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98049,Vitamin C (mg 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98050,Vitamin D (µg 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98051,Vitamin E (mg 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98052,Vitamin K1 (µg 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98053,Vitamin K2 (µg 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98054,Vitamin D2 (ergocalciferol) (µg 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98055,Vitamin D3 (cholecalciferol) (µg 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98056,Zinc (mg 100g),MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98057,alim_grp_nom_eng,MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98058,alim_nom_eng,MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98059,alim_nom_sci,MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98060,alim_ssgrp_nom_eng,MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98061,alim_ssssgrp_nom_eng,MG,Table Ciqual 2025_ENG_2025_11_03.xlsx
+98062,const_nom_eng,MG,Table Ciqual 2025_ENG_2025_11_03.xlsx

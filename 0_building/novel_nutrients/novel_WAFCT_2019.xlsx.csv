@@ -1,0 +1,131 @@
+id,name,unit_name,source
+101000,100.0,MG,WAFCT_2019.xlsx
+101001,101.0,MG,WAFCT_2019.xlsx
+101002,102.0,MG,WAFCT_2019.xlsx
+101003,106.0,MG,WAFCT_2019.xlsx
+101004,37.1,MG,WAFCT_2019.xlsx
+101005,89.3,MG,WAFCT_2019.xlsx
+101006,93.8,MG,WAFCT_2019.xlsx
+101007,94.4,MG,WAFCT_2019.xlsx
+101008,94.5,MG,WAFCT_2019.xlsx
+101009,94.7,MG,WAFCT_2019.xlsx
+101010,95.2,MG,WAFCT_2019.xlsx
+101011,95.4,MG,WAFCT_2019.xlsx
+101012,95.6,MG,WAFCT_2019.xlsx
+101013,95.7,MG,WAFCT_2019.xlsx
+101014,96.8,MG,WAFCT_2019.xlsx
+101015,96.9,MG,WAFCT_2019.xlsx
+101016,97.0,MG,WAFCT_2019.xlsx
+101017,97.2,MG,WAFCT_2019.xlsx
+101018,97.5,MG,WAFCT_2019.xlsx
+101019,97.8,MG,WAFCT_2019.xlsx
+101020,97.9,MG,WAFCT_2019.xlsx
+101021,98.1,MG,WAFCT_2019.xlsx
+101022,98.3,MG,WAFCT_2019.xlsx
+101023,98.4,MG,WAFCT_2019.xlsx
+101024,98.5,MG,WAFCT_2019.xlsx
+101025,98.6,MG,WAFCT_2019.xlsx
+101026,98.7,MG,WAFCT_2019.xlsx
+101027,98.8,MG,WAFCT_2019.xlsx
+101028,98.9,MG,WAFCT_2019.xlsx
+101029,99.1,MG,WAFCT_2019.xlsx
+101030,99.2,MG,WAFCT_2019.xlsx
+101031,99.3,MG,WAFCT_2019.xlsx
+101032,99.4,MG,WAFCT_2019.xlsx
+101033,99.5,MG,WAFCT_2019.xlsx
+101034,99.6,MG,WAFCT_2019.xlsx
+101035,99.7,MG,WAFCT_2019.xlsx
+101036,99.8,MG,WAFCT_2019.xlsx
+101037,99.9,MG,WAFCT_2019.xlsx
+101038,99.99,MG,WAFCT_2019.xlsx
+101039,Alcohol,MG,WAFCT_2019.xlsx
+101040,Alcohol (g),MG,WAFCT_2019.xlsx
+101041,Alcool,MG,WAFCT_2019.xlsx
+101042,Alpha-carotene,MG,WAFCT_2019.xlsx
+101043,Alpha-carotene (mcg),MG,WAFCT_2019.xlsx
+101044,Alpha-carotène,MG,WAFCT_2019.xlsx
+101045,Alpha-tocopherol,MG,WAFCT_2019.xlsx
+101046,Alpha-tocopherol (mg),MG,WAFCT_2019.xlsx
+101047,Alpha-tocophérol,MG,WAFCT_2019.xlsx
+101048,Beta-carotene,MG,WAFCT_2019.xlsx
+101049,Beta-carotene (mcg),MG,WAFCT_2019.xlsx
+101050,Beta-cryptoxanthin,MG,WAFCT_2019.xlsx
+101051,Beta-cryptoxanthin (mcg),MG,WAFCT_2019.xlsx
+101052,Beta-tocopherol,MG,WAFCT_2019.xlsx
+101053,Beta-tocopherol (mg),MG,WAFCT_2019.xlsx
+101054,Bêta-carotène,MG,WAFCT_2019.xlsx
+101055,Bêta-cryptoxanthine,MG,WAFCT_2019.xlsx
+101056,Bêta-tocophérol,MG,WAFCT_2019.xlsx
+101057,Calcium (mg),MG,WAFCT_2019.xlsx
+101058,Cholesterol (mg),MG,WAFCT_2019.xlsx
+101059,Cholestérol,MG,WAFCT_2019.xlsx
+101060,Comments,MG,WAFCT_2019.xlsx
+101061,Component in English,MG,WAFCT_2019.xlsx
+101062,Component in French,MG,WAFCT_2019.xlsx
+101063,Composant en anglais,MG,WAFCT_2019.xlsx
+101064,Composant en français,MG,WAFCT_2019.xlsx
+101065,Copper (mg),MG,WAFCT_2019.xlsx
+101066,Cuivre,MG,WAFCT_2019.xlsx
+101067,Delta-tocopherol,MG,WAFCT_2019.xlsx
+101068,Delta-tocopherol (mg),MG,WAFCT_2019.xlsx
+101069,Delta-tocophérol,MG,WAFCT_2019.xlsx
+101070,Denominator,MG,WAFCT_2019.xlsx
+101071,Exact Match (Yes/No),MG,WAFCT_2019.xlsx
+101072,Fer,MG,WAFCT_2019.xlsx
+101073,Gamma-tocopherol,MG,WAFCT_2019.xlsx
+101074,Gamma-tocopherol (mg),MG,WAFCT_2019.xlsx
+101075,Gamma-tocophérol,MG,WAFCT_2019.xlsx
+101076,IP6§,MG,WAFCT_2019.xlsx
+101077,Inositol hexaphosphate (IP6),MG,WAFCT_2019.xlsx
+101078,Inositol hexaphosphate (IP6) (mg),MG,WAFCT_2019.xlsx
+101079,Inositol pentaphosphate (IP5),MG,WAFCT_2019.xlsx
+101080,Inositol pentaphosphate (IP5) (mg),MG,WAFCT_2019.xlsx
+101081,Inositol tetraphosphate (IP4),MG,WAFCT_2019.xlsx
+101082,Inositol tetraphosphate (IP4) (mg),MG,WAFCT_2019.xlsx
+101083,Inositol triphosphate (IP3),MG,WAFCT_2019.xlsx
+101084,Inositol triphosphate (IP3) (mg),MG,WAFCT_2019.xlsx
+101085,Inositol tétraphosphate (IP4),MG,WAFCT_2019.xlsx
+101086,Iron (mg),MG,WAFCT_2019.xlsx
+101087,Magnesium (mg),MG,WAFCT_2019.xlsx
+101088,Magnésium,MG,WAFCT_2019.xlsx
+101089,Maximal decimal places,MG,WAFCT_2019.xlsx
+101090,Méthode,MG,WAFCT_2019.xlsx
+101091,"Niacin, preformed",MG,WAFCT_2019.xlsx
+101092,"Niacin, preformed (mg)",MG,WAFCT_2019.xlsx
+101093,"Niacine, préformée",MG,WAFCT_2019.xlsx
+101094,Observation #,MG,WAFCT_2019.xlsx
+101095,Phosphore,MG,WAFCT_2019.xlsx
+101096,Phosphorus (mg),MG,WAFCT_2019.xlsx
+101097,Phytate§,MG,WAFCT_2019.xlsx
+101098,Potassium (mg),MG,WAFCT_2019.xlsx
+101099,Retinol (mcg),MG,WAFCT_2019.xlsx
+101100,Riboflavin (vitamin B2),MG,WAFCT_2019.xlsx
+101101,Riboflavin (vitamin B2) (mg),MG,WAFCT_2019.xlsx
+101102,Riboflavine (vitamine B2),MG,WAFCT_2019.xlsx
+101103,Rétinol,MG,WAFCT_2019.xlsx
+101104,SOP,MG,WAFCT_2019.xlsx
+101105,Significant figures,MG,WAFCT_2019.xlsx
+101106,Sodium (mg),MG,WAFCT_2019.xlsx
+101107,Somme des macronutriments (g),MG,WAFCT_2019.xlsx
+101108,Somme des macronutriments (SOP),MG,WAFCT_2019.xlsx
+101109,Thiamine (vitamin B1),MG,WAFCT_2019.xlsx
+101110,Thiamine (vitamin B1) (mg),MG,WAFCT_2019.xlsx
+101111,Thiamine (vitamine B1),MG,WAFCT_2019.xlsx
+101112,Tryptophan (mg),MG,WAFCT_2019.xlsx
+101113,Tryptophane,MG,WAFCT_2019.xlsx
+101114,Vitamin B12,MG,WAFCT_2019.xlsx
+101115,Vitamin B12 (mcg),MG,WAFCT_2019.xlsx
+101116,Vitamin B6,MG,WAFCT_2019.xlsx
+101117,Vitamin B6 (mg),MG,WAFCT_2019.xlsx
+101118,Vitamin C,MG,WAFCT_2019.xlsx
+101119,Vitamin C (mg),MG,WAFCT_2019.xlsx
+101120,Vitamin D,MG,WAFCT_2019.xlsx
+101121,Vitamin D (mcg),MG,WAFCT_2019.xlsx
+101122,Vitamine A (exprimée en équivalent rétinol),MG,WAFCT_2019.xlsx
+101123,Vitamine B12,MG,WAFCT_2019.xlsx
+101124,Vitamine B6,MG,WAFCT_2019.xlsx
+101125,Vitamine C,MG,WAFCT_2019.xlsx
+101126,Vitamine D,MG,WAFCT_2019.xlsx
+101127,Zinc (mg),MG,WAFCT_2019.xlsx
+101128,Énergie,MG,WAFCT_2019.xlsx
+101129,Équivalent bêta-carotène ou [bêta-carotène],MG,WAFCT_2019.xlsx

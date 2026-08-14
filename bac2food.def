@@ -1,0 +1,81 @@
+# bac2food — reproducible environment, as a Singularity/Apptainer image.
+#
+#   apptainer build bac2food.sif bac2food.def
+#
+# Build produces a single .sif file. It runs as you, needs no daemon and no root at run
+# time, which is why it works on clusters where Docker is not available.
+#
+# The image carries the CODE and its dependencies. It deliberately does NOT carry the
+# reference tables: they are 2.1 GB, they are versioned separately on Zenodo, and one
+# source's terms do not permit redistribution inside an image. Mount them at run time.
+#
+# It builds by CLONING THE PUBLISHED REPOSITORY rather than by copying this working
+# directory, and that is deliberate. Apptainer has no .dockerignore: a `%files . /opt`
+# would sweep in whatever happens to sit in the working tree — the raw source tables, the
+# 248 MB ChEBI ontology, the cohort annotations. Cloning makes the image contain exactly
+# what was published and nothing else, and it cannot accidentally include a licensed
+# table, because the repository holds none.
+#
+# To build from a local working copy instead, replace the clone in %post with a %files
+# section listing the code directories explicitly — never `. /opt/bac2food`.
+
+Bootstrap: docker
+From: python:3.10.8-slim-bookworm
+
+%labels
+    Description  Predict which foods feed the bacteria in a metagenome, from their enzymes
+    License      AGPL-3.0-or-later (software)
+
+%post
+    set -eu
+
+    # procps is for the memory reporting the predictor does at startup. git and the CA
+    # bundle are build-time only and are removed again below, so neither is baked in.
+    apt-get update
+    apt-get install -y --no-install-recommends procps git ca-certificates
+
+    # Pin this to a release tag before you cite the image in a paper:
+    #   git clone --depth 1 --branch v1.0.0 ...
+    # A tag makes the image reproducible; `main` moves.
+    git clone --depth 1 https://github.com/Sanrrone/bac2food.git /opt/bac2food
+
+    cd /opt/bac2food
+    pip install --no-cache-dir -r requirements.txt
+
+    apt-get purge -y git
+    apt-get autoremove -y
+    rm -rf /var/lib/apt/lists/* /opt/bac2food/.git
+
+    # Mount point for the reference tables. Apptainer will not create a bind target that
+    # does not exist in an immutable image, so it has to be here at build time.
+    mkdir -p /data/bac2food
+
+%environment
+    export PYTHONUNBUFFERED=1
+    export BAC2FOOD_CACHE=/data/bac2food/cache
+
+%runscript
+    exec python /opt/bac2food/4_predict/bac2food_predict.py "$@"
+
+%help
+    Predict which foods feed the bacteria in a metagenome, from their enzymes.
+
+    The reference tables are not in this image. Bind the Zenodo deposit over
+    /data/bac2food and give the run a writable place for its derived caches:
+
+      apptainer run --cleanenv \
+          --bind /path/to/deposit:/data/bac2food/exports:ro \
+          --bind "$PWD/work":/data/bac2food/cache \
+          bac2food.sif --mag_tsv sample_ec.tsv --out_prefix run1 --jobs 4
+
+    --cleanenv matters for reproducibility. Unlike Docker, Apptainer inherits the host
+    environment and auto-binds $HOME, /tmp and the current directory, so without it a
+    host PYTHONPATH or a stray package in ~/.local can reach into the run and the result
+    is no longer the container's.
+
+    MEMORY. The predictor peaks near 5.7 GB on a full metagenome, driven by loading the
+    reference layer rather than by the community size. Apptainer does not limit memory
+    itself and has no equivalent of `docker run --memory`, so the limit is whatever the
+    host or the scheduler imposes: under SLURM ask for `--mem=8G`. Below roughly 8 GB the
+    Linux OOM killer takes the process, which surfaces as an unexplained exit 137 rather
+    than as a Python error.

@@ -1,0 +1,112 @@
+bifunctional_ec.tsv — multi-activity carbohydrate-active enzymes that a single EC number loses
+==============================================================================================
+
+WHY THIS TABLE EXISTS
+
+The enzyme layer of this resource is keyed on EC numbers. That works for the great majority of
+carbohydrate-active enzymes: of the 134 glycoside hydrolases (3.2.1.x) present, all 134 carry a
+substrate and 116 (87%) reach a nutrient, against a 38.6% baseline across all EC. Fibre-degrading
+enzymes are, if anything, the best-linked class in the resource.
+
+The exception is enzymes that do two chemically different things. A gene annotator gives a locus
+at most one EC number, so a protein named "Cellulase/esterase CelE" enters the pipeline as a
+cellulase and its esterase half disappears. That matters more than the locus count suggests,
+because the enzymes affected are concentrated in exactly the activities that decide whether a
+polysaccharide reaches the colon intact: arabinoxylan backbone and side-chain removal, ferulate
+cross-link release, starch debranching. These are the substrates the host does not absorb in the
+small intestine, so they are the ones on which the microbiota actually depends.
+
+WHAT IS IN IT
+
+One row per gene-annotation product name that asserts more than one catalytic activity, with the
+EC number for each. Curated by hand and deliberately small: a product name is weaker evidence than
+an orthology assignment, so the table only holds names where the name itself states both
+activities, and each row records the evidence for the pair.
+
+WHAT IS DELIBERATELY EXCLUDED
+
+Products that carry a carbohydrate-active name but are not catalytic, and so must not be given an
+EC. Counted across the 55-sample cohort annotation:
+
+    459  Putative glycoside/cation symporter YagG            transporter
+    412  PTS system cellobiose-specific EIIC component       transporter
+    260  PTS system cellobiose-specific EIIA component       transporter
+    124  Pectin degradation repressor protein KdgR           transcriptional regulator
+     93  Evolved beta-galactosidase subunit beta             non-catalytic subunit (ebgC)
+     46  Pullulanase secretion protein PulS                  secretion chaperone
+
+Giving any of these an EC would put a food link on a protein that cannot make one. They are listed
+here so that their absence is a recorded decision rather than an oversight.
+
+One half of one row is also excluded: the sucrose-kinase activity of AgaSK, because it has no EC
+number the nutrient chain can resolve. See the evidence column of that row.
+
+HOW IT IS APPLIED
+
+`rescue_bifunctional_ec.py` reads this table together with a gene-annotation table and the EC panel
+built from it, and adds the missing activities. Two rules keep it conservative:
+
+  ADDITIVE ONLY   an EC already present on a locus is never removed or overwritten. Where the
+                  orthology annotation and the product name disagree about which member of a
+                  family the protein is, the annotation wins and the rescue only adds what is
+                  absent.
+  SPECIES-BOUND   a locus that binning never assigned to a species is skipped. There is no
+                  bacterium to attribute the activity to, and inventing one would be worse than
+                  losing the locus.
+
+Every added row is written to a separate provenance report with `ec_source=product_name`, so the
+share of any downstream result that rests on name-based inference can be recovered exactly.
+
+SIZE OF THE EFFECT (55-sample infant cohort)
+
+  1,614  loci whose product name asserts more than one activity
+     24  unbinned, and therefore skipped
+  1,069  binned but carrying no EC at all — the rescue supplies both activities
+    313  binned and carrying some EC — the rescue supplies the missing one
+    208  already complete, no action
+  2,605  EC assignments added
+
+The predictor deduplicates to (species, EC), so what matters downstream is not the locus count
+but how often a species gains an enzyme it did not already have. That happens 1,809 times across
+the cohort, and the enzymes gained are the fibre ones:
+
+    473  3.1.1.72  acetylxylan esterase
+    265  3.1.1.73  feruloyl esterase
+    213  3.2.1.37  beta-D-xylosidase
+    205  3.2.1.55  alpha-L-arabinofuranosidase
+    198  3.2.1.4   endoglucanase
+    160  3.2.1.41  pullulanase
+    143  3.2.1.1   alpha-amylase
+     46  3.2.1.22  alpha-galactosidase
+     34  3.2.1.8   endo-1,4-beta-xylanase
+     34  3.1.6.1   arylsulfatase
+     34  3.2.1.40  alpha-L-rhamnosidase
+      2  3.2.1.2   beta-amylase
+      1  3.2.1.14  chitinase
+      1  3.2.1.17  lysozyme
+
+WHERE IT SHOWS UP IN THE OUTPUT
+
+Measured on four samples spanning the richness range of the cohort, comparing the FULL community
+ranking (79-84 foods per sample) rather than its head. Ten-food comparisons are not enough here:
+a change can leave the leaders alone and still reorder the tail, or the reverse.
+
+The community view barely moves — Spearman rho 0.981-1.000, Kendall tau 0.910-0.992, and the
+fifty highest-ranked foods identical in all four samples — because a community-level union
+already reached those substrates through some other member. The per-bacterium view is where the
+rescue lands: 10 of 13, 8 of 29, 15 of 58 and 33 of 63 bacteria change their top-ten foods, with
+a median Jaccard of 0.50 in the poorest sample.
+
+Nor does it blur the organisms together, which is the failure mode of adding enzymes
+indiscriminately. Mean similarity between different bacteria's top-ten foods FALLS in three of
+the four samples (-0.027, -0.007, -0.003, +0.012): restoring an activity that only some organisms
+carry separates them rather than aligning them.
+
+That split is the expected one. Restoring a lost activity tells you something new about WHICH
+organism can degrade a fibre, not about whether anyone in the community can.
+
+EXTENDING IT
+
+Add a row: the exact product string as the annotator writes it, the EC numbers separated by `;`,
+the activity names, the CAZy modules if known, and the evidence. Prefer leaving an activity out
+over guessing an EC; an unmapped half is a gap, a wrong EC is a false food link.

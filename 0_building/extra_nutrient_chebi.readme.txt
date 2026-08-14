@@ -1,0 +1,46 @@
+extra_nutrient_chebi.tsv — hand-curated nutrient -> ChEBI overrides
+===================================================================
+
+Passed to 3_nutrient_to_ec.py as --override_seeds (NOT --extra_seeds). The distinction
+matters and is the reason this file did nothing for a long time:
+
+  --extra_seeds     ADDITIVE. A nutrient the name matcher already resolved keeps that
+                    resolution, and the curated id merely joins it. Correct for
+                    extra_bacterial_seeds.tsv, whose 200xxx substrates have no FDC
+                    counterpart to conflict with.
+  --override_seeds  REPLACES the seed set for the nutrients it names. This is the only
+                    way a curated mapping can beat the matcher.
+
+Until 2026-08-06 the canonical build in readme.txt passed neither, so all 77 curated rows
+were absent from the shipped map -- even though 4_predict/README.md documented passing them.
+Wiring the file in gained 9 nutrients, chiefly the fibre/prebiotic terms the resource exists
+to describe: Resistant starch 0 -> 118 EC, Alcohol, ethyl 0 -> 63, Tartaric acid 21 -> 80,
+Sorbitol 0 -> 38, Cellulose 1 -> 30, Lignin 8 -> 26.
+
+The one deliberate REDUCTION is nutrient 96062 "Alcohol", 197 -> 63 EC. The matcher resolves
+it to CHEBI:30879, ChEBI's generic "any R-OH" CLASS, so it inherited every alcohol-acting
+enzyme in the digest; ChEBI release 253 expanded that class's structural edges and took it
+from 22 to 197. Food-composition tables mean ethanol by that column, so it is now pinned to
+CHEBI:16236 and treated as that one molecule.
+
+
+WHY SOME ROWS ARE IN extra_nutrient_chebi.superseded.tsv
+--------------------------------------------------------
+
+The table was authored against an older, weaker name matcher. Where the matcher has since
+caught up or surpassed it, a curated row now REMOVES correct chemistry, because an override
+replaces rather than adds. Four rows were measured to do that and are parked, not deleted:
+
+  1038 Lactic acid  CHEBI:78320  177 -> 66 EC. The matcher now returns FOUR ids, and the
+                                 3:STAR group rescue in 2_nutri2chebi_from_obo.py keeps the
+                                 three curated ones (rac-, (R)-, and 2-hydroxypropanoic
+                                 acid). The override pins one of those four and discards the
+                                 rest. This is the Veillonella-to-dairy pathway.
+  1044 Quinic acid  CHEBI:17521   19 -> 5 EC.  Matcher's CHEBI:26493 is richer.
+  2049 Daidzin      CHEBI:42210   14 -> 0 EC.  Matcher's CHEBI:42202 (daidzein
+                                 7-O-beta-D-glucoside) is the one carrying enzymes.
+  2051 Glycitin     CHEBI:42203    1 -> 0 EC.
+
+Before restoring any of them, rebuild and diff per-nutrient EC counts against the current
+map. A curated row is only worth applying if it does not cost reach that the matcher already
+delivers -- EXCEPT where the reduction is the point, as with Alcohol above.

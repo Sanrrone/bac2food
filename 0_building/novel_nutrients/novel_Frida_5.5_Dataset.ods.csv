@@ -1,0 +1,459 @@
+id,name,unit_name,source
+103000,25-hydroxy D2-vitamin,MG,Frida_5.5_Dataset.ods
+103001,25-hydroxy D3-vitamin,MG,Frida_5.5_Dataset.ods
+103002,25-hydroxy Vitamin D2,MG,Frida_5.5_Dataset.ods
+103003,25-hydroxy vitamin D3,MG,Frida_5.5_Dataset.ods
+103004,A-vitamin,MG,Frida_5.5_Dataset.ods
+103005,AAE8,MG,Frida_5.5_Dataset.ods
+103006,ACEAC,MG,Frida_5.5_Dataset.ods
+103007,ALA,MG,Frida_5.5_Dataset.ods
+103008,ALC,MG,Frida_5.5_Dataset.ods
+103009,ARG,MG,Frida_5.5_Dataset.ods
+103010,ASCDL,MG,Frida_5.5_Dataset.ods
+103011,ASCL,MG,Frida_5.5_Dataset.ods
+103012,ASP,MG,Frida_5.5_Dataset.ods
+103013,Added Sugar,MG,Frida_5.5_Dataset.ods
+103014,Alanin,MG,Frida_5.5_Dataset.ods
+103015,Alcohol,MG,Frida_5.5_Dataset.ods
+103016,Alkohol,MG,Frida_5.5_Dataset.ods
+103017,Aluminium,MG,Frida_5.5_Dataset.ods
+103018,Aminosyrer og Nitrogen,MG,Frida_5.5_Dataset.ods
+103019,Andre fedtsyrer,MG,Frida_5.5_Dataset.ods
+103020,Arginin,MG,Frida_5.5_Dataset.ods
+103021,Arsen,MG,Frida_5.5_Dataset.ods
+103022,Ascorbinsyre,MG,Frida_5.5_Dataset.ods
+103023,Aske,MG,Frida_5.5_Dataset.ods
+103024,Asparaginsyre,MG,Frida_5.5_Dataset.ods
+103025,B12-vitamin,MG,Frida_5.5_Dataset.ods
+103026,B6-vitamin,MG,Frida_5.5_Dataset.ods
+103027,BENAC,MG,Frida_5.5_Dataset.ods
+103028,BIOT,MG,Frida_5.5_Dataset.ods
+103029,BRD,MG,Frida_5.5_Dataset.ods
+103030,Benzosyre,MG,Frida_5.5_Dataset.ods
+103031,Biogene aminer,MG,Frida_5.5_Dataset.ods
+103032,Biogenic amines,MG,Frida_5.5_Dataset.ods
+103033,Bly,MG,Frida_5.5_Dataset.ods
+103034,Bor,MG,Frida_5.5_Dataset.ods
+103035,Brom,MG,Frida_5.5_Dataset.ods
+103036,C-vitamin,MG,Frida_5.5_Dataset.ods
+103037,C10:0,MG,Frida_5.5_Dataset.ods
+103038,C12:0,MG,Frida_5.5_Dataset.ods
+103039,"C12:1,n-1",MG,Frida_5.5_Dataset.ods
+103040,C13:0,MG,Frida_5.5_Dataset.ods
+103041,C14:0,MG,Frida_5.5_Dataset.ods
+103042,"C14:1,n-5",MG,Frida_5.5_Dataset.ods
+103043,"C14:1,n-5,trans",MG,Frida_5.5_Dataset.ods
+103044,C15:0,MG,Frida_5.5_Dataset.ods
+103045,"C15:1,n-5",MG,Frida_5.5_Dataset.ods
+103046,C16:0,MG,Frida_5.5_Dataset.ods
+103047,"C16:1,n-7",MG,Frida_5.5_Dataset.ods
+103048,"C16:1,n-7,trans",MG,Frida_5.5_Dataset.ods
+103049,C17:0,MG,Frida_5.5_Dataset.ods
+103050,"C17:1,n-7",MG,Frida_5.5_Dataset.ods
+103051,C18:0,MG,Frida_5.5_Dataset.ods
+103052,"C18:1,n-12",MG,Frida_5.5_Dataset.ods
+103053,"C18:1,n-7",MG,Frida_5.5_Dataset.ods
+103054,"C18:1,n-9",MG,Frida_5.5_Dataset.ods
+103055,"C18:1,trans",MG,Frida_5.5_Dataset.ods
+103056,"C18:2,conjugated",MG,Frida_5.5_Dataset.ods
+103057,"C18:2,konjugeret",MG,Frida_5.5_Dataset.ods
+103058,"C18:2,n-6",MG,Frida_5.5_Dataset.ods
+103059,"C18:2,trans",MG,Frida_5.5_Dataset.ods
+103060,"C18:3,n-3",MG,Frida_5.5_Dataset.ods
+103061,"C18:3,n-6",MG,Frida_5.5_Dataset.ods
+103062,"C18:3,trans",MG,Frida_5.5_Dataset.ods
+103063,"C18:4,n-3",MG,Frida_5.5_Dataset.ods
+103064,C20:0,MG,Frida_5.5_Dataset.ods
+103065,"C20:1,n-11",MG,Frida_5.5_Dataset.ods
+103066,"C20:1,n-15",MG,Frida_5.5_Dataset.ods
+103067,"C20:1,n-9",MG,Frida_5.5_Dataset.ods
+103068,"C20:1,trans",MG,Frida_5.5_Dataset.ods
+103069,"C20:2,n-6",MG,Frida_5.5_Dataset.ods
+103070,"C20:3,n-3",MG,Frida_5.5_Dataset.ods
+103071,"C20:3,n-6",MG,Frida_5.5_Dataset.ods
+103072,"C20:4,n-3",MG,Frida_5.5_Dataset.ods
+103073,"C20:4,n-6",MG,Frida_5.5_Dataset.ods
+103074,"C20:5,n-3",MG,Frida_5.5_Dataset.ods
+103075,C21:0,MG,Frida_5.5_Dataset.ods
+103076,"C21:5,n-3",MG,Frida_5.5_Dataset.ods
+103077,C22:0,MG,Frida_5.5_Dataset.ods
+103078,"C22:1,n-11",MG,Frida_5.5_Dataset.ods
+103079,"C22:1,n-9",MG,Frida_5.5_Dataset.ods
+103080,"C22:1,trans",MG,Frida_5.5_Dataset.ods
+103081,"C22:2,n-6",MG,Frida_5.5_Dataset.ods
+103082,"C22:3,n-3",MG,Frida_5.5_Dataset.ods
+103083,"C22:4,n-6",MG,Frida_5.5_Dataset.ods
+103084,"C22:5,n-3",MG,Frida_5.5_Dataset.ods
+103085,"C22:5,n-6",MG,Frida_5.5_Dataset.ods
+103086,"C22:6,n-3",MG,Frida_5.5_Dataset.ods
+103087,C23:0,MG,Frida_5.5_Dataset.ods
+103088,C24:0,MG,Frida_5.5_Dataset.ods
+103089,"C24:1,n-9",MG,Frida_5.5_Dataset.ods
+103090,C4:0,MG,Frida_5.5_Dataset.ods
+103091,C6:0,MG,Frida_5.5_Dataset.ods
+103092,C8:0,MG,Frida_5.5_Dataset.ods
+103093,CADAVT,MG,Frida_5.5_Dataset.ods
+103094,CAFFN,MG,Frida_5.5_Dataset.ods
+103095,CARTBCIS,MG,Frida_5.5_Dataset.ods
+103096,CARTBTRANS,MG,Frida_5.5_Dataset.ods
+103097,CAS_Nr,MG,Frida_5.5_Dataset.ods
+103098,CELLU,MG,Frida_5.5_Dataset.ods
+103099,CHO,MG,Frida_5.5_Dataset.ods
+103100,CHOCAL,MG,Frida_5.5_Dataset.ods
+103101,CHOCALOH,MG,Frida_5.5_Dataset.ods
+103102,CHOLN,MG,Frida_5.5_Dataset.ods
+103103,CHORL,MG,Frida_5.5_Dataset.ods
+103104,CHOT,MG,Frida_5.5_Dataset.ods
+103105,CITAC,MG,Frida_5.5_Dataset.ods
+103106,CLD,MG,Frida_5.5_Dataset.ods
+103107,CYS,MG,Frida_5.5_Dataset.ods
+103108,Cadaverin,MG,Frida_5.5_Dataset.ods
+103109,Cadaverine,MG,Frida_5.5_Dataset.ods
+103110,ChEBI,MG,Frida_5.5_Dataset.ods
+103111,ChEMBL,MG,Frida_5.5_Dataset.ods
+103112,Cholin,MG,Frida_5.5_Dataset.ods
+103113,Citronsyre,MG,Frida_5.5_Dataset.ods
+103114,Cobolt,MG,Frida_5.5_Dataset.ods
+103115,Crude fibre,MG,Frida_5.5_Dataset.ods
+103116,Cystin,MG,Frida_5.5_Dataset.ods
+103117,D-mælkesyre,MG,Frida_5.5_Dataset.ods
+103118,D-vitamin,MG,Frida_5.5_Dataset.ods
+103119,D2-vitamin,MG,Frida_5.5_Dataset.ods
+103120,D3-vitamin,MG,Frida_5.5_Dataset.ods
+103121,DEN,MG,Frida_5.5_Dataset.ods
+103122,DISAC,MG,Frida_5.5_Dataset.ods
+103123,DRYMAT,MG,Frida_5.5_Dataset.ods
+103124,Dehydroascorbinsyre,MG,Frida_5.5_Dataset.ods
+103125,Density,MG,Frida_5.5_Dataset.ods
+103126,Dietary fibre,MG,Frida_5.5_Dataset.ods
+103127,Dietary fibre and starch,MG,Frida_5.5_Dataset.ods
+103128,Dry matter,MG,Frida_5.5_Dataset.ods
+103129,E-vitamin,MG,Frida_5.5_Dataset.ods
+103130,ENERC,MG,Frida_5.5_Dataset.ods
+103131,ERGCAL,MG,Frida_5.5_Dataset.ods
+103132,ERGCALOH,MG,Frida_5.5_Dataset.ods
+103133,Eddikesyre,MG,Frida_5.5_Dataset.ods
+103134,F10:0,MG,Frida_5.5_Dataset.ods
+103135,F12:0,MG,Frida_5.5_Dataset.ods
+103136,F12:1CIS,MG,Frida_5.5_Dataset.ods
+103137,F13:0,MG,Frida_5.5_Dataset.ods
+103138,F14:0,MG,Frida_5.5_Dataset.ods
+103139,F14:1CN5,MG,Frida_5.5_Dataset.ods
+103140,F14:1TN5,MG,Frida_5.5_Dataset.ods
+103141,F15:0,MG,Frida_5.5_Dataset.ods
+103142,F15:1CIS,MG,Frida_5.5_Dataset.ods
+103143,F16:0,MG,Frida_5.5_Dataset.ods
+103144,F16:1CN7,MG,Frida_5.5_Dataset.ods
+103145,F16:1TN7,MG,Frida_5.5_Dataset.ods
+103146,F17:0,MG,Frida_5.5_Dataset.ods
+103147,F17:1CIS,MG,Frida_5.5_Dataset.ods
+103148,F18:0,MG,Frida_5.5_Dataset.ods
+103149,F18:1CN12,MG,Frida_5.5_Dataset.ods
+103150,F18:1CN7,MG,Frida_5.5_Dataset.ods
+103151,F18:1CN9,MG,Frida_5.5_Dataset.ods
+103152,F18:1TRS,MG,Frida_5.5_Dataset.ods
+103153,F18:2CN6,MG,Frida_5.5_Dataset.ods
+103154,F18:2CON,MG,Frida_5.5_Dataset.ods
+103155,F18:2TRS,MG,Frida_5.5_Dataset.ods
+103156,F18:3CN3,MG,Frida_5.5_Dataset.ods
+103157,F18:3CN6,MG,Frida_5.5_Dataset.ods
+103158,F18:3TRS,MG,Frida_5.5_Dataset.ods
+103159,F18:4CN3,MG,Frida_5.5_Dataset.ods
+103160,F20:0,MG,Frida_5.5_Dataset.ods
+103161,F20:1CN11,MG,Frida_5.5_Dataset.ods
+103162,F20:1CN9,MG,Frida_5.5_Dataset.ods
+103163,F20:1TRS,MG,Frida_5.5_Dataset.ods
+103164,F20:2CN6,MG,Frida_5.5_Dataset.ods
+103165,F20:3CN3,MG,Frida_5.5_Dataset.ods
+103166,F20:3CN6,MG,Frida_5.5_Dataset.ods
+103167,F20:4CN3,MG,Frida_5.5_Dataset.ods
+103168,F20:4CN6,MG,Frida_5.5_Dataset.ods
+103169,F20:5CN3,MG,Frida_5.5_Dataset.ods
+103170,F21:0,MG,Frida_5.5_Dataset.ods
+103171,F21:5CN3,MG,Frida_5.5_Dataset.ods
+103172,F22:0,MG,Frida_5.5_Dataset.ods
+103173,F22:1CN11,MG,Frida_5.5_Dataset.ods
+103174,F22:1CN9,MG,Frida_5.5_Dataset.ods
+103175,F22:1TRS,MG,Frida_5.5_Dataset.ods
+103176,F22:2CN6,MG,Frida_5.5_Dataset.ods
+103177,F22:3CN3,MG,Frida_5.5_Dataset.ods
+103178,F22:4CN6,MG,Frida_5.5_Dataset.ods
+103179,F22:5CN3,MG,Frida_5.5_Dataset.ods
+103180,F22:5N6,MG,Frida_5.5_Dataset.ods
+103181,F22:6CN3,MG,Frida_5.5_Dataset.ods
+103182,F23:0,MG,Frida_5.5_Dataset.ods
+103183,F24:0,MG,Frida_5.5_Dataset.ods
+103184,F24:1CN9,MG,Frida_5.5_Dataset.ods
+103185,F4:0,MG,Frida_5.5_Dataset.ods
+103186,F6:0,MG,Frida_5.5_Dataset.ods
+103187,F8:0,MG,Frida_5.5_Dataset.ods
+103188,FACF,MG,Frida_5.5_Dataset.ods
+103189,FAMS,MG,Frida_5.5_Dataset.ods
+103190,FAN3,MG,Frida_5.5_Dataset.ods
+103191,FAN6,MG,Frida_5.5_Dataset.ods
+103192,FAPU,MG,Frida_5.5_Dataset.ods
+103193,FASAT,MG,Frida_5.5_Dataset.ods
+103194,FAUN,MG,Frida_5.5_Dataset.ods
+103195,FIBC,MG,Frida_5.5_Dataset.ods
+103196,FIBHMWS,MG,Frida_5.5_Dataset.ods
+103197,FIBINS,MG,Frida_5.5_Dataset.ods
+103198,FIBLMW,MG,Frida_5.5_Dataset.ods
+103199,FIBT,MG,Frida_5.5_Dataset.ods
+103200,FOL,MG,Frida_5.5_Dataset.ods
+103201,FOLFRE,MG,Frida_5.5_Dataset.ods
+103202,FRUS,MG,Frida_5.5_Dataset.ods
+103203,Faktorer m.m.,MG,Frida_5.5_Dataset.ods
+103204,Fedt,MG,Frida_5.5_Dataset.ods
+103205,Fedtsyrekonverteringsfaktor,MG,Frida_5.5_Dataset.ods
+103206,Fluor,MG,Frida_5.5_Dataset.ods
+103207,Folat,MG,Frida_5.5_Dataset.ods
+103208,Formula,MG,Frida_5.5_Dataset.ods
+103209,Fosfor,MG,Frida_5.5_Dataset.ods
+103210,Free Sugars,MG,Frida_5.5_Dataset.ods
+103211,Frie sukkerarter,MG,Frida_5.5_Dataset.ods
+103212,Frit folat,MG,Frida_5.5_Dataset.ods
+103213,Fruktose,MG,Frida_5.5_Dataset.ods
+103214,FødevareGruppe,MG,Frida_5.5_Dataset.ods
+103215,FødevareNavn,MG,Frida_5.5_Dataset.ods
+103216,GALS,MG,Frida_5.5_Dataset.ods
+103217,GLU,MG,Frida_5.5_Dataset.ods
+103218,GLUS,MG,Frida_5.5_Dataset.ods
+103219,GLY,MG,Frida_5.5_Dataset.ods
+103220,GRP_AM,MG,Frida_5.5_Dataset.ods
+103221,GRP_MIN,MG,Frida_5.5_Dataset.ods
+103222,GRP_SUGOH,MG,Frida_5.5_Dataset.ods
+103223,Galaktose,MG,Frida_5.5_Dataset.ods
+103224,Glukose,MG,Frida_5.5_Dataset.ods
+103225,Glutaminsyre,MG,Frida_5.5_Dataset.ods
+103226,Glycin,MG,Frida_5.5_Dataset.ods
+103227,HIS,MG,Frida_5.5_Dataset.ods
+103228,HISTN,MG,Frida_5.5_Dataset.ods
+103229,HMDB,MG,Frida_5.5_Dataset.ods
+103230,HYP,MG,Frida_5.5_Dataset.ods
+103231,Hieraky,MG,Frida_5.5_Dataset.ods
+103232,Histamin,MG,Frida_5.5_Dataset.ods
+103233,Histamine,MG,Frida_5.5_Dataset.ods
+103234,Hydroxyprolin,MG,Frida_5.5_Dataset.ods
+103235,Høj molekylevægt opløselige kostfibre,MG,Frida_5.5_Dataset.ods
+103236,ILE,MG,Frida_5.5_Dataset.ods
+103237,ISBN,MG,Frida_5.5_Dataset.ods
+103238,ISOMALT,MG,Frida_5.5_Dataset.ods
+103239,ISSN,MG,Frida_5.5_Dataset.ods
+103240,Ikke benyttet,MG,Frida_5.5_Dataset.ods
+103241,Insoluble dietary fibers,MG,Frida_5.5_Dataset.ods
+103242,Isoleucin,MG,Frida_5.5_Dataset.ods
+103243,Isomalt,MG,Frida_5.5_Dataset.ods
+103244,Issue,MG,Frida_5.5_Dataset.ods
+103245,Jern,MG,Frida_5.5_Dataset.ods
+103246,Jod,MG,Frida_5.5_Dataset.ods
+103247,K-vitamin,MG,Frida_5.5_Dataset.ods
+103248,K1-vitamin,MG,Frida_5.5_Dataset.ods
+103249,K2-vitamin,MG,Frida_5.5_Dataset.ods
+103250,KEGG,MG,Frida_5.5_Dataset.ods
+103251,Kalium,MG,Frida_5.5_Dataset.ods
+103252,Kobber,MG,Frida_5.5_Dataset.ods
+103253,Koffein,MG,Frida_5.5_Dataset.ods
+103254,Kolesterol,MG,Frida_5.5_Dataset.ods
+103255,Kostfibre,MG,Frida_5.5_Dataset.ods
+103256,Kostfibre og stivelse,MG,Frida_5.5_Dataset.ods
+103257,Krom,MG,Frida_5.5_Dataset.ods
+103258,Kviksølv,MG,Frida_5.5_Dataset.ods
+103259,L-mælkesyre,MG,Frida_5.5_Dataset.ods
+103260,LACAC,MG,Frida_5.5_Dataset.ods
+103261,LACACD,MG,Frida_5.5_Dataset.ods
+103262,LACACL,MG,Frida_5.5_Dataset.ods
+103263,LACS,MG,Frida_5.5_Dataset.ods
+103264,LACTL,MG,Frida_5.5_Dataset.ods
+103265,LEU,MG,Frida_5.5_Dataset.ods
+103266,LIGN,MG,Frida_5.5_Dataset.ods
+103267,LYS,MG,Frida_5.5_Dataset.ods
+103268,Lactitol,MG,Frida_5.5_Dataset.ods
+103269,Laktitol,MG,Frida_5.5_Dataset.ods
+103270,Laktose,MG,Frida_5.5_Dataset.ods
+103271,Language,MG,Frida_5.5_Dataset.ods
+103272,Lav molekylevægt opløselige kostfibre,MG,Frida_5.5_Dataset.ods
+103273,Leucin,MG,Frida_5.5_Dataset.ods
+103274,Lysin,MG,Frida_5.5_Dataset.ods
+103275,MALS,MG,Frida_5.5_Dataset.ods
+103276,MALTL,MG,Frida_5.5_Dataset.ods
+103277,MANTL,MG,Frida_5.5_Dataset.ods
+103278,MET,MG,Frida_5.5_Dataset.ods
+103279,MK10,MG,Frida_5.5_Dataset.ods
+103280,MK4,MG,Frida_5.5_Dataset.ods
+103281,MK5,MG,Frida_5.5_Dataset.ods
+103282,MK6,MG,Frida_5.5_Dataset.ods
+103283,MK7,MG,Frida_5.5_Dataset.ods
+103284,MK8,MG,Frida_5.5_Dataset.ods
+103285,MK9,MG,Frida_5.5_Dataset.ods
+103286,MNSAC,MG,Frida_5.5_Dataset.ods
+103287,Macro nutrients etc.,MG,Frida_5.5_Dataset.ods
+103288,Makronæringstoffer m.m.,MG,Frida_5.5_Dataset.ods
+103289,Maltitol,MG,Frida_5.5_Dataset.ods
+103290,Mangan,MG,Frida_5.5_Dataset.ods
+103291,Massefylde,MG,Frida_5.5_Dataset.ods
+103292,Max,MG,Frida_5.5_Dataset.ods
+103293,Median,MG,Frida_5.5_Dataset.ods
+103294,Menaquinon 10,MG,Frida_5.5_Dataset.ods
+103295,Menaquinon 4,MG,Frida_5.5_Dataset.ods
+103296,Menaquinon 5,MG,Frida_5.5_Dataset.ods
+103297,Menaquinon 6,MG,Frida_5.5_Dataset.ods
+103298,Menaquinon 7,MG,Frida_5.5_Dataset.ods
+103299,Menaquinon 8,MG,Frida_5.5_Dataset.ods
+103300,Menaquinon 9,MG,Frida_5.5_Dataset.ods
+103301,Menaquinone 10,MG,Frida_5.5_Dataset.ods
+103302,Menaquinone 4,MG,Frida_5.5_Dataset.ods
+103303,Menaquinone 5,MG,Frida_5.5_Dataset.ods
+103304,Menaquinone 6,MG,Frida_5.5_Dataset.ods
+103305,Menaquinone 7,MG,Frida_5.5_Dataset.ods
+103306,Menaquinone 8,MG,Frida_5.5_Dataset.ods
+103307,Menaquinone 9,MG,Frida_5.5_Dataset.ods
+103308,Methionin,MG,Frida_5.5_Dataset.ods
+103309,Min,MG,Frida_5.5_Dataset.ods
+103310,Mineraler og uorganisk,MG,Frida_5.5_Dataset.ods
+103311,Minerals and inorganic,MG,Frida_5.5_Dataset.ods
+103312,Molybdæn,MG,Frida_5.5_Dataset.ods
+103313,Monoumættede fedtsyrer,MG,Frida_5.5_Dataset.ods
+103314,Mælkesyre,MG,Frida_5.5_Dataset.ods
+103315,Mættede fedtsyrer,MG,Frida_5.5_Dataset.ods
+103316,NACL,MG,Frida_5.5_Dataset.ods
+103317,NCBI,MG,Frida_5.5_Dataset.ods
+103318,NCF,MG,Frida_5.5_Dataset.ods
+103319,NIAEQ,MG,Frida_5.5_Dataset.ods
+103320,NICOTAC,MG,Frida_5.5_Dataset.ods
+103321,Natrium,MG,Frida_5.5_Dataset.ods
+103322,Neutral detergent fibre,MG,Frida_5.5_Dataset.ods
+103323,Niacinækvivalent,MG,Frida_5.5_Dataset.ods
+103324,Nikkel,MG,Frida_5.5_Dataset.ods
+103325,Not used,MG,Frida_5.5_Dataset.ods
+103326,NumberOfDeterminations,MG,Frida_5.5_Dataset.ods
+103327,Nøglehulsmærket,MG,Frida_5.5_Dataset.ods
+103328,OXALAC,MG,Frida_5.5_Dataset.ods
+103329,Ophavsret og copyright,MG,Frida_5.5_Dataset.ods
+103330,Organiske syrer,MG,Frida_5.5_Dataset.ods
+103331,Ornithine,MG,Frida_5.5_Dataset.ods
+103332,Ornitin,MG,Frida_5.5_Dataset.ods
+103333,Oxalsyre,MG,Frida_5.5_Dataset.ods
+103334,PANTAC,MG,Frida_5.5_Dataset.ods
+103335,PHE,MG,Frida_5.5_Dataset.ods
+103336,PHETN,MG,Frida_5.5_Dataset.ods
+103337,PRO,MG,Frida_5.5_Dataset.ods
+103338,PROPAC,MG,Frida_5.5_Dataset.ods
+103339,PROT,MG,Frida_5.5_Dataset.ods
+103340,PUTRSC,MG,Frida_5.5_Dataset.ods
+103341,PageEnd,MG,Frida_5.5_Dataset.ods
+103342,PageStart,MG,Frida_5.5_Dataset.ods
+103343,Pantotensyre,MG,Frida_5.5_Dataset.ods
+103344,ParameterGruppeNavn,MG,Frida_5.5_Dataset.ods
+103345,ParameterNavn,MG,Frida_5.5_Dataset.ods
+103346,Phenylalanin,MG,Frida_5.5_Dataset.ods
+103347,Phenylethylamin,MG,Frida_5.5_Dataset.ods
+103348,Phenylethylamine,MG,Frida_5.5_Dataset.ods
+103349,Polyumættede fedtsyrer,MG,Frida_5.5_Dataset.ods
+103350,Prolin,MG,Frida_5.5_Dataset.ods
+103351,Propionsyre,MG,Frida_5.5_Dataset.ods
+103352,Publisher,MG,Frida_5.5_Dataset.ods
+103353,Putrescin,MG,Frida_5.5_Dataset.ods
+103354,Putrescine,MG,Frida_5.5_Dataset.ods
+103355,RAFS,MG,Frida_5.5_Dataset.ods
+103356,RETOLAT,MG,Frida_5.5_Dataset.ods
+103357,RIBF,MG,Frida_5.5_Dataset.ods
+103358,ReportNumber,MG,Frida_5.5_Dataset.ods
+103359,ResVal,MG,Frida_5.5_Dataset.ods
+103360,Riboflavin (B2-vitamin),MG,Frida_5.5_Dataset.ods
+103361,Riboflavin (Vitamin B2),MG,Frida_5.5_Dataset.ods
+103362,SER,MG,Frida_5.5_Dataset.ods
+103363,SEROTN,MG,Frida_5.5_Dataset.ods
+103364,SMILES,MG,Frida_5.5_Dataset.ods
+103365,SORTL,MG,Frida_5.5_Dataset.ods
+103366,SPERDN,MG,Frida_5.5_Dataset.ods
+103367,SPERN,MG,Frida_5.5_Dataset.ods
+103368,SUCS,MG,Frida_5.5_Dataset.ods
+103369,SUGAD,MG,Frida_5.5_Dataset.ods
+103370,SUGAR,MG,Frida_5.5_Dataset.ods
+103371,Sakkarose,MG,Frida_5.5_Dataset.ods
+103372,Salt deklaration,MG,Frida_5.5_Dataset.ods
+103373,Salt labelling,MG,Frida_5.5_Dataset.ods
+103374,Selen,MG,Frida_5.5_Dataset.ods
+103375,Serin,MG,Frida_5.5_Dataset.ods
+103376,Serotonin,MG,Frida_5.5_Dataset.ods
+103377,Silicium,MG,Frida_5.5_Dataset.ods
+103378,SortKey,MG,Frida_5.5_Dataset.ods
+103379,Spermin,MG,Frida_5.5_Dataset.ods
+103380,Spermine,MG,Frida_5.5_Dataset.ods
+103381,Starch/Glycogen,MG,Frida_5.5_Dataset.ods
+103382,Steroler,MG,Frida_5.5_Dataset.ods
+103383,Sterols,MG,Frida_5.5_Dataset.ods
+103384,Stivelse/Glykogen,MG,Frida_5.5_Dataset.ods
+103385,Sukkerstoffer,MG,Frida_5.5_Dataset.ods
+103386,Svind,MG,Frida_5.5_Dataset.ods
+103387,Svovl,MG,Frida_5.5_Dataset.ods
+103388,TAU,MG,Frida_5.5_Dataset.ods
+103389,THIA,MG,Frida_5.5_Dataset.ods
+103390,THR,MG,Frida_5.5_Dataset.ods
+103391,TOCPHA,MG,Frida_5.5_Dataset.ods
+103392,TOCPHB,MG,Frida_5.5_Dataset.ods
+103393,TOCPHD,MG,Frida_5.5_Dataset.ods
+103394,TOCPHG,MG,Frida_5.5_Dataset.ods
+103395,TOCTRA,MG,Frida_5.5_Dataset.ods
+103396,TRP,MG,Frida_5.5_Dataset.ods
+103397,TYR,MG,Frida_5.5_Dataset.ods
+103398,TYRA,MG,Frida_5.5_Dataset.ods
+103399,Taurin,MG,Frida_5.5_Dataset.ods
+103400,Thiamin (B1-vitamin),MG,Frida_5.5_Dataset.ods
+103401,Thiamin (Vitamin B1),MG,Frida_5.5_Dataset.ods
+103402,Thiamine,MG,Frida_5.5_Dataset.ods
+103403,Threonin,MG,Frida_5.5_Dataset.ods
+103404,Tilsat Sukker,MG,Frida_5.5_Dataset.ods
+103405,TitelDansk,MG,Frida_5.5_Dataset.ods
+103406,TitleEnglish,MG,Frida_5.5_Dataset.ods
+103407,TitleOriginal,MG,Frida_5.5_Dataset.ods
+103408,Tryptofan,MG,Frida_5.5_Dataset.ods
+103409,Tyramin,MG,Frida_5.5_Dataset.ods
+103410,Tyramine,MG,Frida_5.5_Dataset.ods
+103411,Tyrosin,MG,Frida_5.5_Dataset.ods
+103412,Tørstof,MG,Frida_5.5_Dataset.ods
+103413,URL,MG,Frida_5.5_Dataset.ods
+103414,Uopløselige kostfibre,MG,Frida_5.5_Dataset.ods
+103415,VAL,MG,Frida_5.5_Dataset.ods
+103416,VITA,MG,Frida_5.5_Dataset.ods
+103417,VITB12,MG,Frida_5.5_Dataset.ods
+103418,VITB6,MG,Frida_5.5_Dataset.ods
+103419,VITC,MG,Frida_5.5_Dataset.ods
+103420,VITD,MG,Frida_5.5_Dataset.ods
+103421,VITE,MG,Frida_5.5_Dataset.ods
+103422,VITK,MG,Frida_5.5_Dataset.ods
+103423,VITK1,MG,Frida_5.5_Dataset.ods
+103424,VITK2,MG,Frida_5.5_Dataset.ods
+103425,Valin,MG,Frida_5.5_Dataset.ods
+103426,Vitamin B12,MG,Frida_5.5_Dataset.ods
+103427,Vitamin B6,MG,Frida_5.5_Dataset.ods
+103428,Vitamin C,MG,Frida_5.5_Dataset.ods
+103429,Vitamin D,MG,Frida_5.5_Dataset.ods
+103430,Vitamin D2,MG,Frida_5.5_Dataset.ods
+103431,Vitamin D3,MG,Frida_5.5_Dataset.ods
+103432,Vitamin K,MG,Frida_5.5_Dataset.ods
+103433,Vitamin K1,MG,Frida_5.5_Dataset.ods
+103434,Vitamin K2,MG,Frida_5.5_Dataset.ods
+103435,Vitaminer,MG,Frida_5.5_Dataset.ods
+103436,Vitamins,MG,Frida_5.5_Dataset.ods
+103437,Volume,MG,Frida_5.5_Dataset.ods
+103438,WASTE,MG,Frida_5.5_Dataset.ods
+103439,Waste,MG,Frida_5.5_Dataset.ods
+103440,XYLTL,MG,Frida_5.5_Dataset.ods
+103441,Year,MG,Frida_5.5_Dataset.ods
+103442,Zink,MG,Frida_5.5_Dataset.ods
+103443,alfa-Tokoferol,MG,Frida_5.5_Dataset.ods
+103444,alfa-Tokotrienol,MG,Frida_5.5_Dataset.ods
+103445,alpha-Tocopherol,MG,Frida_5.5_Dataset.ods
+103446,alpha-Tocotrienol,MG,Frida_5.5_Dataset.ods
+103447,beta-Caroten,MG,Frida_5.5_Dataset.ods
+103448,beta-Carotene,MG,Frida_5.5_Dataset.ods
+103449,beta-Tocopherol,MG,Frida_5.5_Dataset.ods
+103450,beta-Tokoferol,MG,Frida_5.5_Dataset.ods
+103451,cLogP,MG,Frida_5.5_Dataset.ods
+103452,cis-beta-Caroten,MG,Frida_5.5_Dataset.ods
+103453,delta-Tocopherol,MG,Frida_5.5_Dataset.ods
+103454,delta-Tokoferol,MG,Frida_5.5_Dataset.ods
+103455,gamma-Tocopherol,MG,Frida_5.5_Dataset.ods
+103456,gamma-Tokoferol,MG,Frida_5.5_Dataset.ods
+103457,→ParameterNavn,MG,Frida_5.5_Dataset.ods

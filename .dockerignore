@@ -1,0 +1,29 @@
+# Keep the build context small and licence-clean. This mirrors .gitignore: the image
+# gets the code, never the source databases, never the cohort annotations.
+.git
+gene_annot/
+*_1_month*
+*_6_months*
+*_12_months*
+
+3_magmapper/*.txt
+food_DBs/**/*.xlsx
+food_DBs/**/*.xls
+food_DBs/**/*.ods
+food_DBs/**/*.zip
+food_DBs/**/*.csv
+food_DBs/**/*.tsv
+food_DBs/fooddatacentral_usa/
+chebi/chebi.obo
+chebi/chebi.json.gz
+chebi/rheaDB/
+eggnog/*.tar.xz
+2_differential/boss_matrices/
+2_differential/ec2food_env/
+**/__pycache__/
+*.parquet
+*_bucketed/
+exports/
+exports_*/
+*.bak
+paper4/

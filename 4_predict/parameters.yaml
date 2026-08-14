@@ -1,0 +1,191 @@
+# ==============================================================================
+# bac2food_predict.py — configuration
+# ==============================================================================
+# Constant, non-user-selectable parameters for the predictor. Edit these to tune
+# the model without touching the Python source. The script loads this file at
+# import time (so multiprocessing workers see the same values). Override the file
+# location with the BAC2FOOD_PARAMS env var or the --config CLI flag.
+#
+# NOT configured here (on purpose):
+#   * per-run user choices  -> CLI flags (--max_foods, --spec_alpha, --jobs, ...)
+#   * logic / structural constants -> hardcoded in the script (EC_RE, BUCKETS,
+#     the text regexes, and the cultivar / category word-lists)
+#
+# Relative paths are resolved against THIS file's directory (i.e. 4_predict/),
+# not the current working directory.
+# ==============================================================================
+
+# --- default data paths (each is also overridable by its matching CLI flag) ---
+paths:
+  nutrient_to_ec: ../0_building/3_nutrient_to_ec.tsv     # --nutrient_to_ec
+  nutrient_csv:   /data/bac2food/nutrient.csv            # --nutrient
+  food:           /data/bac2food/food.parquet            # --food
+  food_category:  /data/bac2food/food_category.csv       # --food_category
+  # OPTIONAL: the FDC food_portion table. It is not currently present on disk; without it
+  # the script warns once and assumes a 50 g portion for every food. Drop the FDC file in
+  # to get real per-food portion sizes.
+  food_portion:   /data/bac2food/food_portion.csv        # --food_portion
+  bucketed_dir:   /data/bac2food/food_nutrient_bucketed  # --food_nutrient
+  index_dir:      /data/bac2food/index_modeled           # --index_dir
+  nutrient_alias: ../0_building/1_expanded_nutrients.tsv # --nutrient_alias
+  # Bacteria -> EC reference. The exported resource itself (eggNOG v7, built via KEGG KO
+  # by eggnog/6.1_eggnog7_species_enzymes.py), so the predictor and the published resource
+  # cannot drift apart. v7 is the only shipped layer; the retired v6 export was removed
+  # from the deposit, but /data/bac2food/bact_ec.tsv is retained and still readable here
+  # (_ref_read_options detects the legacy 4-column headerless layout) for a v6 rerun.
+  bact_ec_ref:    /data/bac2food/exports/species_enzymes.tsv   # --bact_ec_tsv
+
+# --- behavior flags ---
+flags:
+  drop_branded:      true    # drop FDC branded_food entries from the food set
+  # drop FDC survey_fndds_food. These are recipe-modelled for dietary-survey coding, not
+  # assayed: none of their values carries a data_points sample count or a derivation record.
+  # MUST stay in step with --keep_modelled in 5_export/export_resources.py, or the predictor
+  # scores a food set the published table does not contain.
+  drop_modelled:     true
+  allow_macro_proxy: false   # allow macro-nutrient proxy substrates
+  allow_macro_scan:  false   # allow macro-nutrient scanning
+
+# --- scoring kernel scalars (keep aligned with 1_query/ec2food.py) ---
+# Each entry below notes the effect of raising (↑) or lowering (↓) the value.
+scoring:
+  # adaptive saturation quantile for the per-nutrient threshold tau(n).
+  # ↑ raises tau -> per-unit gains shrink -> a food needs MORE of a nutrient to
+  #   score (favors high-content foods); ↓ lets small amounts count, less contrast.
+  # minimum share of a food's total gain a nutrient must contribute to be counted.
+  # ↑ keeps only dominant nutrients (narrower); ↓ counts trace contributors (broader).
+  # minimum number of nutrients a food must improve to qualify at all.
+  # ↑ = only multi-nutrient foods qualify (fewer); ↓ = single-nutrient foods allowed.
+  # minimum per-step gain for the greedy food selection to keep going.
+  # ↑ = stops earlier, tighter shortlist; ↓ = includes marginal-gain foods.
+  # floor the per-(bacterium,food) score is clamped to.
+  # more negative = wider low-end range; closer to 0 = compresses penalized foods.
+  # processed-food penalty weight (scales with amount).
+  # ↑ pushes processed foods down the ranking; ↓ penalizes them less.
+  proc_w:             0.20
+  # breadth/generalist penalty weight: down-weights foods that feed almost every
+  # bacterium. ↑ = specialty foods rise, generalists sink; ↓ = generalists return.
+  broad_w:            0.20
+  # exponent on the breadth penalty.
+  # ↑ = only the very broadest foods are hit hard (sharper); ↓ = flatter, applied more evenly.
+  broad_q:            2.0
+  # data-type confidence multiplier (foundation > sr_legacy > ...).
+  # ↑ = boosts well-characterized foods more; ↓ = the data source matters less.
+  type_w:             0.25
+  # artifact-flag penalty weight.
+  # ↑ = flagged/suspect foods are driven out harder; ↓ = they survive more easily.
+  art_w:              8.0
+  # candidate cap for plant foods scanned per bacterium.
+  # ↑ = broader search, slower; ↓ = faster but may miss valid plant foods.
+  k_plant:            800
+  # candidate cap for non-plant foods.
+  # ↑ = broader/slower; ↓ = faster/narrower.
+  k_other:            200
+  # max canonical foods kept in the index.
+  # ↑ = more foods considered + more memory; ↓ = smaller index, fewer foods.
+  # flat base cost for processed foods.
+  # ↑ = stronger blanket processed penalty; ↓ = weaker.
+  proc_base_w:        0.15
+  # flat base cost for junk foods (candy / soda / ...).
+  # ↑ = junk sinks faster; ↓ = milder.
+  junk_base_w:        0.20
+  # flat base cost for alcoholic items.
+  # ↑ = alcohol penalized harder; ↓ = milder.
+  alc_base_w:         0.30
+  # flat regularizer subtracted from every food's score.
+  # ↑ = uniformly suppresses marginal foods (more drop below 0 and get filtered);
+  #   ↓ = keeps more low-scoring foods.
+  # greedy redundancy penalty: down-weights a food similar to ones already picked.
+  # ↑ = more diverse shortlist; ↓ = allows near-duplicate foods to repeat.
+  overlap_w:          0.60
+  # extra weight for fiber-class nutrients.
+  # ↑ = fiber-rich foods rise (favors fiber degraders); ↓ = fiber treated like any nutrient.
+  fiber_weight:       2.0
+  # minimum mg of an oligosaccharide nutrient for it to count.
+  # ↑ = only oligo-rich foods register it (stricter); ↓ = trace amounts count.
+  # minimum mg of an isoflavone nutrient for it to count.
+  # ↑ = stricter (only isoflavone-rich foods); ↓ = trace amounts count.
+  # cultivar nutrition-gate: a variant whose key nutrient deviates > this x the
+  # group median splits into its own canon.
+  # ↑ = more permissive (variants stay merged, fewer canons);
+  #   ↓ = stricter (small differences split foods into separate canons).
+  outlier_ratio:      5.0
+
+# --- nutrient id sets ---
+nutrient_ids:
+  oligo_ids:      [1076, 1077, 2063]
+  isoflavone_ids: [2049, 2050, 2051]
+  # key nutrient subset for the cultivar nutritional-similarity gate
+  # (macros + sugars + fiber + water + substrate-relevant fibers; Energy 1008
+  # intentionally excluded — kcal/kJ unit mismatch caused false outlier splits)
+  key_nutrient_ids: [1003, 1004, 1005, 1063, 1079, 1051, 1019, 1009, 1022, 1403]
+
+# --- small tuning tables ---
+tables:
+  # per-category score penalties. Raise a value to push that whole category down
+  # the rankings; lower it (toward 0) to let the category compete freely (0 = none).
+  cat_penalty:
+    "Fast Foods": 5.0
+    "Restaurant Foods": 5.0
+    "Sweets": 5.0
+    "Snacks": 4.0
+    "Alcoholic Beverages": 5.0
+    "Baked Products": 3.0
+    "Beverages": 4.0
+    "Meals, Entrees, and Side Dishes": 1.2
+    "Soups, Sauces, and Gravies": 3.0
+    "Baby Foods": 4.0
+    "Spices and Herbs": 5.0
+    "Fats and Oils": 4.0
+    "Beef Products": 3.0
+    "Pork Products": 3.0
+    "Poultry Products": 3.0
+    "Finfish and Shellfish Products": 3.0
+    "Lamb, Veal, and Game Products": 3.0
+    "Sausages and Luncheon Meats": 3.0
+    "American Indian/Alaska Native Foods": 3.0
+    "Fruits and Fruit Juices": 0.05
+    "Cereal Grains and Pasta": 0.30
+    "Nut and Seed Products": 0.10
+    "Vegetables and Vegetable Products": 0.0
+    "Legumes and Legume Products": 0.0
+  # categories treated as whole-plant foods (lighter penalties / breadth rules)
+  plant_cats:
+    - "Vegetables and Vegetable Products"
+    - "Legumes and Legume Products"
+    - "Fruits and Fruit Juices"
+    - "Cereal Grains and Pasta"
+    - "Nut and Seed Products"
+  # categories always dropped from the food set
+  always_drop_cats:
+    - "American Indian/Alaska Native Foods"
+  # FDC data_type -> type-confidence points (feeds the TYPE_W term). Raise a
+  # type's points to trust foods from that source more (their scores get a bigger
+  # boost); lower it to discount that source.
+  tp_map:
+    foundation_food:   600
+    sr_legacy_food:    500
+    survey_fndds_food: 450
+    experimental_food: 300
+    branded_food:      100
+  # nutrient-expansion rules that are unsafe to apply blindly
+  dangerous_rules:
+    - protein_to_amino_acids
+    - fat_to_fatty_acids
+    - carb_to_sugars
+    - minerals_total_to_specific
+    - amino_acids_total_to_specific
+  # expansion-rule prefixes that are always safe
+  safe_rule_pfxs:
+    - vitamin_
+    - folate_
+    - niacin_
+    - tocopherol_
+    - tocotrienol_
+    - salt_
+    - isomer_
+    - stereo_
+    - hydrate_
+    - acid_base_
+    - fiber_
+    - carb_to_complex

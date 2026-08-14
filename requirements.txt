@@ -1,0 +1,29 @@
+# bac2food Python dependencies.
+#
+# Pinned to the versions the published results were produced with (Python 3.10.8).
+# The set is deliberately small: the pipeline is pandas + pyarrow over flat tables, and
+# everything else is either the standard library or a reader for one source file format.
+#
+#   pip install -r requirements.txt
+#
+# Loosen a pin only if you have a reason to. pyarrow in particular is held at 11.x
+# because the composition store is Hive-partitioned Parquet read with partition pruning,
+# and that is the version the store on disk was written by.
+
+# --- core: every stage uses these ---------------------------------------------
+pandas==2.2.3
+numpy==1.26.4
+pyarrow==11.0.0
+
+# --- 4_predict: parameters.yaml -----------------------------------------------
+PyYAML==6.0.3
+
+# --- food_DBs ingestion: one reader per source file format --------------------
+# openpyxl  .xlsx  — FDC, McCance, AFCD, BioFoodComp, PhyFoodComp, WAFCT, NEVO, CIQUAL
+# odfpy     .ods   — Frida (Denmark) ships OpenDocument
+# xlrd      .xls   — legacy workbooks in a few national releases
+# Needed only to rebuild the food side from raw sources. If you are running the
+# predictor against the deposited TSVs, these three are unused.
+openpyxl==3.1.5
+odfpy==1.4.1
+xlrd==2.0.2

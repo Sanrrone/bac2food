@@ -1,0 +1,166 @@
+id,name,unit_name,source
+105000,13-cis-retinol (µg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105001,25-hydroxy vitamin D3 (µg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105002,5-mehtyl folate (µg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105003,AOAC fibre (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105004,Alcohol (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105005,All-trans-retinol (µg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105006,Alpha-carotene (µg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105007,Alpha-tocopherol (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105008,Alpha-tocotrienol (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105009,Beta-carotene (µg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105010,Beta-sitosterol (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105011,Beta-tocopherol (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105012,Biotin (µg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105013,Branched chain FA /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105014,Brassicasterol (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105015,C10:0 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105016,C10:1 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105017,C11:0 ex Br /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105018,C12:0 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105019,C12:0 ex Br /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105020,C12:1 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105021,C13:0 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105022,C13:0 ex Br /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105023,C14:0 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105024,C14:0 ex Br /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105025,C14:1 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105026,C15:0 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105027,C15:0 ex Br /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105028,C15:1 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105029,C16:0 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105030,C16:0 ex Br /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105031,C16:1 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105032,C16:2 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105033,C16:4 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105034,C17:0 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105035,C17:0 ex Br /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105036,C17:1 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105037,C18:0 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105038,C18:0 ex Br /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105039,C18:1 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105040,C18:2 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105041,C18:3 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105042,C18:4 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105043,C19:0 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105044,C20:0 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105045,C20:0 ex Br /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105046,C20:1 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105047,C20:2 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105048,C20:3 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105049,C20:4 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105050,C20:5 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105051,C21:5 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105052,C22:0 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105053,C22:0 ex Br /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105054,C22:1 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105055,C22:2 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105056,C22:4 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105057,C22:5 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105058,C22:6 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105059,C24:0 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105060,C24:0 ex Br /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105061,C24:1 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105062,C25:0 ex Br /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105063,C4:0 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105064,C6:0 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105065,C8:0 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105066,Calcium (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105067,Campesterol (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105068,Carotene (µg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105069,Cholecalciferol (µg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105070,Cholesterol (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105071,Copper (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105072,Cryptoxanthins (µg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105073,Dehydroretinol (µg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105074,Delta-5-avenasterol (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105075,Delta-7-avenasterol (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105076,Delta-7-stigmastenol (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105077,Delta-tocopherol (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105078,Folate (µg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105079,Footnote,MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105080,Fructose (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105081,Galactose (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105082,Gamma-tocopherol (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105083,Gamma-tocotrienol (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105084,Glucose (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105085,Iodine (µg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105086,Iron (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105087,Lactose (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105088,Lutein (µg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105089,Lycopene (µg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105090,Magnesium (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105091,Maltose (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105092,Manganese (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105093,Mono FA/ 100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105094,NSP (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105095,Niacin (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105096,Notes,MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105097,Other Cholesterol and Phytosterols (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105098,Pantothenate (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105099,Phosphorus (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105100,Phytosterol (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105101,Poly FA /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105102,Potassium (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105103,Previous,MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105104,Retinaldehyde (µg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105105,Retinol (µg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105106,Riboflavin (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105107,Satd FA /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105108,Satd FA /100g fd (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105109,Selenium (µg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105110,Sodium (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105111,Starch (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105112,Stigmasterol (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105113,Sucrose (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105114,Thiamin (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105115,Trans FAs /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105116,Tryptophan/60 (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105117,Vitamin B12 (µg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105118,Vitamin B6 (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105119,Vitamin C (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105120,Vitamin D (µg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105121,Vitamin E (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105122,Vitamin K1 (µg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105123,Zinc (mg),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105124,cis C10:1 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105125,cis C12:1 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105126,cis C14:1 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105127,cis C15:1 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105128,cis C16:1 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105129,cis C16:2 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105130,cis C16:3 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105131,cis C16:4 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105132,cis C17:1 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105133,cis C18:1 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105134,cis C20:1 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105135,cis C22:1 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105136,cis C24:1 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105137,cis n-3 C18:3 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105138,cis n-3 C18:4 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105139,cis n-3 C20:5 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105140,cis n-3 C21:5 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105141,cis n-3 C22:5 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105142,cis n-3 C22:6 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105143,cis n-6 C18:2 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105144,cis n-6 C18:3 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105145,cis n-6 C20:2 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105146,cis n-6 C20:3 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105147,cis n-6 C20:4 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105148,cis n-6 C22:2 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105149,cis n-6 C22:3 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105150,cis n-6 C22:4 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105151,cis-Mono FA /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105152,cis-Polyu FA /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105153,cis/trans C18:1n-7 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105154,cis/trans C18:1n-9 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105155,cis/trans C22:1n-11 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105156,cis/trans C22:1n-9 /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105157,n-3 poly /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105158,n-6 poly /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105159,trans monounsaturated /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105160,trans poly /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105161,unknown C16 poly /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105162,unknown C18 poly /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105163,unknown C20 poly /100 FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx
+105164,unknown C22 poly /100g FA (g),MG,McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx

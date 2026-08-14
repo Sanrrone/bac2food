@@ -1,0 +1,43 @@
+id,name,unit_name,source
+100000,Analytical/Biodiversity,MG,PhyFoodComp_1.0.xlsx
+100001,CA(mg),MG,PhyFoodComp_1.0.xlsx
+100002,"Country, region",MG,PhyFoodComp_1.0.xlsx
+100003,Exact match,MG,PhyFoodComp_1.0.xlsx
+100004,FE(mg),MG,PhyFoodComp_1.0.xlsx
+100005,IP3(mg),MG,PhyFoodComp_1.0.xlsx
+100006,IP4(mg),MG,PhyFoodComp_1.0.xlsx
+100007,IP4_A_IP5_A_IP6(mg),MG,PhyFoodComp_1.0.xlsx
+100008,IP5(mg),MG,PhyFoodComp_1.0.xlsx
+100009,IP5_A_IP6 (mg),MG,PhyFoodComp_1.0.xlsx
+100010,IP6(mg),MG,PhyFoodComp_1.0.xlsx
+100011,Latest Revision in Version,MG,PhyFoodComp_1.0.xlsx
+100012,Matching comments,MG,PhyFoodComp_1.0.xlsx
+100013,Missing facet,MG,PhyFoodComp_1.0.xlsx
+100014,Other,MG,PhyFoodComp_1.0.xlsx
+100015,PHY:FE,MG,PhyFoodComp_1.0.xlsx
+100016,PHY:ZN,MG,PhyFoodComp_1.0.xlsx
+100017,PHYT-,MG,PhyFoodComp_1.0.xlsx
+100018,PHYT-:FE,MG,PhyFoodComp_1.0.xlsx
+100019,PHYT-:ZN,MG,PhyFoodComp_1.0.xlsx
+100020,PHYTC-(mg),MG,PhyFoodComp_1.0.xlsx
+100021,PHYTC-:FE,MG,PhyFoodComp_1.0.xlsx
+100022,PHYTC-:ZN,MG,PhyFoodComp_1.0.xlsx
+100023,PHYTCA (mg),MG,PhyFoodComp_1.0.xlsx
+100024,PHYTCA:FE,MG,PhyFoodComp_1.0.xlsx
+100025,PHYTCA:ZN,MG,PhyFoodComp_1.0.xlsx
+100026,PHYTCPP(mg),MG,PhyFoodComp_1.0.xlsx
+100027,PHYTCPP:FE,MG,PhyFoodComp_1.0.xlsx
+100028,PHYTCPP:ZN,MG,PhyFoodComp_1.0.xlsx
+100029,PHYTCPPD(mg),MG,PhyFoodComp_1.0.xlsx
+100030,PHYTCPPD:FE,MG,PhyFoodComp_1.0.xlsx
+100031,PHYTCPPD:ZN,MG,PhyFoodComp_1.0.xlsx
+100032,PHYTCPPI(mg),MG,PhyFoodComp_1.0.xlsx
+100033,PHYTCPPI:FE,MG,PhyFoodComp_1.0.xlsx
+100034,PHYTCPPI:ZN,MG,PhyFoodComp_1.0.xlsx
+100035,PP-(mg),MG,PhyFoodComp_1.0.xlsx
+100036,PPD(mg),MG,PhyFoodComp_1.0.xlsx
+100037,PPI(mg),MG,PhyFoodComp_1.0.xlsx
+100038,Publication year,MG,PhyFoodComp_1.0.xlsx
+100039,Season,MG,PhyFoodComp_1.0.xlsx
+100040,Species/Subspecies,MG,PhyFoodComp_1.0.xlsx
+100041,ZN(mg),MG,PhyFoodComp_1.0.xlsx
