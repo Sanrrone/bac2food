@@ -49,9 +49,13 @@ base <- theme_minimal(base_size = 7.4) +
         panel.grid.major.x = element_line(linewidth = .22, colour = "grey88"),
         axis.title   = element_text(size = 7),
         axis.text    = element_text(size = 6.6, colour = "grey20"),
+        # Panel titles NAME what is plotted; they do not state the finding. Every
+        # qualifier that used to sit in a subtitle (axis transform, distance metric,
+        # what the point labels mean, free facet scales) is in the manuscript caption,
+        # which is where a reader of the printed figure looks for it. Do not
+        # reintroduce plot.subtitle: it duplicates the caption and eats panel height.
         plot.title    = element_text(size = 7.8, face = "plain", colour = "black",
-                                     margin = margin(b = 1)),
-        plot.subtitle = element_text(size = 6.3, colour = "grey35", margin = margin(b = 3)),
+                                     margin = margin(b = 3)),
         plot.title.position = "plot",
         legend.key.size = unit(2.9, "mm"),
         legend.text  = element_text(size = 6.2),
@@ -75,8 +79,7 @@ p1a <- ggplot(s, aes(rows, source, fill = tier)) +
   scale_x_log10(labels = label_number(scale_cut = cut_short_scale()),
                 breaks = c(1e2, 1e4, 1e6), expand = expansion(mult = c(0, .40))) +
   scale_fill_manual(values = unname(OK[c("blue", "orange", "red")])) +
-  labs(title = "Food–nutrient values contributed by each source database",
-       subtitle = "logarithmic axis; colour indicates redistribution tier",
+  labs(title = "Food–nutrient values by source database",
        x = "food–nutrient values", y = NULL) +
   base + theme(legend.position = "bottom", legend.margin = margin(t = -6, b = -2))
 
@@ -86,13 +89,16 @@ ch <- read_csv("fig1b_chebi.csv", show_col_types = FALSE) |>
 p1b <- ggplot(ch, aes(rows, tier, fill = tier)) +
   geom_col(width = .68, show.legend = FALSE) +
   lbl(aes(label = paste0(comma(rows), " (", percent(rows / sum(rows), accuracy = .1), ")"))) +
+  # .52 was not enough headroom for the longest label: "101,617 (46.5%)" on the widest bar
+  # had its closing bracket clipped at the panel edge. The label is bar length + text, so
+  # the widest bar needs room for the widest string, not an average one.
   scale_x_continuous(labels = label_number(scale_cut = cut_short_scale()),
-                     expand = expansion(mult = c(0, .52))) +
+                     expand = expansion(mult = c(0, .62))) +
   scale_fill_manual(values = rev(unname(OK[c("green", "blue", "sky", "grey", "yellow", "orange")]))) +
-  labs(title = "Confidence of substrate-to-ChEBI assignment",
-       # Kept short deliberately: the full wording ("...and assay markers have no single
-       # ChEBI entity") overruns the 90 mm half-panel and is clipped. The legend carries it.
-       subtitle = "*no single ChEBI entity exists for these",
+  # The asterisk in the "No ChEBI entity exists*" tier label is expanded in the Figure 1
+  # caption ("macromolecules, peptides, assay markers and metal clusters"). It is not
+  # expanded here: the full wording overruns the 90 mm half-panel and is clipped.
+  labs(title = "Substrate-to-ChEBI mapping confidence",
        x = "enzyme–substrate rows", y = NULL) +
   base
 
@@ -125,8 +131,7 @@ p2a <- ggplot(co, aes(mean_score, food)) +
                                  "Nut and Seed Products" = OK[["brown"]],
                                  "Dairy" = OK[["teal"]], "Baked Products" = OK[["grey"]]),
                       na.value = OK[["grey"]], drop = TRUE) +
-  labs(title = "Highest-scoring foods across the cohort",
-       subtitle = "mean community score; label gives infants ranking that food",
+  labs(title = "Community-level food ranking",
        x = "community suitability score", y = NULL) +
   base + theme(legend.position = "bottom", legend.margin = margin(t = -6, b = -2)) +
   guides(colour = guide_legend(nrow = 2, override.aes = list(size = 1.8)))
@@ -259,8 +264,7 @@ p2b <- ggplot(ord, aes(NMDS1, NMDS2, colour = family)) +
   scale_fill_manual(values = c(unname(OK[c("blue", "orange", "green", "purple",
                                            "sky", "red", "brown", "teal")]),
                                "#5A5A5A", "#BEBEBE"), guide = "none") +
-  labs(title = "Ordination of taxa by predicted food-utilisation profile",
-       subtitle = "Sørensen distance; one point per taxon, coloured by family",
+  labs(title = "Ordination of predicted food-utilisation profiles",
        x = "NMDS1", y = "NMDS2") +
   base + theme(panel.grid.major.y = element_line(linewidth = .22, colour = "grey92"),
                panel.border = element_rect(fill = NA, colour = "grey85", linewidth = .3),
@@ -271,8 +275,9 @@ p2b <- ggplot(ord, aes(NMDS1, NMDS2, colour = family)) +
 df <- read_csv("fig2c_differential.csv", show_col_types = FALSE) |>
   group_by(taxon) |> slice_max(comp_score, n = 4, with_ties = FALSE) |> ungroup() |>
   # "Baobab fruit /Moneky bread" is a misspelling in the FAO BioFoodComp source (fdc_id
-  # 82601346). The resource preserves source strings verbatim and should keep doing so;
-  # here we only TRUNCATE the display label rather than reproduce the typo in print.
+  # 42006685, BioFoodComp code 601346). The resource preserves source strings verbatim and
+  # should keep doing so; here we only TRUNCATE the display label rather than reproduce the
+  # typo in print.
   mutate(food = sub(" ?/moneky bread", "", food, ignore.case = TRUE),
          # Wrap long source strings onto two lines. facet_wrap sizes each panel to its
          # widest y-axis label, so ONE long name (FAO BioFoodComp catalogues edible
@@ -288,8 +293,7 @@ p2c <- ggplot(df, aes(comp_score, key, fill = taxon)) +
   scale_x_continuous(expand = expansion(mult = c(0, .10)), n.breaks = 4) +
   scale_fill_manual(values = unname(OK[c("blue", "orange", "green", "purple", "sky", "red")])) +
   facet_wrap(~taxon, scales = "free", ncol = 3) +
-  labs(title = "Foods each taxon is predicted to use better than co-occurring taxa",
-       subtitle = "differential score (score − peer median); axis scaled independently per panel",
+  labs(title = "Differential food scores by taxon",
        x = "differential score", y = NULL) +
   base + theme(strip.text = element_text(size = 6.8, face = "italic",
                                          margin = margin(t = 1, b = 1)),
