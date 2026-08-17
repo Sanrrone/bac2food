@@ -107,6 +107,8 @@ copy and the pipeline reconstructs those rows locally.
 | `4_predict/parameters.yaml` | every scoring constant (override with `--config`) |
 | `4_predict/chain_coverage.py` | where the enzyme→food chain terminates, per EC |
 | `4_predict/recompute_match_rate.py` | the feature and species reference match rates |
+| `rescue_bifunctional_ec.py` | restores the second EC of multi-activity CAZymes in an EC panel |
+| `bifunctional_ec.tsv` | the curated product-name → EC table it applies (`.readme.txt` explains it) |
 | `5_export/export_resources.py` | the three deposited TSVs |
 | `5_export/verify_exports.py` | 24 structure, count and join checks over the deposit |
 | `0_building/2_nutri2chebi_from_obo.py` | `2_nutrient_to_chebi.tsv` (nutrient → ChEBI) |
@@ -249,8 +251,8 @@ restore them.
   (Jaccard 0.54) while its body holds (ρ 0.800). It does not homogenize: mean similarity
   *between* different bacteria's top-ten foods moves by −0.030 to +0.003. The threshold is what
   buys that — set it to 0 and every matched species collapses onto the same reference profile.
-* **Multi-activity enzymes.** An annotator gives a locus one EC number, so the second activity
-  of a bifunctional CAZyme is lost unless the annotation names both. Supply the missing EC in
-  the input panel if you need that activity scored.
+* **Multi-activity enzymes.** An annotator gives a locus one EC number, so the second activity of
+  a bifunctional CAZyme is lost. `rescue_bifunctional_ec.py` restores it from a curated
+  product-name table; see `bifunctional_ec.readme.txt` for what it does and does not map.
 * **Memory.** The predictor peaks near 5.7 GB, most of it loading the reference layer. Run one
   at a time on a 16 GB machine.
