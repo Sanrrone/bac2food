@@ -95,7 +95,7 @@ Downstream:
       matching 2_digest_norm.tsv, not 105,933.
   ../0_building/3_nutrient_to_ec.py ... --digest_chebi ../chebi/digest_to_chebi.tsv
 
-Look up the enzymes of one organism (feeds ../1_query/ec2food.py --enzyme_tsv):
+Look up the enzymes of one organism (feeds ../4_predict/bac2food_predict.py --mag_tsv):
 
   python 4_bact_proteins_query.py --query "Bacteroides thetaiotaomicron VPI-5482" --out btheta.tsv
 

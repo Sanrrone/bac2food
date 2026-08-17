@@ -3,14 +3,15 @@
 #   apptainer build bac2food.sif bac2food.def
 #
 # Build produces a single .sif file. It runs as you, needs no daemon and no root at run
-# time, which is why it works on clusters where Docker is not available.
+# time, which is why it works on clusters where container runtimes needing a root daemon
+# are unavailable.
 #
 # The image carries the CODE and its dependencies. It deliberately does NOT carry the
 # reference tables: they are 2.1 GB, they are versioned separately on Zenodo, and one
 # source's terms do not permit redistribution inside an image. Mount them at run time.
 #
 # It builds by CLONING THE PUBLISHED REPOSITORY rather than by copying this working
-# directory, and that is deliberate. Apptainer has no .dockerignore: a `%files . /opt`
+# directory, and that is deliberate. Apptainer has no ignore-file mechanism: a `%files . /opt`
 # would sweep in whatever happens to sit in the working tree — the raw source tables, the
 # 248 MB ChEBI ontology, the cohort annotations. Cloning makes the image contain exactly
 # what was published and nothing else, and it cannot accidentally include a licensed
@@ -68,14 +69,14 @@ From: python:3.10.8-slim-bookworm
           --bind "$PWD/work":/data/bac2food/cache \
           bac2food.sif --mag_tsv sample_ec.tsv --out_prefix run1 --jobs 4
 
-    --cleanenv matters for reproducibility. Unlike Docker, Apptainer inherits the host
+    --cleanenv matters for reproducibility. Apptainer inherits the host
     environment and auto-binds $HOME, /tmp and the current directory, so without it a
     host PYTHONPATH or a stray package in ~/.local can reach into the run and the result
     is no longer the container's.
 
     MEMORY. The predictor peaks near 5.7 GB on a full metagenome, driven by loading the
     reference layer rather than by the community size. Apptainer does not limit memory
-    itself and has no equivalent of `docker run --memory`, so the limit is whatever the
+    itself, so the limit is whatever the
     host or the scheduler imposes: under SLURM ask for `--mem=8G`. Below roughly 8 GB the
     Linux OOM killer takes the process, which surfaces as an unexplained exit 137 rather
     than as a Python error.

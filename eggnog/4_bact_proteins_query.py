@@ -3,7 +3,7 @@
 bact_proteins_query.py
 
 Pull the enzyme set of one species / strain out of the bacterial EC table, in the shape
-../1_query/ec2food.py expects as --enzyme_tsv.
+../4_predict/bac2food_predict.py expects as --mag_tsv.
 
 Input (--tsv): /data/bac2food/exports/species_enzymes.tsv — the eggNOG v6 EC table exported
 from /data/bac2food/bact_ec.tsv by ../5_export/export_resources.py, with (at least):

@@ -41,7 +41,6 @@ food_DBs/fooddatacentral_usa/
 # here would leak the string being withheld.
 #   - gene_annot/         110 metagenome annotation files, 365 MB, produced elsewhere
 #   - *_1_month* etc.     per-sample predictor outputs and their zips, anywhere in the tree
-#   - 3_magmapper/*.txt   the sample list (readme.txt is re-included below)
 #
 # Do NOT add a bare `*_ec.tsv` rule here. It reads as "cohort EC tables", but it also
 # matches 0_building/3_nutrient_to_ec.tsv — the core nutrient↔EC map that every scoring
@@ -51,8 +50,6 @@ gene_annot/
 *_1_month*
 *_6_months*
 *_12_months*
-3_magmapper/*.txt
-!3_magmapper/readme.txt
 
 # --------------------------------------------------------------- 3. oversize inputs
 # Third-party downloads, and most of them also exceed GitHub's 100 MB hard limit:
@@ -71,7 +68,6 @@ eggnog/*.tar.xz
 eggnog/*.tar.gz
 brenda/*.tar.gz
 brenda/*.tar.xz
-2_differential/boss_matrices/
 
 # A saved copy of BRENDA's download page, with its bundled CSS and JS. Third-party assets
 # that document nothing the readme does not.
@@ -103,12 +99,10 @@ exports_*/
 # e.g. 93,060,118), which no longer exists anywhere in the released resource. A reader
 # joining them against the deposit would match nothing and have no way to know why.
 # Regenerate them from the current tables instead; both scripts take one command.
-1_query/enzyme_ec2food.*.tsv
-2_differential/heptest.*
 
 # ------------------------------------------------------------- environments, cruft
-# 2_differential/ec2food_env is a checked-in virtualenv (288 MB). Requirements belong
-# in a requirements.txt; the tree itself never does.
+# ec2food_env is a checked-in virtualenv (288 MB). Requirements belong in a
+# requirements.txt; the tree itself never does.
 ec2food_env/
 venv/
 .venv/
@@ -124,3 +118,19 @@ __pycache__/
 # the component NAMES and units each source declares, not its values. For NEVO that file is
 # precisely what the manuscript promises to ship in place of the data ("nutrient mappings
 # plus regeneration code"), so a user holding their own licensed copy can rebuild those rows.
+
+# ------------------------------------------- retired pipeline stages (untracked 2026-08-17)
+# 1_query, 2_differential and 3_magmapper were earlier, narrower variants of the scoring
+# kernel that 4_predict supersedes. They were removed from the repository, but `git rm`
+# leaves a working tree alone: the directories still exist locally and still hold files
+# that must never be published. Ignoring each directory whole is what keeps them out.
+#
+#   - superseded example outputs whose fdc_ids come from the retired offset keying
+#     (values above 51,000,000, e.g. 93,060,118); they join against nothing in the release
+#   - the differential-diet test outputs, whose FILENAMES carry the withheld cohort string
+#   - a 288 MB checked-in virtualenv, the boss_matrices working set, and the sample list
+#
+# Do not narrow these to file patterns. A pattern that misses one file publishes it.
+1_query/
+2_differential/
+3_magmapper/

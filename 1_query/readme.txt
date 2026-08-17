@@ -1,2 +1,0 @@
-python ec2food.py --enzyme_tsv ../eggnog/btheta.tsv --nutrient_to_ec_tsv ../0_building/3_nutrient_to_ec.tsv --food_nutrient_csv /data/bac2food/food_nutrient.parquet --food_csv /data/bac2food/food.parquet --out_prefix enzyme_food_map --nutrient_csv /data/bac2food/nutrient.csv --food_category_csv /data/bac2food/food_category.csv --sub_sample_food_csv /data/bac2food/sub_sample_food.csv --competitor_weight 0.25 --competitor_mode union --jobs 8
-

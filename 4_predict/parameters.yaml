@@ -46,7 +46,7 @@ flags:
   allow_macro_proxy: false   # allow macro-nutrient proxy substrates
   allow_macro_scan:  false   # allow macro-nutrient scanning
 
-# --- scoring kernel scalars (keep aligned with 1_query/ec2food.py) ---
+# --- scoring kernel scalars ---
 # Each entry below notes the effect of raising (↑) or lowering (↓) the value.
 scoring:
   # adaptive saturation quantile for the per-nutrient threshold tau(n).

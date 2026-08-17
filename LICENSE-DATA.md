@@ -15,8 +15,7 @@ Values derived from USDA FoodData Central, CIQUAL, McCance & Widdowson's CoFID,
 the Canadian Nutrient File, Fineli, Livsmedelsdatabasen, the Swiss FCDB, STFCJ
 (Japan), Frida, Phenol-Explorer 3.0 and the curated synthetic bacterial-substrate
 set — together with **all curation original to this work**: the nutrient→ChEBI→EC
-map, the harmonization itself, the licence table, and the bifunctional-EC
-curation — are released under
+map, the harmonization itself, and the licence table — are released under
 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 Attribute using the `attribution_string` column of `licences.tsv`.
 

@@ -8,8 +8,9 @@ Two modes:
 Optional --complement_ec : diff user EC set vs /data/bac2food/bact_ec.tsv reference
 to flag enzymes likely present in the genome but missed by the annotator.
 
-Scoring kernel, static-food-meta builder, and modeled-index builder are adapted
-from ../1_query/ec2food.py (same math, same parquet layout).
+Scoring kernel, static-food-meta builder, and modeled-index builder are adapted from
+the single-organism query prototype this tool supersedes (same math, same parquet
+layout). That prototype is not part of the release.
 """
 from __future__ import annotations
 import argparse, math, os, re, gc, pickle, heapq, sys, zlib, shutil, hashlib
@@ -625,7 +626,7 @@ def round_floats(df, nd=4):
 
 
 class TopKByNutrient:
-    """Heap-based per-nutrient top-K food tracker. Source: 1_query/ec2food.py."""
+    """Heap-based per-nutrient top-K food tracker. Source: the query prototype."""
     __slots__ = ("val", "heap")
     def __init__(self):
         self.val = {}; self.heap = {}
@@ -726,7 +727,7 @@ def refine_canons_by_nutrition(canon_groups: dict, fid_to_desc: dict,
 
 
 def build_static_food_meta(args, out_path):
-    """Build a dense numpy index over the food catalog. Adapted from 1_query/ec2food.py."""
+    """Build a dense numpy index over the food catalog. Adapted from the query prototype."""
     print("[*] Building static food meta...", flush=True)
     if args.food_portion and Path(args.food_portion).exists():
         port_df = load_smart(args.food_portion)
@@ -947,7 +948,7 @@ def build_static_food_meta(args, out_path):
 
 
 def build_modeled_index(bdir, static_db, out_dir, batch_rows=750_000):
-    """Adapted from 1_query/ec2food.py:build_modeled_index."""
+    """Adapted from the query prototype's build_modeled_index."""
     out_dir.mkdir(parents=True, exist_ok=True)
     nids = sorted(int(x) for x in static_db["modeled"]); buckets = sorted({n % BUCKETS for n in nids})
     scn = ds.dataset(bdir, format="parquet", partitioning="hive").scanner(
@@ -1002,7 +1003,7 @@ def build_modeled_index(bdir, static_db, out_dir, batch_rows=750_000):
 
 # ==============================================================================
 # SCORING KERNEL — per-bacterium greedy food selection.
-# Adapted from 1_query/ec2food.py:_run_lbl.
+# Adapted from the query prototype's _run_lbl.
 # ==============================================================================
 STATIC_DB, DYNAMIC_STATE = {}, {}
 
@@ -2340,7 +2341,7 @@ def main():
     lbl2targ = {lbl: set(sub["nutrient_id"].astype(int).unique()) for lbl, sub in merged.groupby("bacterium")}
     print(f"[*] {len(lbl2targ)} bacteria have at least one EC mapped to a nutrient.", flush=True)
 
-    # --- proximity map (same logic as 1_query) ---
+    # --- proximity map (same logic as the query prototype) ---
     prox = {}
     if args.nutrient_alias and Path(args.nutrient_alias).exists():
         a = pd.read_csv(args.nutrient_alias, sep="\t")
@@ -2358,7 +2359,7 @@ def main():
     # tells the scoring kernel: "when looking for specific_id in a food, also
     # check generic_id and substitute at 25% efficiency". This is the same
     # mechanism the original pipeline uses for vitamin / acid-base / form
-    # aliases — see 1_query/ec2food.py:472-478.
+    # aliases — inherited from the query prototype.
     #
     #   200001 GlcNAc            ← FDC 96310 CHITIN          (chitin → GlcNAc monomer)
     #   200002 GalNAc            ← FDC 96310 CHITIN          (loose proxy: chitin family)
