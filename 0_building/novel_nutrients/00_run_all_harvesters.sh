@@ -12,7 +12,6 @@ RAW_FILES=(
   "../food_DBs/frida_denmark/Frida_5.5_Dataset.ods"
   "../food_DBs/livsmedels_sweeden/LivsmedelsDB_202603061604.xlsx"
   "../food_DBs/McCance_Widdowsons_uk/McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx"
-  "../food_DBs/NEVO_netherlands/NEVO2025_v9.0.xlsx"
   "../food_DBs/phenol_explorer_france/composition-data.tsv"
   "../food_DBs/stfcj_japan/main_1374049_1r12_1.xlsx"
   "../food_DBs/stfcj_japan/org_acid_1388558_4r12r.xlsx"

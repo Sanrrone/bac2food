@@ -125,7 +125,6 @@ in the `part-*.parquet` files.
 | `biofoodcomp` | BioFoodComp (FAO) | 109,417 |
 | `fineli` | Fineli (Finland) | 87,880 |
 | `ciqual` | CIQUAL (France) | 52,683 |
-| `nevo` | NEVO (Netherlands) | 51,522 |
 | `swedish` | Livsmedelsdatabasen (Sweden) | 30,916 |
 | `swiss` | Swiss Food Composition DB | 25,677 |
 | `wafct` | WAFCT (West Africa) | 22,550 |

@@ -81,7 +81,7 @@ SOURCES: tuple[tuple[int, str, str, int], ...] = (
     (3,  "phenol_explorer", "Phenol-Explorer",                  9_000_000),
     (4,  "fineli",          "Fineli",                          10_000_000),
     (5,  "ciqual",          "CIQUAL",                          20_000_000),
-    (6,  "nevo",            "NEVO",                            30_000_000),
+    (6,  "nevo",            "Restricted source",               30_000_000),
     (7,  "mccance",         "McCance & Widdowson's",           40_000_000),
     (8,  "swedish",         "Livsmedelsdatabasen",             41_000_000),
     (9,  "frida",           "Frida",                           50_000_000),
@@ -175,7 +175,7 @@ def load_map(path: Path | None = None) -> dict[tuple[str, str], int]:
     """Read the frozen accession registry as {(source_key, source_food_code): fdc_id}.
 
     Codes are compared as strings. Sources key their foods with everything from plain
-    integers (NEVO) to zero-padded composites (WAFCT '01_172'), and int() would collapse
+    plain integers to zero-padded composites (WAFCT '01_172'), and int() would collapse
     '007' and '7' onto one accession.
     """
     p = Path(path) if path else ACCESSION_MAP

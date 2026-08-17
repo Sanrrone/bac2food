@@ -22,8 +22,8 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-# Export directory and output directory are both overridable so that the NEVO-free
-# deposit and the NEVO-inclusive local build are produced by THIS script rather than by
+# Export directory and output directory are both overridable so that the public deposit
+# and the fuller local build are produced by THIS script rather than by
 # a forked copy of it: two lineages that must stay in step cannot be allowed to drift.
 EXPORTS = Path(os.environ.get("BAC2FOOD_EXPORTS", "/data/bac2food/exports"))
 OUTDIR = Path(os.environ.get("BAC2FOOD_FIGDIR", str(HERE)))
@@ -52,7 +52,7 @@ SOURCE_LABEL = {
     "japan": "STFCJ (Japan)", "afcd": "AFCD (Australia)",
     "cnf": "Canadian Nutrient File", "biofoodcomp": "BioFoodComp (FAO)",
     "fineli": "Fineli (Finland)", "ciqual": "CIQUAL (France)",
-    "nevo": "NEVO (Netherlands)", "swedish": "Livsmedelsdatabasen (Sweden)",
+    "swedish": "Livsmedelsdatabasen (Sweden)",
     "swiss": "Swiss FCDB", "wafct": "WAFCT (West Africa)",
     "phyfoodcomp": "PhyFoodComp (FAO)", "frida": "Frida (Denmark)",
     "phenol_explorer": "Phenol-Explorer (France)",
@@ -60,7 +60,6 @@ SOURCE_LABEL = {
     "mccance;swedish": "McCance;Swedish (agreeing)",
 }
 TIER = {
-    "NEVO (Netherlands)": "Restricted (not redistributed)",
     "AFCD (Australia)": "Copyleft / NonCommercial",
     "BioFoodComp (FAO)": "Copyleft / NonCommercial",
     "PhyFoodComp (FAO)": "Copyleft / NonCommercial",

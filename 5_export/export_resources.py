@@ -384,7 +384,7 @@ def export_food_nutrients(args) -> None:
             ch["source_db"] = label_arr[ch.pop("source_code").to_numpy()]
             ch = ch.merge(food, on="fdc_id", how="inner").merge(nut, on="nutrient_id", how="left")
             orphan += len(tbl.slice(start, args.chunk_rows)) - len(ch)
-            # Restricted sources: NEVO permits use "only unchanged" and withholds the right
+            # Restricted sources: one permits use "only unchanged" and withholds the right
             # to amend, which re-keying and per-100 g normalization both do. Its DERIVED
             # values therefore cannot ship in this file under any packaging — a separate
             # file or a fork carries the same amended values and the same breach.

@@ -87,7 +87,7 @@ def main():
     start_id = 96000 # The true starting block for global dark matter
     
     for clean_lower, data in sorted(consolidated.items()):
-        # Join sources nicely (e.g., "CIQUAL | NEVO")
+        # Join sources nicely (e.g., "CIQUAL | Fineli")
         sources_str = " | ".join(sorted(list(data["sources"])))
         
         final_rows.append({

@@ -118,12 +118,12 @@ DELIVERABLES = {
     "licences.tsv",
 }
 
-# No NEVO artifact of any kind ships. Its derived values are an amendment its terms withhold,
-# and redistributing even the ORIGINAL release unchanged — which those terms do appear to
-# permit — is held back pending written confirmation from RIVM. A user brings their own copy;
-# reconstruct_nevo.py rebuilds the partition locally from it. Filename-level, because the
-# failure this guards against is someone dropping the release back into the deposit directory
-# by hand, which is exactly how it got there the first time.
+# No artifact of the non-redistributable source ships, in any form. Its derived values are an
+# amendment its terms withhold, and redistributing even the original release unchanged is held
+# back pending written confirmation. A user brings their own copy and rebuilds that partition
+# locally. The check is filename-level because the failure it guards against is someone
+# dropping the release back into the deposit directory by hand, which is how it got there the
+# first time. The key below is an internal source_db value, not a statement about the source.
 WITHHELD = ("nevo",)
 
 results: list[tuple[bool, str]] = []

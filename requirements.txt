@@ -19,7 +19,7 @@ pyarrow==11.0.0
 PyYAML==6.0.3
 
 # --- food_DBs ingestion: one reader per source file format --------------------
-# openpyxl  .xlsx  — FDC, McCance, AFCD, BioFoodComp, PhyFoodComp, WAFCT, NEVO, CIQUAL
+# openpyxl  .xlsx  — FDC, McCance, AFCD, BioFoodComp, PhyFoodComp, WAFCT, CIQUAL
 # odfpy     .ods   — Frida (Denmark) ships OpenDocument
 # xlrd      .xls   — legacy workbooks in a few national releases
 # Needed only to rebuild the food side from raw sources. If you are running the

@@ -32,7 +32,7 @@ suppressPackageStartupMessages({
 here <- dirname(normalizePath(sub("^--file=", "",
         grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)[1])))
 # Read the CSVs from, and write the figures into, BAC2FOOD_FIGDIR when it is set. Matches
-# the same override in prep_figure_data.py so the NEVO-free and NEVO-inclusive builds are
+# the same override in prep_figure_data.py so the public and fuller builds are
 # drawn by one script rather than by two copies that can drift apart.
 figdir <- Sys.getenv("BAC2FOOD_FIGDIR", unset = here)
 setwd(figdir)

@@ -4,8 +4,7 @@
 # directory is data, and it is excluded for one of three reasons, in order of severity.
 #
 # 1. LICENCE. Several source databases may not be redistributed, and one may not be
-#    redistributed at all. Committing raw source files would contradict the Data
-#    Availability statement in the manuscript, which names NEVO as excluded.
+#    redistributed at all. Committing raw source files would breach those terms.
 # 2. PRIVACY. The cohort annotations carry the source cohort's sample identifiers in
 #    their filenames, and the published work anonymizes those.
 # 3. SIZE. GitHub rejects any file over 100 MB; chebi.obo (248 MB) and the BRENDA
@@ -16,8 +15,9 @@
 
 # ---------------------------------------------------------------- 1. licensed data
 # Raw national/regional composition tables. These are the providers' own files, under
-# eleven different licences (Supplementary Table S1). NEVO2025_v9.0.* is the restricted
-# one: its terms permit use "only unchanged", so it must never be published here.
+# eleven different licences (Supplementary Table S1). One permits use "only unchanged",
+# which makes any derived value an amendment its terms withhold; it must never be
+# published here, and neither may the provider's own file.
 food_DBs/**/*.xlsx
 food_DBs/**/*.xls
 food_DBs/**/*.ods
@@ -74,19 +74,18 @@ brenda/*.tar.xz
 brenda/*.html
 brenda/*_files/
 
-# RIVM's conditions-of-use document for NEVO. It is their document, and this repository
-# redistributes no NEVO material of any kind; the terms are published at
-# https://www.rivm.nl/en/dutch-food-composition-database.
+# Providers' own conditions-of-use documents. They are the providers' documents, not
+# ours to redistribute, and each provider publishes its current terms itself.
 food_DBs/**/*.pdf
 
 # ------------------------------------------------------- derived / regenerable state
 # Parquet stores and caches are rebuilt by the pipeline from the inputs above; none is
 # an artifact a reader needs. The deposited resource is the four TSVs on Zenodo.
 #
-# exports.tar.xz is that deposit, archived (71 MB). It holds food_nutrients.tsv, and
-# food_nutrients.tsv carries NEVO-derived rows -- so committing the archive would publish
-# exactly the source the Data Availability statement says is withheld. The repository
-# ships the code that builds it, never the table itself.
+# exports.tar.xz is that deposit, archived (71 MB). It holds food_nutrients.tsv, whose
+# rows include values derived from the non-redistributable source -- so committing the
+# archive would publish exactly what is withheld. The repository ships the code that
+# builds it, never the table itself.
 *.parquet
 *_bucketed/
 exports/
@@ -115,9 +114,9 @@ __pycache__/
 .DS_Store
 
 # NOTE, deliberately NOT ignored: 0_building/novel_nutrients/novel_*.csv. Those list only
-# the component NAMES and units each source declares, not its values. For NEVO that file is
-# precisely what the manuscript promises to ship in place of the data ("nutrient mappings
-# plus regeneration code"), so a user holding their own licensed copy can rebuild those rows.
+# the component NAMES and units each source declares, not its values, so a user holding
+# their own licensed copy can rebuild those rows. The one file of that set belonging to
+# the non-redistributable source is excluded below with the rest of its material.
 
 # ------------------------------------------- retired pipeline stages (untracked 2026-08-17)
 # 1_query, 2_differential and 3_magmapper were earlier, narrower variants of the scoring
@@ -134,3 +133,12 @@ __pycache__/
 1_query/
 2_differential/
 3_magmapper/
+
+# ------------------------------------------ non-redistributable source (untracked 2026-08-17)
+# One provider has not answered a permission request, so nothing naming it is published
+# while its position is unstated: naming a provider as the blocker asserts a position it
+# has not taken, and would be wrong in a public repository if the answer is yes.
+#
+# Its files are excluded through .git/info/exclude, NOT here. This file is published, so a
+# pattern spelling the provider's name would leak the very string being withheld -- the
+# same reason the cohort rules above are written by timepoint. Do not move them here.
