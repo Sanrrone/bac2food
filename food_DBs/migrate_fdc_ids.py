@@ -204,10 +204,12 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--food", default=DEFAULT_FOOD)
     ap.add_argument("--bucketed", default=DEFAULT_BUCKETED)
-    ap.add_argument("--map", default="/data/bac2food/rekey/fdc_id_map.tsv")
+    # The 2026-08-14 re-key ran out of /data/bac2food/rekey/, which was deleted on
+    # 2026-08-18 once its output had been promoted. The live map is the promoted one.
+    ap.add_argument("--map", default="/data/bac2food/fdc_id_map.tsv")
     ap.add_argument("--build", action="store_true", help="write the map, change nothing else")
     ap.add_argument("--apply", action="store_true", help="rewrite the store into --out")
-    ap.add_argument("--out", default="/data/bac2food/rekey/store")
+    ap.add_argument("--out", default="/data/bac2food/rekey_rerun/store")
     args = ap.parse_args()
 
     m = build_map(Path(args.food))
