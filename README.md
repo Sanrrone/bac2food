@@ -76,16 +76,17 @@ Code and small derived tables are tracked here. Three classes of file are delibe
 
 | absent | why |
 |---|---|
-| raw source databases (`food_DBs/**/*.xlsx`, …) | provider-licensed, and the terms differ by source — some carry NonCommercial or ShareAlike conditions, and **at least one does not permit redistribution at all**. Each folder's readme says where to obtain its source. |
+| raw source databases (`food_DBs/**/*.xlsx`, …) | provider-licensed, and the terms differ by source — some carry NonCommercial or ShareAlike conditions, and NEVO's terms cover the **derived** values only, by permission specific to the deposit. Each folder's readme says where to obtain its source. |
 | cohort annotations (`gene_annot/`) | third-party metagenome annotations, and their filenames carry sample identifiers |
 | `chebi/chebi.obo` (248 MB), `eggnog/*.tar.xz` (117 MB) | third-party downloads that exceed GitHub's 100 MB file limit |
 | `brenda/brenda_2026_1.*.tar.gz` (154 MB) | the official BRENDA release. Its own README states the full contents are copyright-protected. The **derived** digest is what the pipeline reads, and that is tracked (`eggnog/2_digest_*.tsv`) — download the release from [brenda-enzymes.org](https://www.brenda-enzymes.org/download.php) only if you need to rebuild it. |
-| the exports themselves (`5_export/exports.tar.xz`) | that archive *is* the Zenodo deposit, and `food_nutrients.tsv` inside it carries rows derived from a source whose terms do not permit redistribution. This repository ships the code that builds the deposit, never the deposit. |
+| the exports themselves (`5_export/exports.tar.xz`) | that archive *is* the Zenodo deposit: 2.1 GB, versioned there rather than here, and carrying rows whose rights travel per source in `licences.tsv`. This repository ships the code that builds the deposit, never the deposit. |
 
-What *is* tracked for the restricted sources is `0_building/novel_nutrients/novel_*.csv`: the
-component names and units each source declares, with no values. Where a source cannot be
-redistributed, that mapping is the whole bring-your-own-source route — hold your own licensed
-copy and the pipeline reconstructs those rows locally.
+What *is* tracked for every source is `0_building/novel_nutrients/novel_*.csv`: the component
+names and units each source declares, with no values. That mapping is the bring-your-own-source
+route — hold your own licensed copy of a raw table and the pipeline rebuilds those rows locally,
+which is how NEVO is handled here: its derived values are in the deposit, its release is not, and
+`5_export/reconstruct_nevo.py` rebuilds the partition from a copy you request free from RIVM.
 
 ## Layout
 

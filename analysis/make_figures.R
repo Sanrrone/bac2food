@@ -68,17 +68,17 @@ lbl <- function(...) geom_text(..., size = 1.95, colour = "grey30", hjust = -0.1
 s <- read_csv("fig1a_sources.csv", show_col_types = FALSE) |>
   mutate(source = fct_reorder(source, rows),
          tier = factor(recode(tier,
-                  "Open (redistributable)"         = "Open",
-                  "Copyleft / NonCommercial"       = "Copyleft / NC",
-                  "Restricted (not redistributed)" = "Restricted"),
-                levels = c("Open", "Copyleft / NC", "Restricted")))
+                  "Open (redistributable)"   = "Open",
+                  "Copyleft / NonCommercial" = "Copyleft / NC",
+                  "Provider permission"      = "By permission"),
+                levels = c("Open", "Copyleft / NC", "By permission")))
 
 p1a <- ggplot(s, aes(rows, source, fill = tier)) +
   geom_col(width = .70) +
   lbl(aes(label = comma(rows))) +
   scale_x_log10(labels = label_number(scale_cut = cut_short_scale()),
                 breaks = c(1e2, 1e4, 1e6), expand = expansion(mult = c(0, .40))) +
-  scale_fill_manual(values = unname(OK[c("blue", "orange", "red")])) +
+  scale_fill_manual(values = unname(OK[c("blue", "orange", "purple")])) +
   labs(title = "Food–nutrient values by source database",
        x = "food–nutrient values", y = NULL) +
   base + theme(legend.position = "bottom", legend.margin = margin(t = -6, b = -2))

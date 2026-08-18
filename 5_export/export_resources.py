@@ -384,10 +384,10 @@ def export_food_nutrients(args) -> None:
             ch["source_db"] = label_arr[ch.pop("source_code").to_numpy()]
             ch = ch.merge(food, on="fdc_id", how="inner").merge(nut, on="nutrient_id", how="left")
             orphan += len(tbl.slice(start, args.chunk_rows)) - len(ch)
-            # Restricted sources: one permits use "only unchanged" and withholds the right
-            # to amend, which re-keying and per-100 g normalization both do. Its DERIVED
-            # values therefore cannot ship in this file under any packaging — a separate
-            # file or a fork carries the same amended values and the same breach.
+            # The Restricted tier is empty as of 2026-08-18: RIVM's permission moved NEVO to
+            # `Provider permission`, and it was the only member. The mechanism stays because
+            # the next source with terms like NEVO's old ones needs it, and because a tier
+            # named in the licence table is how that decision gets recorded rather than coded.
             if args.restricted == "exclude":
                 keep = ~ch["source_db"].isin(lic["restricted"])
                 dropped_restricted[0] += int((~keep).sum())
@@ -419,7 +419,11 @@ def export_food_nutrients(args) -> None:
 
 # Most restrictive tier wins when sources agree on a value and are `;`-joined: a composite
 # row inherits the strictest terms of its constituents, never the loosest.
-_TIER_RANK = {"Open": 0, "Copyleft": 1, "NonCommercial + ShareAlike": 2, "Restricted": 3}
+# "Provider permission" ranks above the public licences and below "Restricted": those
+# rows ship, but on a permission granted to this deposit rather than on terms a reader
+# inherits, so a composite touching one must resolve to it rather than to CC BY.
+_TIER_RANK = {"Open": 0, "Copyleft": 1, "NonCommercial + ShareAlike": 2,
+              "Provider permission": 3, "Restricted": 4}
 
 
 def load_licence_table(path: str) -> dict:
@@ -436,7 +440,7 @@ def load_licence_table(path: str) -> dict:
         parts = [p for p in label.split(";") if p in rows]
         if not parts:
             return ("", "unknown", "no", "")
-        worst = max(parts, key=lambda p: _TIER_RANK.get(rows[p]["tier"], 3))
+        worst = max(parts, key=lambda p: _TIER_RANK.get(rows[p]["tier"], max(_TIER_RANK.values())))
         r = rows[worst]
         flag = "yes" if r["derived_values_redistributable"].startswith("yes") else (
                "no" if r["derived_values_redistributable"].startswith("no") else "conditional")

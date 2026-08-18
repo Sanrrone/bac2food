@@ -38,8 +38,12 @@ SCHEMA = {
     "enzyme_substrate_chebi.tsv": ["ec_number", "substrate", "substrate_normalized", "chebi_id",
                                    "chebi_name", "chebi_match_type", "in_model", "nutrient_ids",
                                    "nutrient_names", "model_relation", "model_score"],
-    "food_nutrients.tsv": ["fdc_id", "description", "data_type", "food_category", "nutrient_id",
-                           "nutrient_name", "unit_name", "amount", "source_db"],
+    # `source_food_code` (the identifier the source itself publishes) has been in the export
+    # since the re-key, and is documented in Data Records; this list had not been updated, so
+    # the check failed the correct file.
+    "food_nutrients.tsv": ["fdc_id", "source_food_code", "description", "data_type",
+                           "food_category", "nutrient_id", "nutrient_name", "unit_name",
+                           "amount", "source_db"],
 }
 
 # Figures quoted in the manuscript (Data Records / Technical Validation).
@@ -93,7 +97,11 @@ EXPECTED = {
     # partly double-count rows already in this table. It cost 5,432 foods and no components
     # at all — all 1,779 nutrients and all 598 enzyme-linked ones survive — and it ended the
     # FDC backbone's majority: 51.2% of values before, 42.2% after.
-    "food_nutrients.tsv": {"rows": 1_904_276, "foods": 112_550, "nutrients": 1_779},
+    # 2026-08-18: NEVO rejoined the deposit under written RIVM permission (+51,522 values,
+    # +2,328 foods, no new nutrients), and this baseline was also carrying pre-re-key
+    # numbers from before migrate_fdc_ids.py. Both corrected together against the
+    # measured export, so a drift from here is a real regression again.
+    "food_nutrients.tsv": {"rows": 1_956_046, "foods": 116_693, "nutrients": 1_779},
 }
 
 # Exactly what the deposit should contain. Anything else in the directory ships with
@@ -118,12 +126,11 @@ DELIVERABLES = {
     "licences.tsv",
 }
 
-# No artifact of the non-redistributable source ships, in any form. Its derived values are an
-# amendment its terms withhold, and redistributing even the original release unchanged is held
-# back pending written confirmation. A user brings their own copy and rebuilds that partition
-# locally. The check is filename-level because the failure it guards against is someone
-# dropping the release back into the deposit directory by hand, which is how it got there the
-# first time. The key below is an internal source_db value, not a statement about the source.
+# RIVM's permission (18 Aug 2026) covers NEVO's DERIVED values, which now ship inside
+# food_nutrients.tsv, and not the NEVO release itself: they asked that users be pointed at their
+# download page instead. So this guard narrows rather than lifts — no NEVO *file* may appear in
+# the deposit directory. It stays filename-level because the failure it guards against is
+# someone dropping the release back in by hand, which is how it got there the first time.
 WITHHELD = ("nevo",)
 
 results: list[tuple[bool, str]] = []
@@ -222,7 +229,7 @@ def verify_food_nutrients(p: Path):
     rows = 0
     foods, nutrients, sources = set(), set(), set()
     bad_amount = 0
-    for fdc_id, desc, dtype, cat, nid, nname, unit, amount, src in scan(p, SCHEMA[p.name]):
+    for fdc_id, code, desc, dtype, cat, nid, nname, unit, amount, src in scan(p, SCHEMA[p.name]):
         rows += 1
         foods.add(fdc_id); nutrients.add(nid); sources.add(src)
         if amount:
@@ -304,8 +311,9 @@ def main() -> int:
     stowaway = sorted(p.name for p in d.iterdir()
                       if p.is_file() and any(s in p.name.lower() for s in WITHHELD))
     check(not stowaway, "no withheld-source release file in the deposit",
-          f"found {stowaway} — {', '.join(WITHHELD)} ships as regeneration code only, not as data"
-          if stowaway else f"withheld: {', '.join(WITHHELD)}")
+          f"found {stowaway} — the derived values ship inside food_nutrients.tsv; the release "
+          f"itself does not, and users are pointed at the provider's download page"
+          if stowaway else f"no release file for: {', '.join(WITHHELD)}")
 
     print("\n[5] cross-export joins (the chain the resource promises)")
     shared = se_ec & dg_ec

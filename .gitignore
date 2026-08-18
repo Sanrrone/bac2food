@@ -134,11 +134,13 @@ __pycache__/
 2_differential/
 3_magmapper/
 
-# ------------------------------------------ non-redistributable source (untracked 2026-08-17)
-# One provider has not answered a permission request, so nothing naming it is published
-# while its position is unstated: naming a provider as the blocker asserts a position it
-# has not taken, and would be wrong in a public repository if the answer is yes.
+# ------------------------------------------------ NEVO: permission granted 2026-08-18
+# RIVM answered yes, so the local exclusions that hid this source from 2026-08-17 to
+# 2026-08-18 are gone from .git/info/exclude and its code is tracked again. Nothing new is
+# needed here: the raw release and the conditions PDF are already covered by the blanket
+# *.xlsx / *.zip / *.pdf rules for food_DBs above, which is where they must stay -- RIVM
+# asked that users be sent to their download page rather than handed the file.
 #
-# Its files are excluded through .git/info/exclude, NOT here. This file is published, so a
-# pattern spelling the provider's name would leak the very string being withheld -- the
-# same reason the cohort rules above are written by timepoint. Do not move them here.
+# The reasoning that put those patterns in .git/info/exclude rather than here still stands
+# for the next source in that position: this file is published, so a pattern spelling a
+# withheld provider's name leaks the very string being withheld.

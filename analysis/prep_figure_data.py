@@ -56,10 +56,14 @@ SOURCE_LABEL = {
     "swiss": "Swiss FCDB", "wafct": "WAFCT (West Africa)",
     "phyfoodcomp": "PhyFoodComp (FAO)", "frida": "Frida (Denmark)",
     "phenol_explorer": "Phenol-Explorer (France)",
+    "nevo": "NEVO (Netherlands)",
     "synthetic_bacterial": "Synthetic substrates",
     "mccance;swedish": "McCance;Swedish (agreeing)",
 }
 TIER = {
+    # NEVO ships by written RIVM permission rather than under a public licence, which is a
+    # third rights class, not a shade of the other two.
+    "NEVO (Netherlands)": "Provider permission",
     "AFCD (Australia)": "Copyleft / NonCommercial",
     "BioFoodComp (FAO)": "Copyleft / NonCommercial",
     "PhyFoodComp (FAO)": "Copyleft / NonCommercial",
