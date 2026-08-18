@@ -80,7 +80,7 @@ Code and small derived tables are tracked here. Three classes of file are delibe
 | cohort annotations (`gene_annot/`) | third-party metagenome annotations, and their filenames carry sample identifiers |
 | `chebi/chebi.obo` (248 MB), `eggnog/*.tar.xz` (117 MB) | third-party downloads that exceed GitHub's 100 MB file limit |
 | `brenda/brenda_2026_1.*.tar.gz` (154 MB) | the official BRENDA release. Its own README states the full contents are copyright-protected. The **derived** digest is what the pipeline reads, and that is tracked (`eggnog/2_digest_*.tsv`) — download the release from [brenda-enzymes.org](https://www.brenda-enzymes.org/download.php) only if you need to rebuild it. |
-| the exports themselves (`5_export/exports.tar.xz`) | that archive *is* the Zenodo deposit: 2.1 GB, versioned there rather than here, and carrying rows whose rights travel per source in `licences.tsv`. This repository ships the code that builds the deposit, never the deposit. |
+| the exports themselves | the four deposited TSVs *are* the Zenodo record: 2.0 GB, versioned there rather than here, with rights travelling per source in `licences.tsv`. This repository ships the code that builds the deposit, never the deposit. Rebuild them with `5_export/export_resources.py --out_dir <dir>` and check them with `5_export/verify_exports.py`. |
 
 What *is* tracked for every source is `0_building/novel_nutrients/novel_*.csv`: the component
 names and units each source declares, with no values. That mapping is the bring-your-own-source

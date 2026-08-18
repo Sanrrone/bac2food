@@ -82,10 +82,12 @@ food_DBs/**/*.pdf
 # Parquet stores and caches are rebuilt by the pipeline from the inputs above; none is
 # an artifact a reader needs. The deposited resource is the four TSVs on Zenodo.
 #
-# exports.tar.xz is that deposit, archived (71 MB). It holds food_nutrients.tsv, whose
-# rows include values derived from the non-redistributable source -- so committing the
-# archive would publish exactly what is withheld. The repository ships the code that
-# builds it, never the table itself.
+# The packaged deposit lives at /data/bac2food/deposit/ -- four .xz files plus SHA256SUMS,
+# compressed per file rather than as one tarball so a user can take licences.tsv without
+# pulling 1.8 GB of species data. It is not committed because it is 70 MB of derived data
+# that Zenodo versions; the repository ships the code that builds it, never the table.
+# The rule below stays for the retired 2026-08-07 tarball, in case one is ever built there
+# again.
 *.parquet
 *_bucketed/
 exports/
