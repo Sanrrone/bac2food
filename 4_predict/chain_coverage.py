@@ -10,11 +10,15 @@ source release would help:
   GAP C  ChEBI id present, no FDC nutrient    -> the nutrient vocabulary stops here;
                                                  no substrate-source refresh can close it
 
-Measured 2026-08: GAP C dominates (52% of cohort EC, 49% of resource EC), and its members
-act on real ChEBI-identified molecules that simply are not food components (tRNA ligases,
-cell-wall enzymes, phosphorylated intermediates). The 45.4% feature match rate is therefore
-close to a structural ceiling set by what counts as a nutrient, not a fixable coverage
-deficiency -- BRENDA already supplies substrates for ~95% of the cohort's EC numbers.
+Measured 2026-08-19: GAP C dominates (54.1% of cohort EC, 60.1% of resource EC), and its
+members act on real ChEBI-identified molecules that simply are not food components (tRNA
+ligases, cell-wall enzymes, phosphorylated intermediates). The 45.5% feature match rate is
+therefore close to a structural ceiling set by what counts as a nutrient, not a fixable
+coverage deficiency -- BRENDA supplies substrates for 96.5% of the cohort's EC numbers.
+
+Three denominators appear below and are easy to confuse: distinct EC (2,270), annotated loci
+(1,257,938), and exploded (locus, EC) pairs (1,467,221), the last larger because a locus with
+a multi-EC cell is counted once per EC. The `loci` column here is the exploded one.
 
 Usage:
     python chain_coverage.py
