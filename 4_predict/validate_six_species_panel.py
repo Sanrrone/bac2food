@@ -158,7 +158,7 @@ def read_differential(p: Path) -> dict[str, list[dict]]:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--out_dir", default="/data/bac2food/six_species_panel")
+    ap.add_argument("--out_dir", default="/data/bac2food/runs/six_species/six_species_panel")
     ap.add_argument("--config", default=str(HERE / "parameters.yaml"))
     ap.add_argument("--reference", default="/data/bac2food/exports/species_enzymes.tsv")
     ap.add_argument("--nutrient_csv", default="/data/bac2food/nutrient.csv")

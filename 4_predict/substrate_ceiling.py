@@ -24,7 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from validate_biology_panel import PANEL, NEGATIVE  # noqa: E402  same keywords, no fork
 
 HERE = Path(__file__).resolve().parent
-PANEL_EC = Path("/data/bac2food/bio_panel_FINAL/panel_ec.tsv")
+PANEL_EC = Path("/data/bac2food/runs/bio_panel/bio_panel_FINAL/panel_ec.tsv")
 N2EC = (HERE / ".." / "0_building" / "3_nutrient_to_ec.tsv").resolve()
 NUTRIENT_CSV = Path("/data/bac2food/nutrient.csv")
 IDX = Path("/data/bac2food/index_modeled")

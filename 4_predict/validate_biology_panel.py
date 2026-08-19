@@ -156,7 +156,7 @@ def main() -> int:
     args = ap.parse_args()
 
     out_dir = Path(args.out_dir or
-                   f"/data/bac2food/bio_panel_{args.label or args.differential_formula or 'default'}")
+                   f"/data/bac2food/runs/bio_panel/bio_panel_{args.label or args.differential_formula or 'default'}")
     out_dir.mkdir(parents=True, exist_ok=True)
     species = list(PANEL) + list(NEGATIVE) + PEERS
     ec, tax = load_reference(Path(args.reference), species)

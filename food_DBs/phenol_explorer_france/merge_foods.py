@@ -4,7 +4,7 @@ import shutil
 # Define your paths
 original_food_path = "/data/bac2food/food.parquet"
 pe_food_path = "pe_food_injection.parquet"
-backup_path = "/data/bac2food/food_backup.parquet"
+backup_path = "/data/bac2food/archive/food_backup.parquet"
 
 print("1. Creating a backup of the original food.parquet...")
 shutil.copy(original_food_path, backup_path)

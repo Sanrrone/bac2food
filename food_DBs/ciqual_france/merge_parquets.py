@@ -6,7 +6,7 @@ from pathlib import Path
 # --- PATHS ---
 original_food_path = "/data/bac2food/food.parquet"
 ciqual_food_path = "ciqual_food_injection.parquet"
-backup_path = "/data/bac2food/food_backup_ciqual.parquet"
+backup_path = "/data/bac2food/archive/food_backup_ciqual.parquet"
 
 src_buckets = "ciqual_food_nutrient_bucketed"
 dest_buckets = "/data/bac2food/food_nutrient_bucketed"

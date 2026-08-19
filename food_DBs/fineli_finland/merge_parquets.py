@@ -5,7 +5,7 @@ original_food_path = "/data/bac2food/food.parquet"
 fineli_food_path = "fineli_food_injection.parquet"
 
 # Save a quick backup just in case
-shutil.copy(original_food_path, "/data/bac2food/food_backup2.parquet")
+shutil.copy(original_food_path, "/data/bac2food/archive/food_backup2.parquet")
 
 df_original = pd.read_parquet(original_food_path)
 df_fineli = pd.read_parquet(fineli_food_path)

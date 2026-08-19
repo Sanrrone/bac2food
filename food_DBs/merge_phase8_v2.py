@@ -187,7 +187,7 @@ def main():
                      "Did the v2 ingester complete?")
 
     # Backup
-    backup = Path(f"/data/bac2food/food_backup_phase8.parquet")
+    backup = Path(f"/data/bac2food/archive/food_backup_phase8.parquet")
     if not backup.exists():
         print(f"[1/5] backup: cp {GLOBAL_FOOD} -> {backup}")
         shutil.copy2(GLOBAL_FOOD, backup)
