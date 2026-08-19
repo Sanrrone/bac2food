@@ -49,8 +49,7 @@ ROOT = THIS.parent
 sys.path.insert(0, str(ROOT))
 from _common import header_detect  # noqa: E402
 
-# fdc_id allocation is centralised in food_DBs/fdc_blocks.py. Never write a literal offset:
-# ids are accessions looked up in fdc_id_map.tsv, so a food keeps its id across releases.
+# fdc_id allocation: fdc_blocks.py
 import sys as _sys
 from pathlib import Path as _Path
 _sys.path.insert(0, str(_Path(__file__).resolve().parent.parent))
@@ -59,8 +58,6 @@ import fdc_blocks
 
 
 EXCEL_DEFAULT = "McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx"
-# RETIRED: block bases live in food_DBs/fdc_blocks.py. This constant is kept out of
-# the file entirely so it cannot drift from the real allocation.
 EXTRA_ID_START = 200_001        # nutrient IDs ≥ 200_001 are reserved for novel nutrients
 
 # Data sheets (drop "List of tables" + "1.1 Notes" — they are metadata)

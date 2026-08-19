@@ -30,8 +30,7 @@ from typing import Dict, List
 import numpy as np
 import pandas as pd
 
-# fdc_id allocation is centralised in food_DBs/fdc_blocks.py. Never write a literal offset:
-# ids are accessions looked up in fdc_id_map.tsv, so a food keeps its id across releases.
+# fdc_id allocation: fdc_blocks.py
 import sys as _sys
 from pathlib import Path as _Path
 _sys.path.insert(0, str(_Path(__file__).resolve().parent.parent))
@@ -42,8 +41,6 @@ THIS = Path(__file__).resolve().parent
 sys.path.insert(0, str(THIS.parent))
 
 EXTRA_ID_START = 250_001
-# RETIRED: block bases live in food_DBs/fdc_blocks.py. This constant is kept out of
-# the file entirely so it cannot drift from the real allocation.
 
 # Inter-file dependency graph: spine + joins (all 'per 100 g EP' tables)
 SPINE = ("main_1374049_1r12_1.xlsx", "Table")

@@ -38,8 +38,7 @@ from afcd_to_fdc_ingest import (   # noqa: E402
     build_manual_overrides, parse_col_base_and_unit, to_numeric_series,
 )
 
-# fdc_id allocation is centralised in food_DBs/fdc_blocks.py. Never write a literal offset:
-# ids are accessions looked up in fdc_id_map.tsv, so a food keeps its id across releases.
+# fdc_id allocation: fdc_blocks.py
 sys.path.insert(0, str(THIS.parent))
 import fdc_blocks  # noqa: E402
 

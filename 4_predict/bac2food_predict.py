@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""bac2food_predict.py — Bacteria <-> Food predictor for metagenomes.
+"""bac2food_predict.py - Bacteria <-> Food predictor for metagenomes.
 
 Two modes:
   --mode bacteria2food : for each bacterium, rank foods it can use
@@ -24,19 +24,16 @@ import pyarrow.csv as pacsv
 try: import resource
 except ImportError: resource = None
 
-# ==============================================================================
 # CONFIGURATION
-# ------------------------------------------------------------------------------
 # All constant, non-user-selectable parameters live in `parameters.yaml` next to
 # this script (override with $BAC2FOOD_PARAMS or --config). They are loaded at
-# IMPORT time so that multiprocessing workers — which re-import this module under
-# the "forkserver"/"spawn" start methods — bind exactly the same values.
+# IMPORT time so that multiprocessing workers - which re-import this module under
+# the "forkserver"/"spawn" start methods - bind exactly the same values.
 #
 # Logic / structural constants that are NOT configuration stay hardcoded here:
-#   * EC_RE     — the EC-number validation regex
-#   * BUCKETS   — tied to the on-disk bucketed-parquet layout (do not change)
+#   * EC_RE     - the EC-number validation regex
+#   * BUCKETS   - tied to the on-disk bucketed-parquet layout (do not change)
 #   * the text regexes and cultivar / category word-lists further down.
-# ==============================================================================
 import yaml
 
 EC_RE   = re.compile(r"^\d+\.\d+\.\d+\.\d+$")
@@ -227,7 +224,7 @@ _PAPER_TITLE_RE = re.compile(
     re.I,
 )
 # Strip ALL parenthetical content (clarifications, color descriptors, source
-# notes — "(industrial)", "(colour of peel: olive green)", "(fat free or
+# notes - "(industrial)", "(colour of peel: olive green)", "(fat free or
 # skim)", "(includes foods for USDA's food distribution program)"). Parens
 # in FDC descriptions are nearly always non-essential annotations, never
 # identity-defining.
@@ -258,7 +255,7 @@ _CULTIVAR_CODE_RE = re.compile(
 )
 
 # Heads where cultivar / variety / color / brand info is metabolically
-# irrelevant — all cultivars of strawberry behave the same to a bacterium.
+# irrelevant - all cultivars of strawberry behave the same to a bacterium.
 # When a canonicalized name's first comma-separated chunk is in this set,
 # everything after the first comma is dropped. For all other heads, we
 # preserve up to the first two chunks (so "beans, navy" / "mushrooms,
@@ -327,7 +324,7 @@ _CULTIVAR_STRIP_HEADS = frozenset({
     "locust bean", "african locust bean",
     "velvet beans", "velvet bean",
     "mcdonald's",                     # branded item list
-    # Phase 5 amendment 4 — surfaced by the build-time under-grouped
+    # Phase 5 amendment 4 - surfaced by the build-time under-grouped
     # diagnostic on v15. All have ≥ 5 sub-canons that are almost
     # entirely cultivar codes / breed identifiers / [Latin name] tags.
     "common vetch",                   # IFLVS cultivar codes
@@ -341,13 +338,13 @@ _CULTIVAR_STRIP_HEADS = frozenset({
     "grasshopper",                    # insect food, sex/state variants
     "wattle",                         # Australian Acacia varieties
     "quince",                         # cultivar codes mixed
-    # Phase 6 amendment — surfaced by user spot-check (color/skin/varietal flood,
+    # Phase 6 amendment - surfaced by user spot-check (color/skin/varietal flood,
     # nutritionally equivalent variants):
     "tamarillo", "tamarillo fruit",   # purplish-red vs golden-yellow skin
     "terapy bean",                    # wild / white / brown color variants
     "japanese horse chestnut",        # cultivar floods
     "japanese spikenard",             # cultivation method variants
-    # Phase 9 amendment — user spot-check:
+    # Phase 9 amendment - user spot-check:
     "horse eye bean",                 # testa color variants (dark/light/black brown)
     "rice",                           # user explicitly wants all cultivars collapsed
                                       # (njavara, PTB 39, IR 64, MR 219, etc.).
@@ -355,7 +352,7 @@ _CULTIVAR_STRIP_HEADS = frozenset({
                                       # the user accepts this given the cultivar flood.
 })
 
-# Phase 8 amendment — heads that have cultivar / breed floods from
+# Phase 8 amendment - heads that have cultivar / breed floods from
 # BioFoodComp + PhyFoodComp + STFCJ (rice cultivar codes like Anjung/Calrose;
 # pork/beef/veal breed names like Alentejano/Aberdeen Angus/Iberian-Duroc).
 # Unlike the heads in _CULTIVAR_STRIP_HEADS_HARD above, these get the
@@ -395,38 +392,38 @@ _CULTIVAR_STRIP_HEADS = _CULTIVAR_STRIP_HEADS_HARD | _CULTIVAR_STRIP_HEADS_GATED
 # AFCD, certain BioFoodComp imports) come without food_category_id. The
 # existing source-specific branches in build_static_food_meta cover only a
 # few cases (and the [phenol-explorer] branch defaults to "Fruits and Fruit
-# Juices" — which is wrong for `Pasta [Phenol-Explorer]`). This list runs
+# Juices" - which is wrong for `Pasta [Phenol-Explorer]`). This list runs
 # AFTER the source-specific branches as a last-resort keyword fallback.
 # Ordered: first matching regex wins.
 _DESC_TO_CATEGORY = [
     # === Order matters: first match wins. Specific categories go BEFORE
     # generic ones so e.g. "infant formula" hits Baby Foods, not Dairy. ===
-    # Baby foods — very specific
+    # Baby foods - very specific
     (re.compile(r"\b(infant\s+formula|toddler\s+formula|babyfood|baby\s+food|baby\s+toddler|baby\s+cereal|baby\s+mum\s+mum)\b", re.I), "Baby Foods"),
-    # Fast foods — pizzas, burgers, sandwiches, etc.
+    # Fast foods - pizzas, burgers, sandwiches, etc.
     (re.compile(r"\b(pizza|pizzas|hamburger|hamburgers|cheeseburger|burger|sandwich|sandwiches|hot\s+dog|corn\s+dog|taco|tacos|burrito|burritos|quesadilla|quesadillas|nachos|nugget|nuggets|fries|french\s+fries|french\s+toast|french\s+dip|meatball\s+sub|wrap|wraps|sub|hoagie|gyro|kebab|kabob|shawarma|slider|sliders|panini|club\s+sandwich|grilled\s+cheese)\b", re.I), "Fast Foods"),
-    # Alcoholic beverages — pull out before generic Beverages
+    # Alcoholic beverages - pull out before generic Beverages
     (re.compile(r"\b(wine|beer|ale|lager|stout|porter|spirit|liqueur|vodka|whiskey|whisky|rum|gin|tequila|mezcal|cocktail|black\s+russian|martini|margarita|mojito|cosmopolitan|mimosa|sangria|sake|absinthe|brandy|cognac|champagne|prosecco|vermouth|cider|alcoholic)\b", re.I), "Alcoholic Beverages"),
-    # Soups, sauces, gravies — extended with stock + sauces
+    # Soups, sauces, gravies - extended with stock + sauces
     (re.compile(r"\b(soup|soups|stew|stews|chowder|bisque|gazpacho|minestrone|broth|consomm[ée]|gumbo|chili|bouillon|miso\s+soup|ramen\s+broth|stock|stock\s+cube|stock\s+from\s+cube|stock\s+gel|pesto|curry\s+sauce|curry\s+paste|hoisin|teriyaki|tomato\s+sauce|tomato\s+pur[ée]e|marinara|alfredo|bolognese|carbonara|tomato\s+coulis|coulis)\b", re.I), "Soups, Sauces, and Gravies"),
-    # Organ meats / luncheon meats — before generic beef/pork.
+    # Organ meats / luncheon meats - before generic beef/pork.
     # Also catches the generic "meat", "meatball", "frankfurter", "wiener",
     # "minced meat", "vegetarian fillet/meat loaf" so they don't fall to
     # the more specific beef/pork/poultry regexes.
     (re.compile(r"\b(liver|kidney|heart|tongue|tripe|intestine|gizzard|brain|sweetbread|offal|organ\s+meat|deli\s+meat|deli-meat|p[âa]t[ée]|pate|haggis|head\s+cheese|meat|meatball|meatballs|meatloaf|meat\s+loaf|wiener|wieners|frankfurter|frankfurters|hot\s+dog|salami|minced\s+meat|vegetarian\s+meat|vegetarian\s+fillet|meat\s+alternative|meatless|jerky|biltong|pastrami|corned\s+beef|brisket|terrine)\b", re.I), "Sausages and Luncheon Meats"),
-    # Snacks (popcorn, chips, crisps, etc.) — before cereal generic
+    # Snacks (popcorn, chips, crisps, etc.) - before cereal generic
     (re.compile(r"\b(popcorn|corn\s+puff|corn\s+chip|chips?|crisps?|pretzel|pretzels|cracker\s+snack|trail\s+mix|granola\s+bar|protein\s+bar|meal\s+replacement\s+bar|cereal\s+bar|rice\s+cake|veggie\s+chip|potato\s+crisps?|potato\s+chips?|tortilla\s+chips?)\b", re.I), "Snacks"),
     # Pasta-specific (priority before generic "Cereal Grains and Pasta")
     (re.compile(r"\b(pasta|spaghetti|macaroni|noodle|noodles|ramen|udon|soba|lasagna|fettuccine|penne|rotini|ziti|orzo|gnocchi|couscous|bulgur|farro|risotto|tortellini|ravioli|vermicelli|linguine|rigatoni|cannelloni|tagliatelle)\b", re.I), "Cereal Grains and Pasta"),
-    # Cereal Grains — extended with quinoa, lasagne, more pseudo-cereals
+    # Cereal Grains - extended with quinoa, lasagne, more pseudo-cereals
     (re.compile(r"\b(rice|wheat|oat|barley|rye|sorghum|millet|teff|amaranth|spelt|kamut|einkorn|emmer|buckwheat|maize|grain|grains|bran|flour|bread|cracker|crackers|biscuits?|cereal|cereals|tortilla|cornmeal|polenta|grits|pancake|waffle|muffin|bagel|croissant|brioche|baguette|naan|pita|focaccia|crispbread|crisp\s+bread|porridge|muesli|granola|oatmeal|sago|arrowroot|fonio|foniopaddy|hominy|tapioca|matzo|matzah|piroshki|quinoa|lasagne|lasagna|toast|melba|rusk|rusks|breadstick|pretzel|pretzels|popcorn|crouton|pretzel|grits|sourdough|gnocchi|dumplings?|flatbread)\b", re.I), "Cereal Grains and Pasta"),
-    # Dairy — plant-based alternatives + traditional dairy
+    # Dairy - plant-based alternatives + traditional dairy
     (re.compile(r"\b(plant-?based\s+alternative\s+to\s+dairy|plant-?based\s+milk|plant-?based\s+cheese|vegan\s+cheese|vegan\s+milk|soymilk|soy\s+milk|oat\s+milk|almond\s+milk|coconut\s+milk|nut\s+milk|rice\s+milk|cashew\s+milk|hemp\s+milk)\b", re.I), "Dairy and Egg Products"),
     (re.compile(r"\b(milk|cheese|yogurt|yoghurt|butter|cream|kefir|buttermilk|whey|curd|dairy|ghee|paneer|labneh|skyr)\b", re.I), "Dairy and Egg Products"),
     (re.compile(r"\b(egg|eggs|omelet|omelette|frittata|quiche)\b", re.I), "Dairy and Egg Products"),
-    # Legumes — extended with hummus/falafel/horse gram/sesbania
+    # Legumes - extended with hummus/falafel/horse gram/sesbania
     (re.compile(r"\b(beans?|lentils?|peas?|chickpeas?|cowpeas?|faba|fava|mung|soy|soybean|edamame|tempeh|tofu|miso|natto|legumes?|lupin|adzuki|cannellini|bambara|groundnuts?|vetch|moth\s+bean|winged\s+bean|pigeon\s+pea|velvet\s+bean|locust\s+bean|hummus|falafel|horse\s+gram|sesbania|black-?eyed\s+pea|garbanzo)\b", re.I), "Legumes and Legume Products"),
-    # Nuts & seeds — extended (plurals handled via `s?`)
+    # Nuts & seeds - extended (plurals handled via `s?`)
     (re.compile(r"\b(almonds?|walnuts?|pistachios?|cashews?|pecans?|hazelnuts?|brazil\s+nuts?|macadamias?|peanuts?|chestnuts?|nut|nuts|seed|seeds|chia|flax|flaxseed|sunflower|pumpkin\s+seed|sesame|tahini|poppy|pine\s+nuts?|kola\s+nuts?|cola\s+nuts?)\b", re.I), "Nut and Seed Products"),
     # Beef
     (re.compile(r"\b(beef|steak|brisket|ribeye|sirloin|tenderloin)\b", re.I), "Beef Products"),
@@ -434,38 +431,38 @@ _DESC_TO_CATEGORY = [
     (re.compile(r"\b(pork|ham|bacon|prosciutto|chorizo|salami|sausage)\b", re.I), "Pork Products"),
     # Poultry
     (re.compile(r"\b(chicken|turkey|duck|goose|poultry|hen|quail|partridge|pheasant|guinea\s+fowl|squab|capon)\b", re.I), "Poultry Products"),
-    # Lamb / veal / game — extended (horse, hare)
+    # Lamb / veal / game - extended (horse, hare)
     (re.compile(r"\b(lamb|mutton|veal|deer|venison|bison|elk|rabbit|hare|game|reindeer|caribou|moose|ostrich|kangaroo|antelope|wild\s+boar|emu|alpaca|llama|horse|horse\s+meat)\b", re.I), "Lamb, Veal, and Game Products"),
-    # Finfish & shellfish — extended with more species (pike/turbot/flounder/pangasius/whiting/etc.)
+    # Finfish & shellfish - extended with more species (pike/turbot/flounder/pangasius/whiting/etc.)
     (re.compile(r"\b(fish|salmon|tuna|cod|haddock|tilapia|trout|mackerel|sardine|anchovy|herring|halibut|sole|snapper|sea bass|shrimp|prawn|crab|lobster|crayfish|oyster|mussel|clam|scallop|squid|octopus|seafood|mollusk|mollusks|abalone|albacore|pollock|pollack|sturgeon|hake|saithe|sprat|plaice|eel|swordfish|marlin|monkfish|mullet|kingfish|pompano|escolar|sea\s+urchin|conch|whelk|surimi|caviar|roe|sashimi|fish\s+sauce|amago|hoki|carp|catfish|bass|perch|barramundi|pomfret|smelt|grouper|barracuda|tilefish|john\s+dory|skate|ray|shark|whitefish|crawfish|cuttlefish|fluke|wahoo|mahi[-\s]?mahi|pike|turbot|flounder|pangasius|whiting|hake|burbot|loche|alaska\s+pollock|alaska|red\s+snapper|seabass|tilapia|sturgeon|sushi|sashimi|fish\s+stick|fish\s+fingers|fish\s+ball|fish\s+cake|sea\s+cucumber|krill|prawn|langoustine|crayfish|cockle|periwinkle|whelk|moules|nigiri|maki)\b", re.I), "Finfish and Shellfish Products"),
-    # Fruits — extended
+    # Fruits - extended
     (re.compile(r"\b(apple|apples|pear|pears|peach|peaches|nectarine|plum|plums|cherry|cherries|apricot|apricots|mango|papaya|banana|bananas|pineapple|grape|grapes|berry|berries|strawberry|strawberries|blueberry|blueberries|raspberry|raspberries|blackberry|blackberries|cranberry|cranberries|currant|currants|gooseberry|orange|oranges|lemon|lemons|lime|limes|grapefruit|tangerine|mandarin|kiwi|kiwifruit|melon|melons|watermelon|cantaloupe|honeydew|fig|figs|date|dates|persimmon|pomegranate|guava|jackfruit|durian|lychee|longan|rambutan|soursop|custard apple|baobab|jujube|monkey orange|fruit|fruits|akebia|acerola|prune|prunes|raisin|raisins|olive|olives|wild\s+mango|mulberry|elderberry|gooseberry|bilberry|lingonberry|sea\s+buckthorn|bigney\s+berry|rabiteye)\b", re.I), "Fruits and Fruit Juices"),
     (re.compile(r"\b(juice|nectar|lemonade)\b", re.I), "Fruits and Fruit Juices"),
-    # Vegetables — extended with celeriac, swede, beets variations, collards, sauerkraut
+    # Vegetables - extended with celeriac, swede, beets variations, collards, sauerkraut
     (re.compile(r"\b(carrots?|broccoli|cauliflower|cabbage|brussels\s+sprouts?|kale|spinach|chard|lettuce|arugula|endive|escarole|watercress|celery|cucumbers?|tomatoes?|onions?|shallot|leeks?|garlic|chives?|peppers?|bell\s+pepper|potatoes?|tuber|sweet\s+potato|yams?|cassava|taro|beet|beetroot|beets?|radish|turnip|parsnips?|rutabaga|swede|kohlrabi|jicama|squash|pumpkin|zucchini|eggplant|aubergine|okra|asparagus|artichoke|fennel|celeriac|mushrooms?|seaweed|kelp|nori|wakame|kombu|algae|agar|algaes?|alga|laver|dulse|hijiki|vegetables?|salad|coleslaw|sauerkraut|plantains?|breadfruit|salsify|chayote|bamboo\s+shoots?|dasheen|cocoyam|ulluco|oca|alfalfa\s+sprout|sprouts?|cress|chicory|salsola|samphire|fiddlehead|bok\s+choy|pak\s+choi|napa|tomatillo|nopal|nopales|edamame|abiyuch|amaranth\s+leaves|wattle\s+seed|sea\s+belt|seabelt|spirulina|chlorella|alligator\s+weed|agathi|leaves|moringa|baobab\s+leaves|cowpea\s+leaves|collard|collards|collard\s+greens|dandelion|dandelion\s+greens|spring\s+greens|spring\s+onion|kohlrabi|water\s+chestnut|water\s+spinach|lotus\s+root|kalanchoe|gourd|loofa|loofah|bitter\s+melon|bitter\s+gourd|chinese\s+cabbage|chinese\s+spinach|japanese\s+horse\s+chestnut|japanese\s+spikenard)\b", re.I), "Vegetables and Vegetable Products"),
-    # Spices and Herbs — extended with salt + ajowan + relishes
+    # Spices and Herbs - extended with salt + ajowan + relishes
     (re.compile(r"\b(salt|table\s+salt|sodium\s+chloride|sea\s+salt|kosher\s+salt|rock\s+salt|sumac|allspice|nutmeg|mace|star\s+anise|fenugreek|asafoetida|epazote|sansho|wasabi|ajowan|carum\s+copticum|cumin|caraway|cloves?|oregano|basil|thyme|sage|rosemary|parsley|cilantro|mint|dill|fennel\s+seed|ginger|turmeric|cinnamon|saffron|paprika|chili|cardamom|coriander|mustard\s+seed|bay\s+leaf|tarragon|spices?|herbs?|seasoning|relish|ajvar|chutney|condiment|sambal|harissa)\b", re.I), "Spices and Herbs"),
-    # Sweets — extended with candybar / icing / gingerbread / ice cream variants
+    # Sweets - extended with candybar / icing / gingerbread / ice cream variants
     (re.compile(r"\b(candy|candies|candybar|chocolate|sweet|sweets|syrup|honey|sugar|sugars|marshmallow|caramel|toffee|fudge|gum|gummy|gummies|jelly|jam|preserves|dessert|pudding|cake|cookie|cookies|pie|pies|brownie|brownies|donut|doughnut|pastry|pastries|tart|truffle|gelato|sherbet|sorbet|ice\s+cream|ice\s+lolly|ice\s+pop|popsicle|icing|frosting|gingerbread|agave|stevia|aspartame|saccharin|sucralose|xylitol|erythritol|maple\s+syrup|corn\s+syrup|maltose\s+syrup|sweetener|sweeteners|liquorice|licorice|halva|nougat|baklava|strudel|funnel\s+cake|tres\s+leches|tiramisu|cheesecake|key\s+lime\s+pie|cobbler|crumble|cr[èe]me\s+br[uû]l[ée]e|panna\s+cotta|mousse|flan|cust[a]rd|jellies|frozen\s+yogurt|swiss\s+roll|swiss\s+roll\s+dough|bounty|kitkat|mars\s+bar|snickers|twix|m&m|reese)\b", re.I), "Sweets"),
-    # Beverages (non-alcoholic) — extended
+    # Beverages (non-alcoholic) - extended
     (re.compile(r"\b(coffee|tea|drink|beverage|soda|cola|cocoa|kombucha|smoothie|water|sparkling|chai|matcha|yerba\s+mate|horchata|chocolate\s+milk\s+drink|energy\s+drink|sports\s+drink|protein\s+shake|powdered\s+drink|infusion)\b", re.I), "Beverages"),
-    # Fats & Oils — extended
+    # Fats & Oils - extended
     (re.compile(r"\b(oil|fat|lard|tallow|shortening|margarine|mayonnaise|vinegar|dressing|sauce|gravy|salsa|ketchup|mustard|aioli|olive\s+tapenade|ghee|schmaltz|suet|chicken\s+fat|duck\s+fat|drippings)\b", re.I), "Fats and Oils"),
 
-    # === Phase 8 amendment 5: additions surfaced by uncategorized.txt scan ===
-    # Fish/Shellfish — additional species not in the original regex.
+    # Phase 8 amendment 5: additions surfaced by uncategorized.txt scan
+    # Fish/Shellfish - additional species not in the original regex.
     (re.compile(r"\b(anglerfish|anchovy\s+paste|anchovis|ascidian|arctic\s+char|char|bayad|bigeye\s+scad|scad|black\s+seabream|seabream|sea\s+bream|grenadier|grayling|golden\s+redfish|redfish|smelt|dab|gar|kutum|loche|burbot|wolffish|john\s+dory|pilchard|menhaden|sablefish|saithe|orange\s+roughy|sea\s+bream|spot\s+prawn|sea\s+urchin|sea\s+cucumber|sea\s+grape)\b", re.I), "Finfish and Shellfish Products"),
-    # Insects (food source — palm weevil larva, ants, grasshoppers, etc.)
+    # Insects (food source - palm weevil larva, ants, grasshoppers, etc.)
     (re.compile(r"\b(ant|ants|bamboo\s+caterpillar|caterpillar|caterpillars|palm\s+weevil|weevil|grasshopper|grasshoppers|cricket|crickets|cricket\s+nymph|nymph|larva|larvae|silkworm|locust|cicada|mealworm|mealworms|edible\s+insect|edible\s+insects|insect|insects)\b", re.I), "Sausages and Luncheon Meats"),
-    # Game animals — standalone single-token names that the broader regex misses
+    # Game animals - standalone single-token names that the broader regex misses
     (re.compile(r"\b(armadillo|bear|beaver|kangaroo|wallaby|possum|nutria|capybara|guinea\s+pig|iguana|snake|frog|frog\s+legs|turtle|crocodile|alligator|monkey|deer\s+meat|wild\s+game)\b", re.I), "Lamb, Veal, and Game Products"),
-    # Cheeses — specific named cheeses that don't carry the literal "cheese" word
+    # Cheeses - specific named cheeses that don't carry the literal "cheese" word
     (re.compile(r"\b(appenzeller|gorgonzola|gruy[eè]re|greyerzer|halloumi|mascarpone|mozzarella|feta|ricotta|manchego|provolone|emmental|emmenthal|camembert|brie|stilton|roquefort|gouda|edam|colby|monterey\s+jack|asiago|gjetost|munster|limburger|fontina|raclette|tilsit|tilsiter|burrata|paneer|labneh|skyr|ymer|ziger|quark|cottage|tomme|reblochon|chevre|chèvre|caciotta|comté|comte|beaufort|cheddar)\b", re.I), "Dairy and Egg Products"),
     # Yeast / fermented bases / nutritional yeast
     (re.compile(r"\b(yeast|baker's\s+yeast|baker.s\s+yeast|brewer's\s+yeast|brewer.s\s+yeast|nutritional\s+yeast|active\s+dry\s+yeast|marmite|vegemite|yeast\s+extract|yeast\s+flakes)\b", re.I), "Spices and Herbs"),
     # Regional grains / legumes / pseudo-cereals not in original regex
     (re.compile(r"\b(bajra|jowar|ragi|makhana|bao\s+bun|basbousa|atole|arepa|bibimbap|bannock|bagel|babaganoush|baba\s+ghanoush|injera|tamale|biryani|paella|chow\s+mein|fried\s+rice|congee|porridge|dahl|dal|daal|dosa|idli|upma|paratha|chapati|roti|naan|pita|focaccia|fougasse|cornpone|hush\s+puppy|hushpuppy|kasha|kheer|payasam|kebab|kibbeh|moussaka)\b", re.I), "Cereal Grains and Pasta"),
-    # Indian / African regional legumes — Bengal gram, black gram, green gram, horse gram
+    # Indian / African regional legumes - Bengal gram, black gram, green gram, horse gram
     (re.compile(r"\b(bengal\s+gram|black\s+gram|green\s+gram|red\s+gram|horse\s+gram|gram\s+flour|besan|toor|tur|urad|moong|chana|rajma|matki|val|kulthi|benniseed)\b", re.I), "Legumes and Legume Products"),
     # Tropical / niche fruits not in original regex
     (re.compile(r"\b(ackee|atemoya|babaco|bilberry|bilberries|black\s+crowberry|black\s+nightshade|gojiberry|goji\s+berry|wolfberry|greengage|greengages|cloudberry|cloudberries|sea\s+buckthorn|tamarind|tamarillo|cherimoya|sapodilla|sapote|mamey|jicama|loquat|kaffir\s+lime|kumquat|feijoa|carambola|starfruit|santol|noni|breadnut|jackfruit|monstera|miracle\s+fruit|durian|mangosteen|salak|snake\s+fruit|surinam\s+cherry|gandaria|safou|safu|safou\s+fruit|akebia|wood-?sorrel|arecanut)\b", re.I), "Fruits and Fruit Juices"),
@@ -480,66 +477,55 @@ _DESC_TO_CATEGORY = [
     # Honey, royal jelly, propolis, bee products
     (re.compile(r"\b(honey|honeydew\s+honey|royal\s+jelly|propolis|bee\s+pollen|beeswax|manuka|honeycomb)\b", re.I), "Sweets"),
 
-    # === Phase 8 amendment 5 — round 2: gaps found after running the rebuild ===
-    # Fruits — common terms missed by the base regex due to word boundaries (apple
+    # Phase 8 amendment 5 - round 2: gaps found after running the rebuild
+    # Fruits - common terms missed by the base regex due to word boundaries (apple
     # doesn't match applesauce; avocado not in original list at all; plurals)
     (re.compile(r"\b(avocado|avocados|applesauce|apple\s+sauce|apricots?|gooseberries|blackcurrants?|mulberries|cloudberries|loganberries|boysenberries|raspberries|blueberries|cranberries|cherries|strawberries|grapes|pears|peaches|plums|figs|dates|olives|peach\s+halves|fruit\s+salad|fruit\s+cup|fruit\s+cocktail|fruit\s+jelly|fruit\s+leather)\b", re.I), "Fruits and Fruit Juices"),
-    # Cereal Grains — bakery + baking aids + bagel plurals + missed cereal types
+    # Cereal Grains - bakery + baking aids + bagel plurals + missed cereal types
     (re.compile(r"\b(bagels?|bakery\s+mix|bakery|biscuit\s+dough|cookie\s+dough|cake\s+mix|baking\s+powder|baking\s+soda|baking\s+yeast|raising\s+agent|leavening\s+agent|binding\s+agent|bannocks?|babka|brioche|bun|buns|fritter|fritters|donut|donuts|doughnut|doughnuts|cinnamon\s+roll|cinnamon\s+rolls|empanada|empanadas|knish|pretzel|pretzels|popadom|papad|millet|grits|farina|semolina|injera|chapati|paratha|naan|tortillas?|matzo|matzah|hardtack)\b", re.I), "Cereal Grains and Pasta"),
-    # Fish — additional patterns missed (codfish, bigeye, biscayne, plurals)
+    # Fish - additional patterns missed (codfish, bigeye, biscayne, plurals)
     (re.compile(r"\b(codfish|bacalao|bacalhau|bacalaitos|biscayne\s+cod|fish\s+sticks|fish\s+balls|fish\s+cakes|crab\s+sticks|imitation\s+crab|herring\s+roe|salmon\s+roe|caviars?)\b", re.I), "Finfish and Shellfish Products"),
-    # Vegetables — babycorn / niche missed
+    # Vegetables - babycorn / niche missed
     (re.compile(r"\b(babycorn|baby\s+corn|miniature\s+corn|sweetcorn|sweet\s+corn|corn\s+on\s+the\s+cob|corn\s+kernels|antroewa|asiatic\s+dayflower|ambrosia\s+greens|wood-?sorrel|sourgrass|buttercup|cape\s+sorrel|sour\s?sob|bermuda\s+buttercup|sorrel|chinese\s+broccoli|gai\s+lan|brussel\s+sprouts?|broccolini|broccoli\s+rabe|rapini|frisée|frisee|raddichio|radicchio|romaine|iceberg|butter\s+lettuce|tatsoi|mizuna)\b", re.I), "Vegetables and Vegetable Products"),
-    # Fats and oils — blended spreads, low-fat spreads, margarine variants
+    # Fats and oils - blended spreads, low-fat spreads, margarine variants
     (re.compile(r"\b(blended\s+spread|spread,\s+blended|low-?fat\s+spread|reduced-?fat\s+spread|table\s+spread|fat\s+spread|spread\s+\d+%|margarine\s+spread)\b", re.I), "Fats and Oils"),
-    # Sweets — desserts missed
+    # Sweets - desserts missed
     (re.compile(r"\b(beignet|beignets|blancmange|baba|babas|baba\s+au\s+rhum|babka|cannoli|cannolis|sufganiyot|profiterole|profiteroles|chocolate\s+egg|chocolate\s+coin|chocolate\s+bar|chocolate\s+bark|chocolate\s+chip|chocolate\s+chunk|chocolate\s+covered|chocolate\s+filled|fruit\s+leather|fruit\s+roll|fruit\s+snack|granola\s+cluster|cereal\s+cluster|popsicle|ice\s+pop|sundae|sorbet|sherbet|halva|halawa|jalebi|gulab\s+jamun|lokum|turkish\s+delight)\b", re.I), "Sweets"),
-    # Fast foods — big mac / specific menu items
+    # Fast foods - big mac / specific menu items
     (re.compile(r"\b(big\s+mac|whopper|cheeseburger|chicken\s+sandwich|fish\s+sandwich|happy\s+meal|kids\s+meal|fries|onion\s+rings|chicken\s+strips|chicken\s+tenders|chicken\s+wings|wings|buffalo\s+wings|filet[-\s]o[-\s]fish|mcrib|mcmuffin|mc\w+|kfc|burger\s+king)\b", re.I), "Fast Foods"),
-    # Soups — common Western dishes missed
+    # Soups - common Western dishes missed
     (re.compile(r"\b(borscht|miso\s+soup|tom\s+yum|tom\s+kha|pho|menudo|albondigas|cock-?a-?leekie|scotch\s+broth|cullen\s+skink|mulligatawny|posole|pozole)\b", re.I), "Soups, Sauces, and Gravies"),
-    # Spices/other — yeasts, baking aids, leavening, gelatins, agar agar
+    # Spices/other - yeasts, baking aids, leavening, gelatins, agar agar
     (re.compile(r"\b(gelatin|gelatine|agar\s+agar|gum\s+arabic|xanthan\s+gum|guar\s+gum|locust\s+bean\s+gum|carrageenan|pectin|lecithin|citric\s+acid|tartaric\s+acid|malic\s+acid|food\s+colour|food\s+coloring|food\s+color|emulsifier|stabilizer|preservative|food\s+additive)\b", re.I), "Spices and Herbs"),
-    # Dairy — egg products missed + ymer + skyr variants
+    # Dairy - egg products missed + ymer + skyr variants
     (re.compile(r"\b(egg\s+white|egg\s+whites|egg\s+yolk|egg\s+yolks|egg\s+powder|powdered\s+eggs?|liquid\s+eggs?|egg\s+substitute|condensed\s+milk|evaporated\s+milk|powdered\s+milk|milk\s+powder|cream\s+cheese|cottage\s+cheese|sour\s+cream|whipped\s+cream|half\s+and\s+half|half-and-half|heavy\s+cream|light\s+cream|skim\s+milk|whole\s+milk|two\s+percent\s+milk|2%\s+milk)\b", re.I), "Dairy and Egg Products"),
-    # Final catch-all — single-word foods sometimes have a 'foods' / 'food' / 'meal' descriptor
+    # Final catch-all - single-word foods sometimes have a 'foods' / 'food' / 'meal' descriptor
     (re.compile(r"\b(prepared\s+food|prepared\s+meal|ready\s+meal|ready\s+made\s+meal|frozen\s+meal|microwaveable\s+meal|tv\s+dinner|frozen\s+entree|frozen\s+entr[ée]e|meal\s+kit|home\s+meal)\b", re.I), "Meals, Entrees, and Side Dishes"),
 ]
 
-# Key nutrient subset used by the nutritional-similarity gate. The vector
-# focuses on the differentiators (macros + sugars + fiber + water + the
-# bacterial-substrate-relevant fibers) and skips the long tail of trace
-# polyphenols where measurement noise dominates.
-# _KEY_NUTRIENT_IDS is configured in parameters.yaml (nutrient_ids.key_nutrient_ids).
-# Note: Energy (1008) was dropped from this list — FDC reports it in kcal while
-# BioFoodComp / Ciqual / Frida sometimes report it in kJ (mapped to the same
-# nutrient_id by the v2 ingesters). The 4.184× unit-conversion artifact caused
-# false outlier splits across many gated heads (rice, pork, beef variants).
-# Energy is derivable from protein/fat/carb anyway, so removing it doesn't
-# lose discriminating power.
-# _OUTLIER_RATIO is configured in parameters.yaml (scoring.outlier_ratio).
-                       # Any single key nutrient deviating > this from the
-                       # group median => the variant gets its own canon.
-                       # Bumped 3.0 -> 5.0 (Phase 9 amendment): the original 3×
-                       # was splitting rice cultivars (njavara, IR 64, PTB 39)
-                       # off as outliers from the rice canon due to small
-                       # polyphenol-class fiber differences. 5× is permissive
-                       # enough to keep cultivars merged while still splitting
-                       # rice bran (10×+ fiber deviation) and brown vs white
-                       # rice (>5x fiber gap) as legitimate outliers.
+# Key nutrients for the similarity gate (parameters.yaml: nutrient_ids.key_nutrient_ids):
+# macros, sugars, fiber, water, substrate-relevant fibers. The trace-polyphenol tail is
+# left out, measurement noise dominates it. Energy (1008) too: FDC reports kcal and
+# BioFoodComp/Ciqual/Frida sometimes kJ under the same nutrient_id, and the 4.184x
+# artifact split rice/pork/beef variants as false outliers. It is derivable from
+# protein/fat/carb anyway.
+# _OUTLIER_RATIO (parameters.yaml: scoring.outlier_ratio) is the deviation from the group
+# median, on any one key nutrient, that gives a variant its own canon. 3.0 -> 5.0 in
+# Phase 9: 3x split rice cultivars (njavara, IR 64, PTB 39) on small fiber differences,
+# 5x still splits rice bran (10x+) and brown vs white rice (>5x).
 
 def canonicalize_food_name(desc: str) -> str:
     if not desc: return ""
     d = str(desc).strip()
     # Strip FDC Foundation Foods nutrient-panel group prefix FIRST
     # ("Proximates, ", "Beverages, ", "Cereals ready-to-eat, ", "Cereals, ")
-    # — must run before _NF_SUFFIX_RE because the NF suffix regex is greedy
+    # - must run before _NF_SUFFIX_RE because the NF suffix regex is greedy
     # and can eat the entire informative middle of long descriptions.
     d = _FDC_GROUP_PREFIX_RE.sub("", d)
     # Strip FDC NF panel-fragmentation suffix (two flavors).
     d = _NF_SUFFIX_RE.sub("", d)
     d = _NF_BARE_RE.sub("", d)
-    # Strip trailing source tag e.g. " [BioFoodComp]" — keep variant info inside
+    # Strip trailing source tag e.g. " [BioFoodComp]" - keep variant info inside
     # the brackets out of the canon name.
     d = _BRACKET_TAG_RE.sub("", d)
     # Then strip any remaining bracketed variant tags anywhere in the description:
@@ -548,7 +534,7 @@ def canonicalize_food_name(desc: str) -> str:
     d = _BRACKET_VARIANT_RE.sub(" ", d)
     # Strip preparation / state tokens.
     d = _PREP_RE.sub("", d)
-    # Strip parenthetical clarifications and quantitative qualifiers — these
+    # Strip parenthetical clarifications and quantitative qualifiers - these
     # are non-essential annotations that prevent head-aware grouping when
     # they appear in the second comma-chunk of preserve-head foods. For
     # strip-list heads the second chunk is dropped anyway, so this is a
@@ -579,7 +565,7 @@ def canonicalize_food_name(desc: str) -> str:
     #   "bermuda buttercup/ african wood-sorrel/ ... / soursop, bulb"
     #   "creeping bauhinia/ marama bean/ tamani berry, without testa"
     #   "obscure morning glory/ small white morning glory, leaf"
-    # The discriminating signal is **slash followed by space** — the
+    # The discriminating signal is **slash followed by space** - the
     # BioFoodComp / WAFCT convention for listing synonyms. Single slashes
     # without a following space are alternation ("Beef, rib eye steak/roast",
     # "Beef, top loin/sirloin/round") which we preserve as-is. Fallback rule
@@ -647,7 +633,7 @@ def refine_canons_by_nutrition(canon_groups: dict, fid_to_desc: dict,
 
     Cultivars whose key-nutrient amounts deviate from the group median by
     more than `_OUTLIER_RATIO` on at least one nutrient are pulled out of
-    the head-stripped canon and given their own canon — named with the
+    the head-stripped canon and given their own canon - named with the
     variant's original FDC description (lower-cased, light cleanup) so the
     user sees `strawberry, oso grande` instead of `strawberry`.
 
@@ -686,7 +672,7 @@ def refine_canons_by_nutrition(canon_groups: dict, fid_to_desc: dict,
             continue
         # Strip-list head exemption: HARD heads are gate-exempt (user intent
         # is "collapse every variant regardless of nutritional differences"
-        # — e.g. ripe vs unripe mango, 9% vs whole-wheat flour, apple
+        # - e.g. ripe vs unripe mango, 9% vs whole-wheat flour, apple
         # cultivars). GATED heads (rice / pork / beef / veal) still go through
         # the outlier check so genuinely distinct varieties (brown vs white
         # rice; Iberian vs commercial pork) split off as their own canon.
@@ -745,7 +731,7 @@ def build_static_food_meta(args, out_path):
     # Also include every nutrient_id physically present in the bucketed
     # food_nutrient parquet. This covers synthetic substrate IDs (e.g.,
     # 200001+ for HMOs / sialic acid / fucose / alginate / agarose) injected
-    # via 0_building/inject_bacterial_substrates.py — without this they'd be
+    # via 0_building/inject_bacterial_substrates.py - without this they'd be
     # silently dropped at score_one_bacterium because the targs filter is
     # `all_t & STATIC_DB["modeled"]`.
     try:
@@ -801,7 +787,7 @@ def build_static_food_meta(args, out_path):
         # and pollute the uncategorized diagnostic. Length > 60 chars AND a
         # journal-style keyword catches them without dropping legitimate
         # long food names (real food entries with journal-style keywords are
-        # rare — `comprehensive`, `characterization`, etc. almost never appear
+        # rare - `comprehensive`, `characterization`, etc. almost never appear
         # in genuine food descriptions).
         if len(desc_lc) > 60 and _PAPER_TITLE_RE.search(desc_lc):
             _paper_title_skipped += 1
@@ -811,7 +797,7 @@ def build_static_food_meta(args, out_path):
         c_arr[fid] = fid; p_arr[fid] = portion_map.get(fid, 50.0)
         sp_arr[fid] = (cat == "Spices and Herbs"); pl_arr[fid] = (cat in PLANT_CATS)
         if "[phenol-explorer]" in desc_lc:
-            # Phenol-Explorer covers pasta, bread, beverages, etc. — use the
+            # Phenol-Explorer covers pasta, bread, beverages, etc. - use the
             # full _DESC_TO_CATEGORY fallback; only default to "Fruits and
             # Fruit Juices" if literally nothing matches.
             if not cat:
@@ -852,7 +838,7 @@ def build_static_food_meta(args, out_path):
         tp = TP_MAP.get(dt_norm, 100)
         food_stats[fid] = {"dh":int(zlib.crc32(desc_lc.encode())),"pl":p,"bc":bc,
                            "art":int(p>=1.5),"tb":TYPE_W*(tp/600.0),"tp":tp,"dt_norm":dt_norm,"cat":cat}
-    # === Canonical-name grouping ===
+    # Canonical-name grouping
     # FDC fragments the same food across many rows (per nutrient panel via NF
     # suffixes, plus prep/state qualifiers). Group every fdc_id sharing a
     # canonical short name and elect one representative per group; remap
@@ -913,7 +899,7 @@ def build_static_food_meta(args, out_path):
         key=lambda x: -len(x[1]),
     )[:25]
     if flooded:
-        print(f"[diag] Under-grouped heads (top 25 by sub-canon count) — "
+        print(f"[diag] Under-grouped heads (top 25 by sub-canon count) - "
               f"add to _CULTIVAR_STRIP_HEADS if cultivar-flood, leave if meaningful varieties:",
               flush=True)
         for h, cs in flooded:
@@ -934,7 +920,7 @@ def build_static_food_meta(args, out_path):
         print(f"[*] Research-paper-title filter: skipped {_paper_title_skipped} BioFoodComp rows "
               "whose description column held a literature reference, not a food name.", flush=True)
 
-    # Category fill diagnostic — list canonical names that still have no
+    # Category fill diagnostic - list canonical names that still have no
     # category after the keyword fallback so the user can iterate.
     uncat = sorted({s.get("canon_name","") for s in rep_stats.values() if not s.get("cat","")})
     fill_rate = 1 - len(uncat) / max(1, len(rep_stats))
@@ -1001,10 +987,8 @@ def build_modeled_index(bdir, static_db, out_dir, batch_rows=750_000):
     shutil.rmtree(tmp, ignore_errors=True)
 
 
-# ==============================================================================
-# SCORING KERNEL — per-bacterium greedy food selection.
+# SCORING KERNEL - per-bacterium greedy food selection.
 # Adapted from the query prototype's _run_lbl.
-# ==============================================================================
 STATIC_DB, DYNAMIC_STATE = {}, {}
 
 def _init_w(p, d):
@@ -1021,7 +1005,7 @@ def score_one_bacterium(lbl):
     `candidate_rows_df` is a longer, clean-slate list of every (bacterium,
     food) pair scored, with `score` computed AS IF this food were the first
     pick (no greedy `cur` accumulation, no redundancy penalty). This is what
-    the differential-ranking pass needs — peer median per food only makes
+    the differential-ranking pass needs - peer median per food only makes
     sense if scores are independent of greedy-state.
     """
     all_t = set(int(x) for x in DYNAMIC_STATE["lbl2targ"].get(lbl, set()))
@@ -1095,27 +1079,19 @@ def score_one_bacterium(lbl):
     if not c2a:
         return pd.DataFrame()
 
-    # PER-NUTRIENT WEIGHT — three factors, all of them properties of the NUTRIENT:
+    # PER-NUTRIENT WEIGHT - three factors, all of them properties of the NUTRIENT:
     #
     #   w[n] = (fibre boost) × (manual multiplier) × food-IDF
     #
-    # A fourth factor, bacterial-IDF ^ spec_alpha, was removed. It down-weighted
-    # nutrients that many input bacteria target, on the theory that this suppresses
-    # generalist substrates and surfaces specialty ones. It does the reverse: a
-    # substrate that defines a guild is one every member of the guild carries, so
-    # dividing by that count demotes precisely the nutrients an organism is
-    # characterized for. Measured on a 17-species panel with documented substrates,
-    # removing it raised mean reciprocal rank from 0.252 to 0.325.
+    # A fourth factor, bacterial-IDF ^ spec_alpha, was removed: it demoted nutrients many
+    # input bacteria target, which is backwards, since a guild-defining substrate is one
+    # every member carries. On a 17-species panel with documented substrates, dropping it
+    # raised MRR 0.252 -> 0.325.
     # COMMUNITY COVERAGE WEIGHT (community pass only; `cov_w` is absent otherwise).
-    # The community view used to score the plain UNION of every organism's targets, so a
-    # nutrient counted the same whether 1 organism or 58 could act on it. That answers
-    # "could anyone here act on this food", which saturates: an infant gut community at
-    # 6 months already reaches 471 of the 598 mappable nutrients, so doubling its taxa
-    # (30 -> 58 between 6 and 12 months) moved the union 471 -> 474 and the food ranking
-    # not at all. The question the table is meant to answer is "which foods best feed THIS
-    # community", which is about how MUCH of the community a food feeds — a coverage
-    # question, not a capability one. Weighting each nutrient by the share of members that
-    # can use it makes the score move with composition instead of with mere presence.
+    # Scoring the plain union counted a nutrient the same whether 1 organism or 58 could
+    # use it, and the union saturates: 471 of 598 mappable nutrients by 6 months, so
+    # 30 -> 58 taxa moved it 471 -> 474 and changed no ranking. Weighting each nutrient by
+    # the share of members that can use it makes the score follow composition.
     cov_w = DYNAMIC_STATE.get("cov_w")
     cov_alpha = float(DYNAMIC_STATE.get("cov_alpha", 1.0))
     w = {n:(FIBER_WEIGHT if _FIBER.search(nd.get(n, "")) else 1.0)
@@ -1156,7 +1132,7 @@ def score_one_bacterium(lbl):
             prm = min(1.0, max(0.0, ni/max(50, int(DYNAMIC_STATE["mc"].get(c, 0)))))
             geff = math.log1p(gn)*(math.sqrt(ni/(ni + 2.0)) if ni > 0 else 0.0)
             cat_rep = chosen_cats.count(fs.get("cat", "")); cat_pen = 0.20 * cat_rep
-            # Phase 10 simplification — same math, 3 named terms instead of 7.
+            # Phase 10 simplification - same math, 3 named terms instead of 7.
             #   food_baseline = flat per-food cost (regularizer + base cost + artifact)
             #   amount_cost   = breadth-vs-purity penalty that scales with ln(1+gn)
             #   greedy_extra  = redundancy + category-repeat penalty (greedy path only)
@@ -1188,8 +1164,8 @@ def score_one_bacterium(lbl):
                          coverage_total_frac=cov_tot/max(1, len(targs)),
                          top_nutrient_ids=bst[14], top_nutrient_names=bst[15]))
 
-    # === Clean-slate per-candidate scoring for differential mode ===
-    # Same formula as the greedy loop but with cur=0 and red=0 — every food
+    # Clean-slate per-candidate scoring for differential mode
+    # Same formula as the greedy loop but with cur=0 and red=0 - every food
     # is scored independently of selection order, so peer median per food
     # has well-defined semantics.
     if not DYNAMIC_STATE.get("score_pool", True):
@@ -1215,30 +1191,18 @@ def score_one_bacterium(lbl):
         geff = math.log1p(gn)*(math.sqrt(ni/(ni + 2.0)) if ni > 0 else 0.0)
         dmode = DYNAMIC_STATE.get("diff_formula", "full")
         if dmode != "full":
-            # The per-food cost stack does two unrelated jobs, and conflating them is what
-            # makes this formula hard to reason about.
-            #
-            #   1. RANKING. Here it is dead weight. The stack is a FOOD property, identical
-            #      for every bacterium at that food, so it shifts `score` and `peer_median`
-            #      equally and cancels in comp_score = score - peer_median. Zeroing
-            #      proc_w / fiber_weight / broad_q leaves 85-94% of differential rankings
-            #      byte-identical, which is that cancellation showing through.
-            #
-            #   2. ADMISSION. Here it is load-bearing, and this is the part that is easy to
-            #      miss. cat_penalty is 5.0 for Alcoholic Beverages and Fast Foods — large
-            #      enough to drive those foods negative, where the pre-median `score > 0`
-            #      filter drops them. The penalty is an admission gate wearing the costume of
-            #      a score term. Deleting it outright ("gain_only" below) lets sausages,
-            #      fast food and alcohol into the rankings: whole-plant foods fall from
-            #      91.1% of differential top-10 rows to 75.0%, with 21.4% of rows drawn from
-            #      categories that were previously absent. The six-species panel still scores
-            #      3/3, because it matches substrate keywords and cannot see this at all.
-            #
-            # "explicit_admission" therefore keeps job 2 EXACTLY as it is — same expression,
-            # same threshold, so the admitted set is identical to the current formula — and
-            # drops job 1, where the stack buys nothing. Ranking is then pure gain, and
-            # art_w's 79% effect is revealed for what it always was: an admission decision,
-            # not a scoring one.
+            # The cost stack does two jobs.
+            #   1. RANKING: dead weight. The stack is a FOOD property, so it shifts `score`
+            #      and `peer_median` equally and cancels in score - peer_median. Zeroing
+            #      proc_w / fiber_weight / broad_q leaves 85-94% of rankings byte-identical.
+            #   2. ADMISSION: load-bearing. cat_penalty 5.0 (Alcoholic Beverages, Fast Foods)
+            #      drives those negative, and the pre-median `score > 0` filter then drops
+            #      them. Deleting the stack ("gain_only") readmits them: whole-plant foods
+            #      91.1% -> 75.0% of differential top-10 rows, 21.4% from categories that
+            #      were absent. The six-species panel still scores 3/3 and cannot see it.
+            # "explicit_admission" keeps job 2 unchanged (same expression and threshold, so
+            # the admitted set is identical) and drops job 1. art_w's 79% effect is then an
+            # admission decision, not a scoring one.
             food_cost = (fs["bc"] + ART_W * fs["art"]
                          + (PROC_W * fs["pl"] + BROAD_W * ((1.0 - prm) ** BROAD_Q)) * math.log1p(gn))
             if dmode == "explicit_admission" and geff * (1.0 + fs["tb"]) - food_cost <= 0:
@@ -1246,8 +1210,8 @@ def score_one_bacterium(lbl):
             sc = geff * (1.0 + fs["tb"])
             proc_cost = broad_cost = 0.0
         else:
-            # Phase 10 simplification — same math as the 7-term form, 3 named terms.
-            # No greedy-state terms (redundancy, category-repeat) — those are
+            # Phase 10 simplification - same math as the 7-term form, 3 named terms.
+            # No greedy-state terms (redundancy, category-repeat) - those are
             # greedy-path only and don't affect differential / perFood / community.
             food_baseline = fs["bc"] + ART_W * fs["art"]
             amount_cost   = (PROC_W * fs["pl"] + BROAD_W * ((1.0 - prm) ** BROAD_Q)) * math.log1p(gn)
@@ -1269,9 +1233,7 @@ def score_one_bacterium(lbl):
     return pd.DataFrame(rows), pd.DataFrame(cand_rows)
 
 
-# ==============================================================================
 # INPUT LOADERS
-# ==============================================================================
 # --- input column auto-detection (header-agnostic, multi-EC aware) -----------
 # An EC cell: one or more EC numbers (optional "EC:" prefix), comma/semicolon
 # separated.  Used both to spot the EC column and to detect a header row.
@@ -1304,7 +1266,7 @@ def _species_likeness(series: pd.Series) -> float:
         return 0.0
     taxid = float(vals.map(lambda v: bool(_TAXID_NAME_RE.match(v))).mean())
     if taxid >= 0.6:
-        return 1.0 + taxid                       # taxid_Species — strongest signal
+        return 1.0 + taxid                       # taxid_Species - strongest signal
     org = float(vals.map(
         lambda v: (not _LOCUS_RE.match(v)) and len(_ORG_WORD_RE.findall(v)) >= 2
     ).mean())
@@ -1356,7 +1318,7 @@ def load_user_ec(args) -> pd.DataFrame:
 
     Accepts two input shapes, auto-detected:
       * Header TSV with `species` and `ec_number`/`ec` columns (+ optional
-        `strain`) — the documented format.
+        `strain`) - the documented format.
       * Headerless annotation TSV (e.g. gene_annot/*_ec.tsv): no header, the
         species and EC columns are recognized by content. EC cells may list
         several comma/semicolon-separated EC numbers (split into one per row).
@@ -1389,11 +1351,9 @@ def load_user_ec(args) -> pd.DataFrame:
     return _normalize_ec_frame(enz)
 
 
-# ==============================================================================
 # Bact_ec reference: cache the 3.2 GB TSV to a deduplicated parquet on first
 # use, then read the parquet for all downstream lookups (complement_ec and
 # food2bacteria reference pool).
-# ==============================================================================
 def _split_taxid(species_str: str):
     """If species starts with `<digits>_<rest>`, return (taxid, rest with underscores->spaces).
     Otherwise (None, species_str).
@@ -1439,7 +1399,7 @@ def _newest_mtime(*sources) -> float:
 def _is_stale(target: Path, *sources) -> bool:
     """True if `target` is missing or older than any of its inputs.
 
-    Existence-only checks let a derived index outlive the data it was built from — the
+    Existence-only checks let a derived index outlive the data it was built from - the
     same silent-staleness failure that put the bact_ec parquet in the deposit directory.
     """
     if not target.exists():
@@ -1493,7 +1453,7 @@ def _enforce_index_identity(idx_dir: Path, *sources) -> None:
         (shutil.rmtree(p) if p.is_dir() else p.unlink())
     if dropped:
         why = "was built from different inputs" if prev else "has no provenance stamp"
-        print(f"[*] index at {idx_dir} {why} — discarded {len(dropped)} cached file(s); "
+        print(f"[*] index at {idx_dir} {why} - discarded {len(dropped)} cached file(s); "
               f"rebuilding from {sources[0]}", flush=True)
     stamp.write_text(json.dumps(ident, indent=1, sort_keys=True))
 
@@ -1516,12 +1476,12 @@ def _ref_read_options(bact_ec_tsv: str) -> tuple[pacsv.ReadOptions, dict]:
     Two layouts are supported, so the predictor tracks the exported resource instead
     of a private copy of it:
 
-      * species_enzymes.tsv (eggNOG v7, current) — 6 columns WITH a header:
+      * species_enzymes.tsv (eggNOG v7, current) - 6 columns WITH a header:
         tax_id, genus, species, strain, organism, ec_number. `organism` is the full
         strain-level name, which is what the legacy file put in its species column, so
         it is the one mapped onto "species" here; the matching ladder's prefix-of-2 step
         collapses it to Genus+species exactly as before.
-      * bact_ec.tsv (eggNOG v6, legacy) — 4 columns, NO header:
+      * bact_ec.tsv (eggNOG v6, legacy) - 4 columns, NO header:
         tax_id, species, kingdom, ec_number.
 
     eggNOG v7 dropped its direct EC annotation, so the v7 reference is built through
@@ -1630,7 +1590,7 @@ def match_user_to_reference(user_species: list[str], bact_ec_tsv: str) -> dict[s
     ref = load_bact_ec_reference(bact_ec_tsv, filter_taxids=None, filter_norm_names=None)
     # Normalize per DISTINCT organism name (~10.7k), never per row. Adding `nname`/`pref`
     # columns instead materializes two Python strings for every one of the reference's
-    # 20.5M rows, which is several GB and OOM-kills the process on a 16 GB machine — the
+    # 20.5M rows, which is several GB and OOM-kills the process on a 16 GB machine - the
     # eggNOG v7 reference is twice the size of the v6 one this was written against.
     ref_by_taxid = ref.groupby("tax_id")["ec_number"].apply(set).to_dict()
     by_species   = ref.groupby("species")["ec_number"].apply(set).to_dict()
@@ -1722,15 +1682,13 @@ def augment_user_ec_from_reference(user_ec: pd.DataFrame, bact_ec_tsv: str,
         return user_ec
     add_df = pd.DataFrame(added_rows)
     n_aug_species = add_df["species"].nunique()
-    skip_note = f"  ({n_skipped_well_annotated} matched species skipped — already ≥{threshold} ECs)" if threshold else ""
+    skip_note = f"  ({n_skipped_well_annotated} matched species skipped - already ≥{threshold} ECs)" if threshold else ""
     print(f"    added {n_added_total} reference ECs across {n_aug_species} species "
           f"(median {add_df.groupby('species').size().median():.0f}/species).{skip_note}", flush=True)
     return pd.concat([user_ec, add_df], ignore_index=True)
 
 
-# ==============================================================================
 # MODE OUTPUTS
-# ==============================================================================
 _STATIC_FOOD_META_PATH: str | None = None  # set in main() before writers run
 
 def attach_food_meta(df: pd.DataFrame, food_path: str, food_category_path: str,
@@ -1742,7 +1700,7 @@ def attach_food_meta(df: pd.DataFrame, food_path: str, food_category_path: str,
     """
     if df.empty: return df
     fm = load_smart(food_path).drop_duplicates(subset=["fdc_id"], keep="last")
-    # Normalize whitespace in description (same fix as build_static_food_meta) —
+    # Normalize whitespace in description (same fix as build_static_food_meta) -
     # prevents embedded \n in CIQUAL / BioFoodComp descriptions from breaking
     # downstream TSV consumers.
     if "description" in fm.columns:
@@ -1772,7 +1730,7 @@ def attach_food_meta(df: pd.DataFrame, food_path: str, food_category_path: str,
 def write_community(community_scores: pd.DataFrame, n_contributing_per_food: dict,
                     out_prefix: Path, food_path: str, food_category_path: str,
                     keep_negative_scores: bool = False):
-    """Write `<prefix>.community.tsv` — top foods for the whole microbiome as
+    """Write `<prefix>.community.tsv` - top foods for the whole microbiome as
     a single pseudo-bacterium whose EC set is the union of every input
     bacterium's effective ECs.
     """
@@ -1781,7 +1739,7 @@ def write_community(community_scores: pd.DataFrame, n_contributing_per_food: dic
         return
     df = community_scores.copy()
     # Phase 10: drop net-negative-score foods. A negative score means the food's
-    # penalty stack exceeds its gain — recommending it is misleading.
+    # penalty stack exceeds its gain - recommending it is misleading.
     if not keep_negative_scores:
         n0 = len(df)
         df = df[df["score"] > 0].copy()
@@ -1805,7 +1763,7 @@ def _diverse_head(g: pd.DataFrame, max_foods: int, cap: int) -> pd.DataFrame:
     more than `cap` of them on any single food category or any single lead substrate.
 
     A differential table is read as a shortlist to eat from, and the practical shortlist
-    is five to ten items — few meals have more ingredients. At that length redundancy is
+    is five to ten items - few meals have more ingredients. At that length redundancy is
     the dominant failure: the clean-slate ranking that feeds this table carries no
     complementarity term (unlike the greedy path, which already applies
     OVERLAP_W * redundancy + category-repeat), so its top five can be five ways of
@@ -1831,7 +1789,7 @@ def _diverse_head(g: pd.DataFrame, max_foods: int, cap: int) -> pd.DataFrame:
             n_nut[nut] = n_nut.get(nut, 0) + 1
         if len(kept) >= max_foods:
             break
-    # If the cap starved the list — few categories available, or a thin candidate set —
+    # If the cap starved the list - few categories available, or a thin candidate set -
     # backfill in score order rather than returning a short table. The cap shapes the
     # shortlist; it must not silently shrink it.
     if len(kept) < max_foods:
@@ -1856,8 +1814,8 @@ def write_differential_bacteria2food(cand_scores: pd.DataFrame, out_prefix: Path
       comp_score  `comp_score[B,F] = score[B,F] - peer_median[F]`, ranked desc. The
                   original rule: the peer comparison is the score.
 
-      score       the peer comparison is an ADMISSION TEST — keep F only where
-                  `score[B,F] > peer_median[F]` — and rank the survivors on absolute
+      score       the peer comparison is an ADMISSION TEST - keep F only where
+                  `score[B,F] > peer_median[F]` - and rank the survivors on absolute
                   `score`. Same question ("where does B beat its peers?"), but the
                   answer is ordered by how good the food is for B rather than by the
                   size of the margin.
@@ -1871,7 +1829,7 @@ def write_differential_bacteria2food(cand_scores: pd.DataFrame, out_prefix: Path
     near rank 1 with plausibility unchanged (94.1% whole-plant, 0% junk).
 
     If a food has fewer than `min_peers` peer scores, its peer median is
-    statistically thin — we mark `peer_n` so users can filter, but still
+    statistically thin - we mark `peer_n` so users can filter, but still
     rank it (the rare foods only a handful of bacteria can use are exactly
     the rows differential mode is meant to surface).
     """
@@ -1880,7 +1838,7 @@ def write_differential_bacteria2food(cand_scores: pd.DataFrame, out_prefix: Path
         return
     df = cand_scores.copy()
     # Phase 10: drop net-negative-score (bacterium, food) pairs before peer
-    # statistics — they pollute the median for foods where most bacteria score
+    # statistics - they pollute the median for foods where most bacteria score
     # negatively, and they're useless as recommendations regardless.
     if not keep_negative_scores:
         n0 = len(df)
@@ -1889,7 +1847,7 @@ def write_differential_bacteria2food(cand_scores: pd.DataFrame, out_prefix: Path
             print(f"[*] Differential: filtered {n0-len(df)} negative-score rows "
                   f"({n0} -> {len(df)}); pass --keep_negative_scores to retain.", flush=True)
         if df.empty:
-            print("[!] No positive-score rows remain — differential.tsv will be empty.", flush=True)
+            print("[!] No positive-score rows remain - differential.tsv will be empty.", flush=True)
             return
     peer_stats = df.groupby("representative_fdc_id")["score"].agg(
         peer_median="median", peer_mean="mean", peer_n="size"
@@ -1902,7 +1860,7 @@ def write_differential_bacteria2food(cand_scores: pd.DataFrame, out_prefix: Path
         print(f"[*] Differential: peer test admitted {len(df)} of {n0} rows "
               f"(score > peer median); ranking survivors on absolute score.", flush=True)
         if df.empty:
-            print("[!] No row beats its peer median — differential.tsv will be empty.", flush=True)
+            print("[!] No row beats its peer median - differential.tsv will be empty.", flush=True)
             return
     df = df.sort_values(["bacterium", rank_by], ascending=[True, False])
     # Food metadata is attached BEFORE truncation because the diversity cap reads
@@ -1936,7 +1894,7 @@ def write_perFood(scores: pd.DataFrame, out_prefix: Path, top_k: int, food_path:
     if scores.empty:
         print("[!] No (bacterium, food) scores were produced.", flush=True)
         return
-    # Phase 10: drop net-negative (bacterium, food) pairs — a perFood top-K
+    # Phase 10: drop net-negative (bacterium, food) pairs - a perFood top-K
     # of bacteria for food F shouldn't include bacteria where F net-hurts them.
     if not keep_negative_scores:
         n0 = len(scores)
@@ -1945,7 +1903,7 @@ def write_perFood(scores: pd.DataFrame, out_prefix: Path, top_k: int, food_path:
             print(f"[*] perFood: filtered {n0-len(scores)} negative-score rows "
                   f"({n0} -> {len(scores)}); pass --keep_negative_scores to retain.", flush=True)
         if scores.empty:
-            print("[!] No positive-score rows remain — perFood.tsv will be empty.", flush=True)
+            print("[!] No positive-score rows remain - perFood.tsv will be empty.", flush=True)
             return
     inv = (scores.sort_values(["representative_fdc_id","score"], ascending=[True, False])
                  .groupby("representative_fdc_id", as_index=False, group_keys=False)
@@ -2013,7 +1971,7 @@ def load_abundance(path: str | None, labels: set[str]) -> dict[str, float]:
 
 def write_perBacterium(scores: pd.DataFrame, out_prefix: Path, max_foods: int, food_path: str,
                        food_category_path: str, keep_negative_scores: bool = False):
-    """<prefix>.perBacterium.tsv — for each organism, the foods that suit it best.
+    """<prefix>.perBacterium.tsv - for each organism, the foods that suit it best.
 
     Answers "which foods would stimulate THIS microbe", which none of the other three
     tables does. differential.tsv ranks by comp_score, i.e. what an organism exploits
@@ -2023,7 +1981,7 @@ def write_perBacterium(scores: pd.DataFrame, out_prefix: Path, max_foods: int, f
     so an organism appears for ~8 foods rather than its full shortlist.
 
     This is the same greedy per-bacterium frame perFood.tsv inverts, written out
-    un-inverted — no extra scoring pass.
+    un-inverted - no extra scoring pass.
     """
     if scores.empty:
         print("[!] No (bacterium, food) scores were produced.", flush=True)
@@ -2035,7 +1993,7 @@ def write_perBacterium(scores: pd.DataFrame, out_prefix: Path, max_foods: int, f
             print(f"[*] perBacterium: filtered {n0-len(scores)} negative-score rows "
                   f"({n0} -> {len(scores)}); pass --keep_negative_scores to retain.", flush=True)
         if scores.empty:
-            print("[!] No positive-score rows remain — perBacterium.tsv will be empty.", flush=True)
+            print("[!] No positive-score rows remain - perBacterium.tsv will be empty.", flush=True)
             return
     out = (scores.sort_values(["bacterium", "score"], ascending=[True, False])
                  .groupby("bacterium", as_index=False, group_keys=False)
@@ -2064,8 +2022,8 @@ MODES = ("community", "differential")
 def _select_mode(argv: list[str]) -> tuple[str, list[str]]:
     """Read the leading subcommand, if there is one.
 
-    The two views answer different questions, need different parameters and — since each
-    is produced by its own scoring pass — do not need to be computed together:
+    The two views answer different questions, need different parameters and - since each
+    is produced by its own scoring pass - do not need to be computed together:
 
         bac2food_predict.py community    --mag ... --out ... [community options]
         bac2food_predict.py differential --mag ... --out ... [differential options]
@@ -2129,13 +2087,13 @@ def main():
     ap.add_argument("--mag", "--mag_tsv", dest="mag_tsv", default=None,
                     help="Bacterium->EC TSV. Either a header TSV with columns "
                          "species, ec_number [, strain], or a headerless annotation "
-                         "TSV (e.g. gene_annot/*_ec.tsv) — the species and EC columns "
+                         "TSV (e.g. gene_annot/*_ec.tsv) - the species and EC columns "
                          "are auto-detected and EC cells may list several comma- or "
                          "semicolon-separated EC numbers. Required unless --use_reference is set.")
     ap.add_argument("--use_reference", dest="use_reference", action=argparse.BooleanOptionalAction, default=None,
                     help="Use bact_ec.tsv as the bacterial-EC source (in addition to --mag_tsv if both "
                          "given). Default: off (use only the user's MAGs). Set on to score against the "
-                         "broader bacterial universe — useful for food→bacteria recommendations.")
+                         "broader bacterial universe - useful for food→bacteria recommendations.")
     ap.add_argument("--ref_min_ec", type=int, default=20,
                     help="Skip reference species with fewer than this many ECs.")
     ap.add_argument("--ref_max_species", type=int, default=0,
@@ -2154,7 +2112,7 @@ def main():
                          "differential. Default 10. It is NOT a quality knob for the "
                          "differential view: that view is fed the clean-slate frame, where "
                          "every candidate is scored independently, so there is no exploration "
-                         "budget to widen — grading the top 5 at a fixed depth gives an "
+                         "budget to widen - grading the top 5 at a fixed depth gives an "
                          "identical MRR 0.296 at 5, 10, 20, 50 and 100. Its one biological "
                          "channel is that it sets --differential_diversity, and 10 (cap 4) is "
                          "the best point on that curve: MRR 0.308 against 0.296 uncapped, "
@@ -2174,8 +2132,8 @@ def main():
                              "'abundance' does the same but weights organisms by relative "
                              "abundance, and REQUIRES --abundance_tsv; 'none' is the "
                              "pre-2026-08 plain union, in which one organism counts the same "
-                             "as all of them. The union saturates — an infant gut community "
-                             "reaches 471 of 598 mappable nutrients by 6 months — so it cannot "
+                             "as all of them. The union saturates - an infant gut community "
+                             "reaches 471 of 598 mappable nutrients by 6 months - so it cannot "
                              "distinguish communities and is kept only to reproduce old runs.")
         ap.add_argument("--abundance_tsv", default=None,
                         help="Relative abundances for --community_weight abundance: a TSV with "
@@ -2199,7 +2157,7 @@ def main():
     ap.add_argument("--rebuild-static-meta", action="store_true")
     ap.add_argument("--keep_negative_scores", action=argparse.BooleanOptionalAction, default=False,
                     help="Keep (bacterium, food) pairs with score <= 0 in the three output files. "
-                         "Default off — a negative score means the food's penalty stack exceeds its "
+                         "Default off - a negative score means the food's penalty stack exceeds its "
                          "gain (the bacterium does not benefit), so the row is misleading as a "
                          "recommendation. Set on for debugging / inspecting the tail.")
     ap.add_argument("--complement_ec", action="store_true",
@@ -2222,21 +2180,21 @@ def main():
                         help="How the differential view scores. 'full' (default) subtracts the "
                              "per-food cost stack from the score, so the stack both ranks and "
                              "gates. 'explicit_admission' ranks on gain alone and lets the stack "
-                             "gate only — which is exactly equivalent while ranking is on "
+                             "gate only - which is exactly equivalent while ranking is on "
                              "comp_score, because the stack is a food property that cancels in "
                              "score - peer_median (both score MRR 0.216 there). It stops being "
                              "equivalent under --differential_rank score, where nothing cancels and "
                              "the stack becomes load-bearing: 'full' then reaches hits@3 8/17 and "
                              "passes the panel's negative control, against 6/17 and a rank-9 false "
-                             "positive for 'explicit_admission' (MRR 0.312 vs 0.325 — MRR is the "
+                             "positive for 'explicit_admission' (MRR 0.312 vs 0.325 - MRR is the "
                              "closer call, hits@3 the clearer one). "
-                             "'gain_only' drops the stack entirely — simplest, but it readmits "
+                             "'gain_only' drops the stack entirely - simplest, but it readmits "
                              "alcohol, fast food and sausages, so it is kept for comparison only. "
                              "Community scoring is unaffected by all three.")
         ap.add_argument("--rank", "--differential_rank", dest="differential_rank", choices=["comp_score", "score"], default="score",
                         help="How the differential view ORDERS the foods it admits. 'score' "
-                             "(default) treats the peer comparison as an ADMISSION TEST — keep the "
-                             "food only where score > peer median — and ranks survivors on absolute "
+                             "(default) treats the peer comparison as an ADMISSION TEST - keep the "
+                             "food only where score > peer median - and ranks survivors on absolute "
                              "score. 'comp_score' is the historical rule: rank on the margin over "
                              "the peer median. Subtracting that median removes any substrate the "
                              "peers SHARE, which is what defines a guild: under 'comp_score' four "
@@ -2249,13 +2207,13 @@ def main():
         ap.add_argument("--diversity", "--differential_diversity", dest="differential_diversity", type=int, default=-1, metavar="K",
                         help="Cap how many of a bacterium's ranked foods may share one food "
                              "category or one lead substrate. -1 (default) scales the cap with the "
-                             "list: max(2, round(0.4 * --max_foods)) — 2 at 5 foods, 4 at 10. "
+                             "list: max(2, round(0.4 * --max_foods)) - 2 at 5 foods, 4 at 10. "
                              "0 disables it (pure score order); a positive value sets it directly. "
                              "The table is read as a shortlist to eat from and the practical "
                              "shortlist is 5-10 items, where redundancy dominates: the clean-slate "
                              "scores feeding this table carry no complementarity term, unlike the "
                              "greedy path, so a cohort top-5 spanned 2.08 food categories against "
-                             "the greedy path's 3.71 (3.08 with the cap on). The cap MUST scale — "
+                             "the greedy path's 3.71 (3.08 with the cap on). The cap MUST scale - "
                              "a fixed K=2 costs nothing at 5 foods (99.1%% whole-plant either way) "
                              "but forces >=5 categories at 10 foods, dropping whole-plant to 85.0%% "
                              "and admitting junk, because spreading a longer list reaches further "
@@ -2289,11 +2247,11 @@ def main():
                    args.food_nutrient, args.nutrient_alias)
     if _is_stale(sm_path, *_sm_sources):
         if sm_path.exists():
-            print(f"[!] {sm_path.name} is older than its inputs — rebuilding.", flush=True)
+            print(f"[!] {sm_path.name} is older than its inputs - rebuilding.", flush=True)
         build_static_food_meta(args, sm_path)
 
     # Decide whether to pull bacteria from the bact_ec reference. Default off
-    # for all modes — uses only the user's MAGs. Pass --use_reference to also
+    # for all modes - uses only the user's MAGs. Pass --use_reference to also
     # include the broader bact_ec universe.
     use_ref = bool(args.use_reference) if args.use_reference is not None else False
     if args.mag_tsv is None and not use_ref:
@@ -2359,7 +2317,7 @@ def main():
     # tells the scoring kernel: "when looking for specific_id in a food, also
     # check generic_id and substitute at 25% efficiency". This is the same
     # mechanism the original pipeline uses for vitamin / acid-base / form
-    # aliases — inherited from the query prototype.
+    # aliases - inherited from the query prototype.
     #
     #   200001 GlcNAc            ← FDC 96310 CHITIN          (chitin → GlcNAc monomer)
     #   200002 GalNAc            ← FDC 96310 CHITIN          (loose proxy: chitin family)
@@ -2385,7 +2343,7 @@ def main():
 
     # --- build modeled index if missing ---
     # Derived from the bucketed parquet and the static meta, so it is stale if either is
-    # newer than it — not merely if it is absent.
+    # newer than it - not merely if it is absent.
     if any(_is_stale(idx_dir/f, args.food_nutrient, sm_path)
            for f in ["modeled_totals.parquet", "nutrient_df.parquet", "nutrient_scale.parquet"]):
         build_modeled_index(args.food_nutrient, pickle.load(open(sm_path, "rb")), idx_dir)
@@ -2443,7 +2401,7 @@ def main():
         #   membership  each organism counts once. Answers "how many members benefit".
         #   abundance   organisms weighted by their share of annotated loci, the only
         #               abundance proxy the annotation input carries. Answers "how much of
-        #               the community, by mass, benefits" — closer to the biology, but it
+        #               the community, by mass, benefits" - closer to the biology, but it
         #               inherits any assembly/annotation depth bias per organism.
         #   none        the pre-2026-08 plain union. Kept so old runs reproduce.
         cov_w = None

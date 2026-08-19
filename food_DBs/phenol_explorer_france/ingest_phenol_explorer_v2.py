@@ -31,8 +31,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-# fdc_id allocation is centralised in food_DBs/fdc_blocks.py. Never write a literal offset:
-# ids are accessions looked up in fdc_id_map.tsv, so a food keeps its id across releases.
+# fdc_id allocation: fdc_blocks.py
 import sys as _sys
 from pathlib import Path as _Path
 _sys.path.insert(0, str(_Path(__file__).resolve().parent.parent))
@@ -40,8 +39,6 @@ import fdc_blocks
 
 
 EXTRA_ID_START = 240_001
-# RETIRED: block bases live in food_DBs/fdc_blocks.py. This constant is kept out of
-# the file entirely so it cannot drift from the real allocation.
 
 
 CAT_MAP = {
