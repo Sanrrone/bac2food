@@ -50,8 +50,13 @@ the other ~243, which can never reach a food but were still counted as "in the m
 inflated every downstream coverage figure (the cohort match rate read 45.4% instead of 36.9%).
 Regenerate the id list after any rebuild of the food export:
 
-  python -c "import csv;ids={r[4] for r in csv.reader(open('/data/bac2food/exports/food_nutrients.tsv'),delimiter='\t')};\
-ids.discard('nutrient_id');open('/data/bac2food/live_nutrients.tsv','w').write('nutrient_id\n'+'\n'.join(sorted(ids,key=int)))"
+  python -c "import csv;r=csv.reader(open('/data/bac2food/exports/food_nutrients.tsv'),delimiter='\t');\
+i=next(r).index('nutrient_id');ids={x[i] for x in r};\
+open('/data/bac2food/live_nutrients.tsv','w').write('nutrient_id\n'+'\n'.join(sorted(ids,key=int)))"
+
+  (Resolve the column by NAME. The old form hardcoded index 4, which was nutrient_id until
+  `canon` was inserted after `description` and moved it to 6; a hardcoded offset silently
+  built the live list out of unit_name.)
 
 Then rebuild the dependent export:
   python ../5_export/export_resources.py --only enzymes --out_dir /data/bac2food/exports

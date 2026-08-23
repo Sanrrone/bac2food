@@ -51,9 +51,8 @@ python bac2food_predict.py \
     --food          /data/bac2food/food.parquet \
     --nutrient      /data/bac2food/nutrient.csv \
     --food_category /data/bac2food/food_category.csv \
-    --food_portion  /data/bac2food/food_portion.csv \
     --index_dir     /data/bac2food/index_modeled \
-    --out_prefix    hep \
+    --out_prefix    myrun \
     --max_foods     10 \
     --spec_alpha    2.0 \
     --augment_with_reference --augment_threshold 200 \

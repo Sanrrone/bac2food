@@ -41,7 +41,7 @@ SCHEMA = {
     # `source_food_code` (the identifier the source itself publishes) has been in the export
     # since the re-key, and is documented in Data Records; this list had not been updated, so
     # the check failed the correct file.
-    "food_nutrients.tsv": ["fdc_id", "source_food_code", "description", "data_type",
+    "food_nutrients.tsv": ["fdc_id", "source_food_code", "description", "canon", "data_type",
                            "food_category", "nutrient_id", "nutrient_name", "unit_name",
                            "amount", "source_db"],
 }
@@ -101,7 +101,449 @@ EXPECTED = {
     # +2,328 foods, no new nutrients), and this baseline was also carrying pre-re-key
     # numbers from before migrate_fdc_ids.py. Both corrected together against the
     # measured export, so a drift from here is a real regression again.
-    "food_nutrients.tsv": {"rows": 1_956_046, "foods": 116_693, "nutrients": 1_779},
+    # 1,956,046 -> 1,929,050 rows and 116,693 -> 116,043 foods on 2026-08-19. Three
+    # exclusions, all in export_food_nutrients: 10 source columns that are not composition
+    # values (food_DBs/_common/non_nutrients.py), 4 Livsmedelsverket editing-layer copies,
+    # and 74 exact re-listings. 572 BioFoodComp foods went with them: their ONLY value was
+    # the "Latest Revision in Version" database stamp, so once it went they carried no
+    # measurement and the export's inner join dropped them. nutrients 1,779 -> 1,769 is
+    # exactly the 10 removed columns.
+    # canon_blank: 8 FDC foods whose description is empty in food.parquet itself. They
+    # cannot be canonicalized because there is nothing to canonicalize; the count is
+    # pinned so a future ingest that starts dropping descriptions is caught here.
+    # canon 20,329 -> 21,567 on 2026-08-20, with rows/foods/nutrients all unchanged.
+    # canonicalize_food_name stopped folding composition-changing preparation states into
+    # the base food: drying, juicing, frying and sweetening alter per-100 g values, and the
+    # predictor unions a canon's nutrients by MAX, so one dehydrated variant was handing its
+    # whole group the concentrated figures (apple read 12.4 g fibre against a true 3.2).
+    # Only the grouping moved, which is why this is the single count that changed.
+    # canon 21,567 -> 20.480 on 2026-08-21, again with rows/foods/nutrients unchanged.
+    # Two classes of silent over-merge were undone. (1) A venue prefix could swallow the
+    # dish: 44 distinct McDonald's items, from french fries to a side salad, shared the
+    # single canon "mcdonald's". (2) Identity-bearing detail was being deleted rather than
+    # kept - an ingredient parenthetical ("BIG MAC (without Big Mac Sauce)"), the w/wo and
+    # w/ abbreviations for with/without that NEVO, CIQUAL and Livsmedelsverket use, and
+    # salted vs unsalted, which is now an axis of its own because a single state slot let
+    # "Cod, dried, salted" and "Cod, dried, unsalted" both resolve to "dried" and merge.
+    # Then to 20,096, after unsalted became the unmarked default (a raw carrot is
+    # unsalted, so 'carrot, unsalted' and 'carrot' were one food under two names)
+    # and trim became an axis - 'veal' alone had absorbed 281 descriptions, pure
+    # separable fat MAX-unioned with separable lean only.
+    # A further fall to 20,480 on 2026-08-21, when 1,764 curated overrides
+    # from five parallel domain audits corrected misnamed canons and folded the
+    # duplicates they exposed (brands, typos, and species mislabels such as
+    # WAFCT palm KERNEL oil filed as palm oil).
+    # The count first ROSE to 22,090 as those merges were undone, then FELL to
+    # 21,093 when _CANON_MERGES folded 968 cross-database duplicates: sixteen
+    # national databases write the same food in different orders, so 'olive oil',
+    # 'oil, olive' and 'oil olive' were three separate foods with their evidence
+    # split three ways. Both moves are grouping only; no food was added or removed,
+    # which is why rows/foods/nutrients are unchanged throughout.
+    # 20,095 -> 19,986 on 2026-08-22, rows/foods/nutrients unchanged. The
+    # five naming defects reported by hand turned out to be classes, so every
+    # canon in the index was scored against them and the 2,216 that scored were
+    # read. Six rules absorbed the mechanical part - a corporate entity chunk is
+    # a manufacturer ("The COCA-COLA company, DASANI, water" was the canon "the
+    # company, dasani"), "imported from the U.S.A." is provenance not identity,
+    # CIQUAL's "-> ARCHIVE" is bookkeeping, "n/a" is a placeholder, the cultivar
+    # regex was widened to reach accession codes (IRNAS n° 11, KARI/BN/, Texas
+    # 17W, DMR-ESR-W), and "ready to feed" is normalised to the hyphenated form
+    # 91 other canons already use. The remaining 378 are curated overrides, one
+    # name each, from reading the 2,216 flagged canons twelve slices at a time.
+    # The whole fall is duplicate names collapsing onto the correct one: 96
+    # targets absorbed a defective twin ("ricy" into rice, "cauliflower, danish"
+    # into cauliflower, a 97-row canon called "sauce" that is entirely bottled
+    # spaghetti sauce into "sauce, pasta"), and none crosses from one food to
+    # another. Requests to SPLIT an over-merged canon are a different and larger
+    # job; they are filed in AUDIT_REMAINING_ROUND4.tsv, not applied here.
+    #
+    # Then 19,986 -> 20,558 the same day, and this one RISES because the pass
+    # recovered distinctions rather than merging names. Five composition axes
+    # were missing or incomplete, so the values either side of each were being
+    # MAX-unioned into one canon:
+    #   sugar        "Pears, stewed with sugar" and "stewed without sugar" were
+    #                one canon of 222; 21 canons held both, among them apple
+    #                (312) and yoghurt (288). Unsweetened joins unsalted as an
+    #                unmarked label - detected, so the split holds, never printed.
+    #   sodium       FDC writes the positive form as "sodium added", which was
+    #                landing in the name ('blackeye pea, sodium added') instead
+    #                of on the axis, and "reduced sodium" had no label at all.
+    #   fat level    43 canons held both ends: skim yoghurt was being handed the
+    #                full-fat figures.
+    #   enrichment   stripped as a preparation word, so enriched and unenriched
+    #                rice sat together in one 634-member canon.
+    #   oil pack     draining pours off water and brine but not absorbed oil, so
+    #                the medium now survives a drain for oil only; 107 rows of
+    #                each had been merged into 'tuna'.
+    # 673 rows moved onto a correct salt or sugar label alone. Storage form
+    # ("refrigerated") went the other way and is no longer part of a name.
+    # Three follow-on corrections are in the same number: bare "skim" was
+    # matching inside "part-skim" and calling 288 rows of part-skim mozzarella
+    # fat-free, a cheese that is roughly 16 % fat; "Selenium" was missing from
+    # the analyte prefixes, so 217 lab rows kept it as their food name; and
+    # FDC's "Yogurt, Greek, strawberry" form was pushing the flavour out of a
+    # two-chunk canon, which is now fronted to "Greek yogurt, strawberry" the
+    # way every other database writes it.
+    #
+    # Finally 20,601 -> 20,592, two opposite moves that nearly cancel. A sixth
+    # axis labels the ~700 FDC rows reported on a DRY MATTER basis ("Beans, Dry,
+    # Black (0% moisture)"), which are not per 100 g as eaten and were the
+    # majority of several canons - 253 of the 261 members of 'bean, pinto,
+    # dried'. They are kept and labelled rather than dropped, so they can no
+    # longer MAX-union with the as-eaten values of the same bean. Against that,
+    # 14 canons under a generic head ("nut, pistachio", "bean, mung") folded
+    # into the family that already held their food. Three candidates of the same
+    # mechanical shape were rejected on reading: a cranberry BEAN is borlotti
+    # and not the fruit, a butter BEAN is a lima and not dairy, and lentil flour
+    # is not generic flour.
+    #
+    # And 20,592 -> 20,744, again mostly recovery. Three more classes, all found
+    # by asking the same question - what does a member say that the name does
+    # not?
+    #   category head   A taxonomic or menu chapter in front of the food is not
+    #                   the food. Six heads qualified on the evidence that each
+    #                   fronts dozens of DIFFERENT foods: fish (234 canons),
+    #                   mollusk (57), spice (57), grain (47), game meat (30),
+    #                   crustacean (29). Freeing the qualifier slot also let the
+    #                   species through, so "Fish, salmon, atlantic" is now
+    #                   'salmon, atlantic' rather than 'fish, salmon'. It settles
+    #                   what "game" means too, which FDC is loose about: its game
+    #                   chapter holds farmed bison, goat, horse and "rabbit,
+    #                   domesticated". "deli-meat" was rejected - it carries a
+    #                   curing claim the product name does not always repeat.
+    #   anatomical part 70 of the 309 members of 'apple' were apple PEEL, which
+    #                   carries several times the fibre of the flesh; 38 canons
+    #                   held the same defect, and 15 of the 18 members of
+    #                   'chicken fat' were skin.
+    #   raw readiness   "ready to bake / fry" says the food is still raw, and in
+    #                   FDC's phrasing it took the one qualifier slot a canon
+    #                   has: 'tortilla, ready-to-bake or -fry' had lost the corn
+    #                   versus flour distinction. Not applied to ready-to-eat /
+    #                   -drink / -feed, where the claim marks the final form.
+    # A note for the next pass: _CANON_MERGES is keyed on the canon the rules
+    # produce, exactly as _CANON_OVERRIDES is, and 113 keys across the two
+    # tables silently stopped firing when the new labels appeared. Check both.
+    #
+    # And 20,744 -> 20,992. This round asked the opposite question of the last
+    # one: not "what does a member say that the name does not?" but "how many
+    # names does one food have?" - the whole index was swept for pairs that name
+    # the same thing twice.
+    #   one spelling per   The composition markers were being printed in the
+    #   marker             SOURCE's spelling, because _append_state declines to
+    #                      add a label when the token it matched is still in the
+    #                      name. 'cheese, low fat' stood beside 'cheese, low-fat'
+    #                      (143 members), 'milk, skimmed' beside 'milk, nonfat'
+    #                      and 'milk, fat-free', 'soy flour, defatted' beside
+    #                      'soy flour, fat-free'. The wording is now dropped once
+    #                      read, for the fat, fortification and pressing-grade
+    #                      axes as it already was for salt and sugar - but only
+    #                      when that axis actually fired, or "Sugar, refined"
+    #                      loses its own name.
+    #   head order         Two OPPOSITE house conventions, each following the
+    #                      majority the index had already settled on. MATERIALS
+    #                      read modifier-first ('X oil' 135 canons against 30 for
+    #                      'oil, X'; juice 125/11, flour 190/23, milk 398/88),
+    #                      SPECIES read genus-first ('salmon, coho' 11 against 1
+    #                      for 'coho salmon'; herring 8/1, pike 6/2). 52 pairs
+    #                      named one food twice.
+    #   nut chapter        "nut" joins the six category heads on the same
+    #                      evidence (31 canons), with its own guards: "Nuts,
+    #                      formulated" is an aggregate, and Frida's "Nut, brazil"
+    #                      / "Nut, pine" / "Nut, pea" are half a compound name.
+    #   packing medium     Read BEFORE the state and struck out of the probe the
+    #                      state is read from. "Peach, canned in pear juice" was
+    #                      coming out 'peach juice'. FDC's "<medium> pack"
+    #                      phrasing and Livsmedelsverket's "canned w/ brine" now
+    #                      reach the same label as "canned in brine" - but
+    #                      "prepared with water" is reconstitution, not a medium,
+    #                      and is excluded. Which OIL is kept: sardines in olive,
+    #                      sunflower and peanut oil carry different fatty acids.
+    #   powder is dried    'turmeric, dried', 'turmeric, powder', 'turmeric,
+    #                      powdered, dried', 'turmeric, ground' - five canons for
+    #                      one spice. A whole chunk that is only "powder" is the
+    #                      dried label spelled out; inside a name ("chili
+    #                      powder") the word stays.
+    #   ingredient guard   A marker inside a "with ..." clause grades the
+    #                      INGREDIENT: "Babyfood, banana juice with low fat
+    #                      yogurt" is not a low-fat babyfood. And the EARLIEST
+    #                      fat marker wins, not the first pattern in the list -
+    #                      "Milk, lowfat, fluid, 1% milkfat, with added nonfat
+    #                      milk solids" was being called fat-free.
+    #   character noise    The full-width asterisk STFCJ footnotes with, and the
+    #                      acute accent Fineli writes possessives with - the
+    #                      brand strip took "Kellogg" and left "\u00b4S" standing as
+    #                      a word of its own.
+    #
+    # And 20,992 -> 21,425. Two classes, one a split and one a convergence.
+    #   colour            Colour is composition wherever a pigment is the
+    #                     nutrient. 77 canons held both a dark- and a
+    #                     light-coloured member: 'rice' (636 members) carried
+    #                     black, brown and red rice beside white, 'common bean'
+    #                     (223) black beside white, and 'tea, infusion' green
+    #                     beside black. Only a WHOLE chunk counts, which is what
+    #                     keeps a cultivar name out - "Apples, raw, red
+    #                     delicious" and "Potato tuber, Red LaSoda" name a
+    #                     variety, not a colour. On a refined cereal or a sugar
+    #                     "white" is the refining state and the unmarked one, so
+    #                     it is detected but not printed; on a bean or a cabbage
+    #                     it is a variety and it is. "Egg, white" is the albumen
+    #                     and is excluded outright, and bare "light"/"dark" are
+    #                     read only as poultry cuts, where FDC uses them.
+    #   missing commas    NEVO and Livsmedelsverket write no punctuation at all
+    #                     ("Beans broad raw", "Nuts macadamia unsalted",
+    #                     "Crackers cream"), so 154 canons kept a plural head
+    #                     welded to its modifier - 'beans broad' beside the
+    #                     103-member 'broad bean'. Restoring the comma the
+    #                     source omitted is enough for every rule downstream.
+    #                     Guarded three ways: the head must be genuinely plural
+    #                     (_NOT_PLURAL carries Brussels, Maroilles, Causses,
+    #                     bitters, sports), what follows must not be a
+    #                     connective, and it must not be a DISH - "Strawberries
+    #                     tart" is not a strawberry.
+    # Two traps this round, both from the same mistake in opposite directions:
+    # "Chocolate, milk" is a milk chocolate BAR (four sources write it that way)
+    # and folding it gave 'chocolate milk', merging 30 g fat/100 g of
+    # confectionery into a 3 g/100 g drink; and re-keying an orphaned override
+    # must never GENERALISE the key - "blackberries product" is NEVO's frozen
+    # one, and moving the entry to bare 'blackberry' froze every blackberry.
+    #
+    # And 21,425 -> 21,803, from the largest MAX-union left in the index. 'beef'
+    # held 1,291 members: brain, heart, liver, lungs and tongue beside chuck,
+    # brisket, tenderloin and eye of round. Beef liver carries roughly 9,000 ug
+    # RAE of vitamin A per 100 g against about none in muscle, and beef chuck
+    # about four times the fat of eye of round - so the union handed every cut
+    # of beef the liver's vitamin A and the chuck's fat.
+    #   organ            296 organ rows across 44 canons, 60 of them in 'beef',
+    #                    40 in 'veal', 39 in 'pork'. FDC files them behind the
+    #                    head as "variety meats and by-products, liver", and the
+    #                    breed strip-head dropped the chunk.
+    #   cut              The head has to strip breeds ("Japanese beef cattle",
+    #                    "dairy fattened steer", "Belgian Blue") or every one
+    #                    becomes a canon - but it was taking the cut with them.
+    # Both are read only as a whole chunk BEHIND the animal, and only in a meat
+    # context: at the front the organ IS the food ("Kidney, boiled, salted"
+    # canonicalised to 'salt'), and outside a meat context "round", "breast",
+    # "plate" and "rib" are ordinary words - celery has ribs and broccoli has a
+    # plate of stalks. A legume head is excluded outright, because "Common bean,
+    # Kidney" is a kidney BEAN.
+    #
+    # And 21,803 -> 21,857, from FDC's lab rows, where a greedy regex had been
+    # eating the food.
+    #   NF suffix        _NF_SUFFIX_RE allowed a comma inside its body, so the
+    #                    lazy quantifier still took the LEFTMOST start that could
+    #                    complete the match: "Cheese, cheddar, natural shredded
+    #                    sharp, store brand, GREAT VALUE (CA1,NE) - NFY120WVO"
+    #                    lost everything from ", cheddar" on, and 241 rows of
+    #                    branded cheddar sat in the bare 'cheese' canon.
+    #   brand chunks     With the middle back, the ALL-CAPS brand chunks behind
+    #                    the food had to go instead - but only on a row that
+    #                    carried a sample code, because off one an ALL-CAPS
+    #                    chunk can BE the food ("BURGER KING - HAM").
+    #                    "store brand" is the absence of a brand, not one.
+    #   flavour          A strawberry Greek yoghurt carries about twice the
+    #                    sugar of the plain one, and FDC writes the flavour
+    #                    inside the brand chunk ("CHOBANI STRAWBERRY NON-FAT"):
+    #                    106 of the 238 members of 'greek yoghurt, fat-free'
+    #                    were flavoured. Read only where the plain form is the
+    #                    unmarked one, so "Tomatoes, orange" and "Melon, banana"
+    #                    keep their own names.
+    #   cheese order     Twenty cheese types were written both ways and the
+    #                    head-first form won every one ('cheese, cottage' 146
+    #                    members against 'cottage cheese, full fat'). A LIST,
+    #                    not a pattern: "cauliflower cheese" is a dish.
+    # One trap: "Starch," heads an FDC lab row the way "Minerals," does, but
+    # AFCD files a real food as "Starch, potato" - _PANEL_HEADS leaves it out
+    # for that reason. The sample code is the discriminator, and the strip has
+    # to run while the head is still at the FRONT, or it takes the food out of
+    # "Minerals, Sugar, Granulated, White - NFY040XEG".
+    #
+    # And 21,857 -> 22,031, from the plant-part axis and the retail cut.
+    #   plant part       247 rows named the FLESH of a food whose canon did not,
+    #                    60 named BRAN - 54 of them inside 'rice', where rice
+    #                    bran carries about 20 g of fat against milled rice's
+    #                    0.7 - 48 named a SPROUT and 38 a LEAF. "root" and
+    #                    "tuber" are deliberately absent: for a carrot the root
+    #                    IS the food. So is the leaf of a lettuce, which is why
+    #                    the leaf label is suppressed on leafy heads and herbs.
+    #                    BioFoodComp writes "pulp" where the others write
+    #                    "flesh"; the two named one part under two canons.
+    #   retail cut       FDC names the retail cut, not the primal - "Beef,
+    #                    shoulder top blade steak" - so a whole-chunk test
+    #                    missed 182 of the 579 members of 'beef'. The primal is
+    #                    the label, because that is the granularity that changes
+    #                    composition. The prefix has to be LAZY, or the pattern
+    #                    swallows "spare " and files a spare rib as a rib.
+    #
+    # And 22,031 -> 21,831, the first round that took the count DOWN: it asked
+    # only "how many names does one food have?" and answered it 205 times.
+    #   part order       The cut and organ axes append their label behind the
+    #                    animal, so every source writing the same thing without
+    #                    a comma ("Beef round", "Beef liver") or the other way
+    #                    round ("Liver, pork") had a canon of its own. An ox
+    #                    liver is a beef liver and a calf's a veal one.
+    #   compounds        One spelling each: 'bread, gluten free' beside
+    #                    'gluten-free', 'barley flour, whole grain' beside
+    #                    'wholegrain' (107 canons closed against 49 open).
+    #   merge hygiene    _CANON_MERGES is consulted ONCE, so a chain a->b->c
+    #                    only ever moved a to b, and a 2-cycle a->b->a swapped
+    #                    two spellings without converging them - 27 of those had
+    #                    accumulated. Every entry now points straight at its
+    #                    group's representative, and 37 override values that
+    #                    were themselves merge keys were followed through.
+    # Three same-key groups are deliberately NOT merged: "milk chocolate" and
+    # "chocolate milk" (a bar and a drink), "roast beef" and "beef roast" (a
+    # cooked dish and a cut), and the low-lactose/lactose-free milk pair.
+    #
+    # And 21,831 -> 21,857. Three more classes, all measured the same way:
+    #   maturity         An aged cheddar has lost water, so it carries more fat,
+    #                    protein and sodium per 100 g than a mild one; 116 of
+    #                    the 400 members of 'cheese, cheddar' said which they
+    #                    were. Read ONLY on a cheese - everywhere else "mature"
+    #                    is a ripeness stage that _PREP_RE already owns, and
+    #                    reading it there split 150 rows off for nothing.
+    #   without skin     Says the same thing "flesh" does, and 98 rows spelled
+    #                    it that way inside a canon that also held the with-skin
+    #                    rows. Much of an apple's fibre is in the skin.
+    #   longissimus      The longissimus dorsi IS the loin muscle: FDC and CNF
+    #                    name it anatomically on 115 pork rows and by the cut
+    #                    everywhere else.
+    #
+    # And 21,857 -> 21,836. Two strips that were taking half a name:
+    #   seed / kernel    _PREP_RE drops "seeds" as FDC's legume convention
+    #                    ("Beans, black, mature seeds"), but it was dropping the
+    #                    word wherever it stood: CIQUAL's "Seeds and peanuts,
+    #                    dried" canonicalised to 'and peanut, dried', and seven
+    #                    rows of PUMPKIN SEED (49 g fat, 19 g protein) sat in
+    #                    the 'pumpkin' canon beside the flesh (0.1 g fat). Now
+    #                    guarded on both sides - the seed-crop names in front of
+    #                    it, and a following "and"/"or".
+    #   accession code   FDC files its bean breeding accessions as a chunk of
+    #                    their own ("Beans, Dry, Pink, 11F-8082 (0% moisture)")
+    #                    and 44 became canons of one row each. Letters BETWEEN
+    #                    digits are what makes it a code, so "0-50 mg calcium
+    #                    per litre" and "20-30 g fat" are left alone.
+    #
+    # And 21,836 -> 21,801: sixteen regional-synonym pairs, both halves already
+    # in the index and never meeting. maize/corn (92 canons against 248),
+    # soya/soy (76/196), swede/rutabaga, capsicum/bell pepper, faba and fava and
+    # broad bean, haricot/navy bean, linseed/flaxseed, cornflour/cornstarch,
+    # rocket/arugula, pak choi/bok choy, bicarbonate of soda/baking soda.
+    # Only pairs that are the SAME SPECIES went in. Deliberately left apart:
+    # biscuit/cookie (a US biscuit is a bread), marrow/squash (marrow is also
+    # the bone), saithe/pollock and hake/whiting (different species),
+    # chicory/endive (Cichorium intybus against C. endivia), treacle tart (a
+    # dish, not molasses) and prawn/shrimp (different families).
+    #
+    # 2026-08-22, UNITS. Three sources report amino acids in mg/100 g and the
+    # export labels every value with FDC's unit for the nutrient id - it does
+    # not carry the source's own unit anywhere. 43,224 amino-acid rows were
+    # deposited a thousand times too high (BioFoodComp's quinoa read 873 g of
+    # leucine per 100 g), and STFCJ's "Amino acids, total" column, also in mg,
+    # was mapped onto nutrient id 1003, so 929 canons carried an impossible
+    # protein maximum - Parmesan read 48,000 g/100 g beside its real 44.
+    # Now 637 amino-acid rows above 5 g (all high-protein foods) and none
+    # above 100. See food_DBs/_common/units.py; the reconciliation runs in each
+    # ingester, not here, so the bucketed store the predictor reads is fixed
+    # too. It runs in both directions: AFCD's organic acids and beta-carotene
+    # were in g and µg against FDC ids whose unit is MG, so those were a
+    # thousand times too LOW.
+    #
+    # The counts moved with it, and every part of the move is accounted for:
+    #   rows    1,929,050 -> 1,929,627. AFCD reports each amino acid twice, per
+    #           100 g and "(mg/gN)" - per gram of NITROGEN - and both landed on
+    #           the same FDC id. A different BASIS is a different measurement,
+    #           not a different unit, so the second is minted separately now.
+    #           McCance's "Tryptophan/60" and its "/100g fa" fatty acids are the
+    #           same shape and go the same way.
+    #   foods   116,043 -> 116,053. Ten BioFoodComp foods the live store's build
+    #           did not have; re-running the committed ingester finds them.
+    #   nutrients 1,769 -> 1,749. Net of 21 minted ids added (18 AFCD per-gram-N
+    #           columns, STFCJ's "Amino acids, total" now on its own id instead
+    #           of overwriting protein, 2 McCance) and 41 gone, 40 of them
+    #           BioFoodComp ids the re-run renumbered.
+    #   canon   21,801 -> 21,803, from the ten new foods.
+    #
+    # Minted ids are now assigned from a REGISTRY rather than a counter
+    # (food_DBs/_common/minted.py). They were positional, so adding or dropping
+    # one column renumbered the whole block - and enzyme_substrate_chebi.tsv
+    # references them BY NUMBER, so one re-run silently pointed 20 of those at
+    # nothing. Two consecutive runs of an ingester now mint zero new ids.
+    #
+    # 21,803 -> 21,799 on a review pass. The maturity grade is rarely a whole
+    # chunk - FDC writes "cheddar, natural shredded sharp" and puts it inside
+    # the brand on "Cheddar cheese, sliced, SARGENTO SHARP" - so it is matched
+    # as a WORD now, and read off the description as it ARRIVED, before the
+    # brand chunk carrying it is stripped. 187 of the 284 members of
+    # 'cheese, cheddar' said which they were; they are now 124 mature and 63
+    # mild. The cheese gate is what makes a bare word safe.
+    #
+    # 21,799 -> 22,152 in round 14, and the row, food and nutrient counts do not
+    # move with it: only NAMES changed, no value did. 3,721 of the 53,983
+    # descriptions landed on a different canon. The count went UP because two of
+    # the round's readings SPLIT canons that were mixing foods, and both are the
+    # defect the axes exist for - a canon's members are averaged, so a
+    # distinction the name does not carry is a distinction the numbers lose:
+    #   * the fat level stated as a NUMBER. 1,163 rows carry one and _QUANT_RE
+    #     deleted every one, so a 17%-fat edam and a 30% one were one canon and
+    #     FDC's ground beef - sold at 5, 7, 10, 15, 20 and 30% fat - sat whole
+    #     inside the bare 'beef'. The number is kept rather than banded: no one
+    #     threshold is right for two foods at once, since 17% fat is a LOW-fat
+    #     cheese and a high-fat yoghurt. A stated range is kept whole.
+    #   * skin. FDC's "meat only" is Fineli's "without skin" and CNF's "light
+    #     meat only"; "meat and skin" is the whole bird and now says nothing.
+    #     A skinless chicken breast carries about a sixth of the fat of one with
+    #     the skin on. Canons mixing marked and unmarked members: 89 -> 3.
+    # Against those, the round CONVERGED as much as it split: the USDA poultry
+    # class term ("Chicken, broilers or fryers") that split one bird across 79
+    # canons, "tinned" (50 canons that stood apart from their "canned" twins),
+    # 46 same-food alternations ("Yoghurt or fermented milk", "Macaroni or
+    # noodles with cheese"), Fineli's trademarks (twelve canons of rye bread,
+    # and no bare 'rye bread' at all), and one grind spelled four ways.
+    # Duplicate-name groups are back to 3, all of them deliberately blocked.
+    #
+    # 22,152 -> 22,093 in round 15. Rows, foods and nutrients again do not move:
+    # 1,790 of the 53,983 descriptions changed canon and not one value did. The
+    # net is DOWN because this round was mostly convergence:
+    #   * "no added salt" / "no added sugars" was matched only from "added"
+    #     onwards, so the negative was left standing and 37 canons ended in the
+    #     bare word "no" - 'peanut, no' beside 'peanut'. The front-loaded
+    #     POSITIVE ("Pasta, cooked, with added salt") was not read at all, so
+    #     nine salted rows were merging INTO their unsalted canon.
+    #   * a qualifier that states the unmarked case: 36 foods carried both "X"
+    #     and "X, plain" ('almond milk', 'bagel', 'butter', 'tofu'), and 20 both
+    #     "X" and "X, mixed species" ('shrimp', 'squid', 'trout').
+    #   * one part, four spellings. 'chicken, flesh', 'chicken, flesh only',
+    #     'chicken, meat' and (on fruit) 'coconut, pulp' / 'jujube, fruit flesh'
+    #     were the same part; 16 foods carried two of them and seven canons
+    #     carried two at once ('baobab fruit/monkey bread, pulp, flesh').
+    #   * FDC's alcohol class noun ('alcoholic beverage, beer' beside 'beer'),
+    #     CNF's traditional-foods marker "native" (171 rows, and in the game
+    #     rows it took the head outright - 'native, caribou, liver'), and
+    #     "home-made" against "homemade" (54 canons against 264).
+    # Two readings SPLIT, both for the usual reason - the members are averaged,
+    # so a distinction the name does not carry is one the numbers lose:
+    #   * wild or farmed. 'salmon, atlantic' held 8 wild members and 10 farmed,
+    #     'trout, rainbow' 4 and 7. Farmed Atlantic salmon runs to about twice
+    #     the fat of wild. Printed only for foods that come both ways: 460 heads
+    #     carry a wild row and only 16 a farmed one too, the rest being capture
+    #     fisheries and game where wild is the unmarked case.
+    #   * the fat a food was COOKED in, where the source names it. 19 canons
+    #     averaged two or three different fats ('potato chip, homemade, fried'
+    #     held corn, rapeseed and sunflower); the unnamed ones ("vegetable",
+    #     "blended") name nothing and are struck. Clash count 19 -> 0.
+    # 22,093 -> 22,094 on the re-run: three residues the index build's own
+    # diagnostic surfaced. CIQUAL's approximation word was being left behind by
+    # the fat figure it qualifies ('tomme cheese, around, 13% fat'), Frida
+    # splits a figure from its unit across two chunks ("Milk, whole, 3.5, (UHT),
+    # % fat", which had produced the meaningless 'milk, % fat'), and the word
+    # "whole" was printing the fat claim a second time beside the figure.
+    # Ten curated merges were also reversed, which renames without regrouping so
+    # the count does not move: each had folded the spelling MORE rules produce
+    # into the one fewer do, and each of those was the form that reads as a
+    # run-on or puts the material before its food - 'flour soy' for soy flour,
+    # 'sausage chorizo', 'nutmeg ground', 'cheese stilton', 'radish black'.
+    "food_nutrients.tsv": {"rows": 1_929_627, "foods": 116_053, "nutrients": 1_749,
+                           "canon": 22_094, "canon_blank": 8},
 }
 
 # Exactly what the deposit should contain. Anything else in the directory ships with
@@ -227,11 +669,14 @@ def verify_enzyme_substrate(p: Path):
 def verify_food_nutrients(p: Path):
     print(f"\n[3] {p.name}")
     rows = 0
-    foods, nutrients, sources = set(), set(), set()
+    foods, nutrients, sources, canons = set(), set(), set(), set()
     bad_amount = 0
-    for fdc_id, code, desc, dtype, cat, nid, nname, unit, amount, src in scan(p, SCHEMA[p.name]):
+    blank_canon = set()
+    for (fdc_id, code, desc, canon, dtype, cat, nid, nname, unit, amount,
+         src) in scan(p, SCHEMA[p.name]):
         rows += 1
         foods.add(fdc_id); nutrients.add(nid); sources.add(src)
+        canons.add(canon) if canon else blank_canon.add(fdc_id)
         if amount:
             try:
                 float(amount)
@@ -243,6 +688,11 @@ def verify_food_nutrients(p: Path):
     check(len(foods) == e["foods"], f"distinct foods == {e['foods']:,}", f"got {len(foods):,}")
     check(len(nutrients) == e["nutrients"], f"distinct nutrients == {e['nutrients']:,}",
           f"got {len(nutrients):,}")
+    check(len(canons) == e["canon"], f"distinct canon names == {e['canon']:,}",
+          f"got {len(canons):,}")
+    check(len(blank_canon) == e["canon_blank"],
+          f"foods with no canon == {e['canon_blank']} (blank description upstream)",
+          f"got {len(blank_canon)}")
     return nutrients, sources
 
 

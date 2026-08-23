@@ -36,6 +36,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pyarrow as pa
+import pyarrow.compute as pc
 import pyarrow.parquet as pq
 
 REPO = Path(__file__).resolve().parent.parent
@@ -43,6 +44,13 @@ DATA = Path("/data/bac2food")
 
 sys.path.insert(0, str(REPO / "food_DBs"))
 import fdc_blocks  # noqa: E402
+# The canon name is the predictor's own grouping, imported rather than reimplemented so the
+# published column and the rankings can never describe two different groupings.
+sys.path.insert(0, str(REPO / "4_predict"))
+from bac2food_predict import canonicalize_food_name  # noqa: E402
+from _common.non_nutrients import (COPY_RECORD_RE, NON_NUTRIENT_IDS,  # noqa: E402
+                                   find_exact_relistings, relisting_candidates,
+                                   source_of_bucket_file)
 
 
 def assert_fdc_blocks(fdc_ids: pd.Series) -> None:
@@ -234,19 +242,6 @@ def export_species_enzymes(args) -> None:
 # ==============================================================================
 # 3. food -> nutrient -> amount
 # ==============================================================================
-def _source_of(path: Path) -> str:
-    """Which reference DB a bucketed parquet came from.
-
-    merge_phase8_v2.py writes each non-USDA source to its own `<src>_data.parquet` inside
-    every bucket; the original FoodData Central rows sit in the `part-*.parquet` files.
-    The filename is therefore the provenance.
-    """
-    b = path.name
-    if b.startswith("part-"):
-        return "fdc"
-    return b.replace("_data.parquet", "").replace(".parquet", "")
-
-
 def read_food_nutrient_with_source(bucketed_dir) -> tuple[pd.DataFrame, list[str]]:
     """Read the bucketed food_nutrient store, tagging every row with its source DB.
 
@@ -260,13 +255,13 @@ def read_food_nutrient_with_source(bucketed_dir) -> tuple[pd.DataFrame, list[str
     files = sorted(Path(bucketed_dir).glob("*/*.parquet"))
     if not files:
         raise SystemExit(f"No parquet files under {bucketed_dir}")
-    labels = sorted({_source_of(f) for f in files})
+    labels = sorted({source_of_bucket_file(f) for f in files})
     code = {s: i for i, s in enumerate(labels)}
 
     frames = []
     for f in files:
         t = pq.read_table(f, columns=["fdc_id", "nutrient_id", "amount"]).to_pandas()
-        t["source_code"] = np.int16(code[_source_of(f)])
+        t["source_code"] = np.int16(code[source_of_bucket_file(f)])
         frames.append(t)
     df = pd.concat(frames, ignore_index=True)
     del frames
@@ -319,10 +314,23 @@ def export_food_nutrients(args) -> None:
     food["food_category"] = (food["food_category"].astype("string")
                              .fillna(fcid.where(is_num).map(cat))
                              .fillna(fcid.where(~is_num)))
+    # `canon` folds preparation FORM and spelling variants of one food onto a single name
+    # ("Carrots, sliced, frozen, unprepared" and "carrot, raw" both -> "carrot"), so a user
+    # can group rows the way the predictor does without reimplementing the rules. It does
+    # NOT fold preparation STATE: drying, juicing, frying and sweetening change per-100 g
+    # composition, so "Carrot, dried" keeps a canon of its own instead of handing the
+    # carrot group a dehydrated food's values. It is a grouping key, NOT an identity
+    # claim: it is derived from `description` alone and never crosses sources
+    # deliberately. 116,053 foods fold to 22,094 canon names
+    # (the 8 blank-description foods carry no canon and are not among them).
+    # Computed on the distinct descriptions, not per row: 2.1M rows, 52k distinct names.
+    _canon_of = {d: canonicalize_food_name(d) for d in food["description"].dropna().unique()}
+    food["canon"] = _sanitize(food["description"].map(_canon_of).astype("string"))
     food["description"] = _sanitize(food["description"])
     food["food_category"] = _sanitize(food["food_category"])
     food["source_food_code"] = _sanitize(food["source_food_code"].astype("string"))
-    food = food[["fdc_id", "source_food_code", "description", "data_type", "food_category"]]
+    food = food[["fdc_id", "source_food_code", "description", "canon", "data_type",
+                 "food_category"]]
 
     # Per-record licence and provenance. The 16 sources fall under incompatible terms, so
     # the table cannot carry one blanket licence: rights travel with the value. The tier
@@ -351,7 +359,7 @@ def export_food_nutrients(args) -> None:
     # assertion about a specific product; an FNDDS value is computed from rows already in this
     # table, so keeping it would partly double-count. Its nutrient set is 65 wide against
     # Foundation's 227. Removing it also ends the FDC backbone's majority: 51.2% -> 42.2% of
-    # all values. No nutrient and no enzyme link is lost — all 1,779 nutrients and all 598
+    # all values. No nutrient and no enzyme link is lost — all 1,749 nutrients and all 598
     # enzyme-linked ones survive, because every one of them is reported by some other source.
     n_before = len(food)
     if not args.keep_modelled:
@@ -360,6 +368,15 @@ def export_food_nutrients(args) -> None:
         print(f"[*] Excluded {n_before - len(food):,} survey_fndds_food entries "
               f"({len(food):,} foods retained); modelled from recipes, not measured. "
               f"Pass --keep_modelled to include them.", flush=True)
+
+    n_before = len(food)
+    keep = ~food["description"].astype("string").fillna("").str.contains(COPY_RECORD_RE,
+                                                                        regex=True, na=False)
+    food = food[keep.to_numpy(dtype=bool)]
+    if n_before != len(food):
+        print(f"[*] Excluded {n_before - len(food):,} source editing-layer copies "
+              f"({len(food):,} foods retained); a copied recipe keeps the original's name "
+              f"plus a timestamp and is then edited away from it.", flush=True)
 
     nut = pd.read_csv(args.nutrient, usecols=["id", "name", "unit_name"])
     nut = nut.rename(columns={"id": "nutrient_id", "name": "nutrient_name"})
@@ -371,6 +388,31 @@ def export_food_nutrients(args) -> None:
     tbl = pa.Table.from_pandas(df, preserve_index=False).sort_by(
         [("fdc_id", "ascending"), ("nutrient_id", "ascending")])
     del df
+    n_before = tbl.num_rows
+    tbl = tbl.filter(pc.invert(pc.is_in(tbl["nutrient_id"],
+                                        value_set=pa.array(sorted(NON_NUTRIENT_IDS)))))
+    if n_before != tbl.num_rows:
+        print(f"[*] Excluded {n_before - tbl.num_rows:,} rows carrying one of "
+              f"{len(NON_NUTRIENT_IDS)} source columns that are not composition values "
+              f"(identifiers, version stamps, conversion factors, as-purchased yields); "
+              f"see food_DBs/_common/non_nutrients.py.", flush=True)
+
+    # Exact re-listings: same source, same name, same complete value vector. The rule
+    # and its rationale live in food_DBs/_common/non_nutrients.py because the predictor
+    # has to reach the same verdict - it scores against this same store, so a food this
+    # table does not contain must not be scorable either.
+    _cand = relisting_candidates(food)
+    _sub = tbl.filter(pc.is_in(tbl["fdc_id"], value_set=pa.array(sorted(_cand)))) \
+              .select(["fdc_id", "nutrient_id", "amount", "source_code"]).to_pandas()
+    _redundant = find_exact_relistings(food, _sub)
+    del _sub, _cand
+    if _redundant:
+        food = food[~food["fdc_id"].isin(_redundant)]
+        print(f"[*] Excluded {len(_redundant):,} exact re-listings ({len(food):,} foods "
+              f"retained); same source, same name, same complete value vector.", flush=True)
+        tbl = tbl.filter(pc.invert(pc.is_in(tbl["fdc_id"],
+                                            value_set=pa.array(sorted(_redundant)))))
+
     label_arr = np.array(labels, dtype=object)
     total = tbl.num_rows
     print(f"[*] {total:,} food_nutrient rows; joining metadata and writing ...", flush=True)
@@ -392,8 +434,9 @@ def export_food_nutrients(args) -> None:
                 keep = ~ch["source_db"].isin(lic["restricted"])
                 dropped_restricted[0] += int((~keep).sum())
                 ch = ch[keep]
-            ch = ch[["fdc_id", "source_food_code", "description", "data_type", "food_category",
-                     "nutrient_id", "nutrient_name", "unit_name", "amount", "source_db"]]
+            ch = ch[["fdc_id", "source_food_code", "description", "canon", "data_type",
+                     "food_category", "nutrient_id", "nutrient_name", "unit_name", "amount",
+                     "source_db"]]
             ch.to_csv(fh, sep="\t", index=False, header=(w is None), na_rep="",
                       quoting=csv.QUOTE_MINIMAL)
             w = True
@@ -414,7 +457,7 @@ def export_food_nutrients(args) -> None:
     else:
         print(f"[!] --restricted include: this file contains restricted-source values and "
               f"MUST NOT be deposited or shared. Local use only.", flush=True)
-    print("[*] amount is per 100 g edible portion, in unit_name units.", flush=True)
+    print("[*] amount is per 100 g edible portion, in unit_name units, except\n    where the canon ends in '0% moisture basis': those are FDC analytical\n    rows reported on a dry matter basis.", flush=True)
 
 
 # Most restrictive tier wins when sources agree on a value and are `;`-joined: a composite

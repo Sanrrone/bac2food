@@ -6,8 +6,8 @@ TSVs, so they can be read, shared, or deposited without touching the pipeline:
 | file | one row is | rows | size |
 |---|---|---|---|
 | `enzyme_substrate_chebi.tsv` | an enzyme (EC) and one substrate it acts on, with the substrate's ChEBI id | 218,378 | 23 MB |
-| `species_enzymes.tsv` | an organism (species + strain) and one EC number it carries | 9,632,315 | 834 MB |
-| `food_nutrients.tsv` | a food and one nutrient it contains, with the amount and its source DB | 2,308,817 | 287 MB |
+| `species_enzymes.tsv` | an organism (species + strain) and one EC number it carries | 20,557,730 | 1.7 GB |
+| `food_nutrients.tsv` | a food and one nutrient it contains, with the amount and its source DB | 1,929,627 | 288 MB |
 
 The script only joins and flattens tables the pipeline already built — it recomputes nothing,
 so these files are exactly what the predictor sees.
@@ -73,8 +73,8 @@ against the ChEBI ontology (`chebi/digest_to_chebi.tsv`).
 
 ## `food_nutrients.tsv`
 
-`fdc_id`, `source_food_code`, `description`, `data_type`, `food_category`, `nutrient_id`,
-`nutrient_name`, `unit_name`, `amount`, `source_db`
+`fdc_id`, `source_food_code`, `description`, `canon`, `data_type`, `food_category`,
+`nutrient_id`, `nutrient_name`, `unit_name`, `amount`, `source_db`
 
 * `amount` is **per 100 g edible portion**, in `unit_name` units.
 * `fdc_id` is an **accession** from a uniform 3,000,000-wide block per source, so
@@ -88,11 +88,22 @@ against the ChEBI ontology (`chebi/digest_to_chebi.tsv`).
   than something encoded in `fdc_id`: ids used to be `block_base + native_code`, which made the
   block width depend on how sparsely a source numbered its foods instead of on how many it had
   (PhyFoodComp: 3,377 foods spanning 19,020,060 code values, 0.02% density).
-* 120,310 foods × 1,779 nutrients. Sorted by `fdc_id`, then `nutrient_id`, so every food's
-  nutrients are contiguous.
+* 116,053 foods × 1,749 nutrients, 1,929,627 values. Sorted by `fdc_id`, then `nutrient_id`,
+  so every food's nutrients are contiguous.
+* `canon` is the food's name reduced to its head — `Carrots, sliced, frozen, unprepared` and
+  `carrot, raw` both give `carrot` — so preparations and spellings of one food can be grouped
+  without reimplementing the rules. The 116,053 foods fold onto 22,094 canonical names. It is
+  derived from `description` alone and is **not** an identity claim: two foods sharing a canon
+  are named alike, not shown to be the same food. `4_predict/bac2food_predict.py` groups by
+  exactly this key (`canonicalize_food_name`), so the released table reproduces the food set
+  the predictor scores.
+* Three classes of record are withheld: 10 source columns that are not composition values
+  (26,350 rows — version stamps, identifiers, conversion factors, as-purchased yields), 4
+  Livsmedelsverket editing-layer copies, and 74 verbatim re-listings. The list and the
+  reasoning are in `food_DBs/_common/non_nutrients.py`, which the predictor imports too.
 * **Branded label products are NOT here.** `branded_food` was 1,890,275 of the 2,010,585 foods
   and 25,937,648 of the 28,246,465 values, yet declared only 119 distinct components against
-  1,779 for everything else — a nutrition-facts panel, not an analysis. Dropping them makes the
+  1,749 for everything else — a nutrition-facts panel, not an analysis. Dropping them makes the
   export match the predictor, which has always run `drop_branded: true`. It also rebalances
   provenance: `fdc` falls from 96% of all values to 50%. Pass `--keep_branded` to get the old
   table back. Nine components exist only on branded labels and go with them (1068 beta-glucans,
@@ -156,11 +167,11 @@ Tabs and newlines are stripped from every text field, so each record is exactly 
 
 `python verify_exports.py` health-checks the deposit: schema and per-row field counts,
 counts against the figures the manuscript quotes, deposit hygiene (only deliverable files
-present), and referential integrity across the three files — including that every
+present), and referential integrity across the files — including that every
 `in_model` row reaches a nutrient that actually exists in the composition table. Run it
 after any export rebuild; it exits non-zero on failure.
 
-The deposit is exactly three files — `food_nutrients.tsv`, `enzyme_substrate_chebi.tsv` and
-`species_enzymes.tsv`. The legacy `species_enzymes.v6.tsv` was retired when the organism→EC
+The deposit is exactly four files — `food_nutrients.tsv`, `enzyme_substrate_chebi.tsv`,
+`species_enzymes.tsv` and `licences.tsv`. The legacy `species_enzymes.v6.tsv` was retired when the organism→EC
 layer moved to eggNOG v7; regenerate it from `/data/bac2food/bact_ec.tsv` (retained) if a v6
 comparison is ever needed. Derived caches belong in `/data/bac2food/cache/`, never here.

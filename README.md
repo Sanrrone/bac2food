@@ -76,7 +76,7 @@ Code and small derived tables are tracked here. Three classes of file are delibe
 
 | absent | why |
 |---|---|
-| raw source databases (`food_DBs/**/*.xlsx`, …) | provider-licensed, and the terms differ by source — some carry NonCommercial or ShareAlike conditions, and NEVO's terms cover the **derived** values only, by permission specific to the deposit. Each folder's readme says where to obtain its source. |
+| raw source databases (`food_DBs/**/*.xlsx`, …) | provider-licensed, and the terms differ by source — some carry NonCommercial or ShareAlike conditions, and NEVO's terms cover the **derived** values only, by permission specific to the deposit. Each folder's `SOURCE.md` says where to obtain its source, generated from `food_DBs/SOURCES.tsv`. |
 | cohort annotations (`gene_annot/`) | third-party metagenome annotations, and their filenames carry sample identifiers |
 | `chebi/chebi.obo` (248 MB), `eggnog/*.tar.xz` (117 MB) | third-party downloads that exceed GitHub's 100 MB file limit |
 | `brenda/brenda_2026_1.*.tar.gz` (154 MB) | the official BRENDA release. Its own README states the full contents are copyright-protected. The **derived** digest is what the pipeline reads, and that is tracked (`eggnog/2_digest_*.tsv`) — download the release from [brenda-enzymes.org](https://www.brenda-enzymes.org/download.php) only if you need to rebuild it. |
@@ -110,8 +110,8 @@ which is how NEVO is handled here: its derived values are in the deposit, its re
 | `4_predict/recompute_match_rate.py` | the feature and species reference match rates |
 | `rescue_bifunctional_ec.py` | restores the second EC of multi-activity CAZymes in an EC panel |
 | `bifunctional_ec.tsv` | the curated product-name → EC table it applies (`.readme.txt` explains it) |
-| `5_export/export_resources.py` | the three deposited TSVs |
-| `5_export/verify_exports.py` | 24 structure, count and join checks over the deposit |
+| `5_export/export_resources.py` | the four deposited TSVs |
+| `5_export/verify_exports.py` | 30 structure, count, licence and join checks over the deposit |
 | `0_building/2_nutri2chebi_from_obo.py` | `2_nutrient_to_chebi.tsv` (nutrient → ChEBI) |
 | `0_building/3_nutrient_to_ec.py` | `3_nutrient_to_ec.tsv` — **the core map every scorer reads** |
 | `food_DBs/bucket_food_nutrient.py` | the Hive-partitioned `food_nutrient_bucketed/` store |
@@ -224,7 +224,7 @@ rolled back and confirmed rather than argued about.
 
 **`food_nutrients.tsv` holds analytically characterized foods only.** FDC's branded label
 products are excluded by default: they were 1,890,275 of 2,010,585 foods and 92% of all values,
-yet declared only 119 distinct components against 1,779 for everything else. The predictor had
+yet declared only 119 distinct components against 1,749 for everything else. The predictor had
 always ignored them (`drop_branded: true`), so the deposit now matches the food set the software
 scores against, and the USDA share of all values falls from 96% to 50%. Pass `--keep_branded` to
 restore them.
@@ -235,8 +235,10 @@ restore them.
   organisms, 4,819 EC numbers. Joining on `tax_id` rather than on the name is still the more
   robust practice. The legacy v6 layer (`bact_ec.tsv`, older names, 3,176 organisms) is retained
   only for reproducing v6 builds.
-* **Portions.** `/data/bac2food/food_portion.csv` is optional and currently absent; without it
-  the predictor assumes 50 g per food and says so at startup.
+* **Basis.** Every amount is per 100 g of the food as described, which is the basis the
+  source tables state and the basis the predictor compares on. There is no portion-size
+  rescaling. The one exception is `--allow-spices` (off by default), which scales the
+  `Spices and Herbs` category to a 2 g serving.
 * **Match rate.** About 45.5% of annotated features in a metagenome reach a food nutrient
   (per-sample range 43.4–46.7% across the 55-sample cohort). The cause of the remainder is the
   nutrient vocabulary, not enzyme–substrate coverage: most bacterial enzymes act on replication,

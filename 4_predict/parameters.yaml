@@ -21,10 +21,6 @@ paths:
   nutrient_csv:   /data/bac2food/nutrient.csv            # --nutrient
   food:           /data/bac2food/food.parquet            # --food
   food_category:  /data/bac2food/food_category.csv       # --food_category
-  # OPTIONAL: the FDC food_portion table. It is not currently present on disk; without it
-  # the script warns once and assumes a 50 g portion for every food. Drop the FDC file in
-  # to get real per-food portion sizes.
-  food_portion:   /data/bac2food/food_portion.csv        # --food_portion
   bucketed_dir:   /data/bac2food/food_nutrient_bucketed  # --food_nutrient
   index_dir:      /data/bac2food/index_modeled           # --index_dir
   nutrient_alias: ../0_building/1_expanded_nutrients.tsv # --nutrient_alias
