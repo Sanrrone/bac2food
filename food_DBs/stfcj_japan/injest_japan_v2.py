@@ -42,6 +42,14 @@ sys.path.insert(0, str(THIS.parent))
 
 EXTRA_ID_START = 250_001
 
+# Source unit per column, filled in by read_one and used to reconcile against
+# FDC's canonical unit for the nutrient the column is mapped to.
+from _common.units import fdc_units, conversion_factor, report as unit_report
+from _common.minted import load_registry
+
+UNITS_BY_COL: Dict[str, str] = {}
+NUTRIENT_CSV = os.environ.get("BAC2FOOD_NUTRIENT_CSV", "/data/bac2food/nutrient.csv")
+
 # Inter-file dependency graph: spine + joins (all 'per 100 g EP' tables)
 SPINE = ("main_1374049_1r12_1.xlsx", "Table")
 JOINS = [
@@ -58,7 +66,11 @@ KNOWN_NUTRIENTS = {
     "water": 1051,
     "protein, calculated from reference nitrogen": 1003,
     "protein": 1003,
-    "amino acids, total": 1003,
+    # "Amino acids, total" is the SUM OF THE AMINO ACID RESIDUES, not Kjeldahl
+    # protein, and STFCJ gives a real Protein column for the same food. Mapping
+    # it onto 1003 gave every STFCJ food two protein values - and because this
+    # one is reported in mg, the second was a thousand times the first
+    # (Parmesan: 44 g and 48000). It is minted as its own id instead.
     "lipid": 1004,
     "fatty acids, total": 1004,
     "ash": 1007,
@@ -172,6 +184,17 @@ def read_one(excel_path: Path, sheet: str) -> pd.DataFrame:
         return pd.DataFrame()
     df = pd.read_excel(excel_path, sheet_name=sheet, header=hdr)
     df.columns = [" ".join(str(c).split()) for c in df.columns]
+    # The two rows under the header carry the tagname and the UNIT. They are
+    # dropped as data below (no numeric item_no), so the unit has to be taken
+    # here or it is lost - and the unit is the only thing that says whether
+    # "600" is 600 mg of isoleucine or 600 g of it.
+    _units = {}
+    for i in range(min(3, len(df))):
+        row = df.iloc[i]
+        if any(re.search(r"/\s*100\s*g", str(v), re.I) for v in row.tolist()):
+            _units = {c: row[c] for c in df.columns if pd.notna(row[c])}
+            break
+    UNITS_BY_COL.update(_units)
     # rename
     for raw_name, std in (("Item No.", "item_no"), ("Item No", "item_no"),
                           ("Food and Description", "description"),
@@ -268,7 +291,15 @@ def main():
 
     raw_to_id: Dict[str, int] = {}
     extra_rows: List[Dict] = []
-    next_id = EXTRA_ID_START
+    # Seed the mint from the registry this ingester wrote last time, so a label
+    # keeps the id it was first given. Positional minting renumbered the whole
+    # block whenever a column was added or dropped, and the enzyme digest
+    # references those ids BY NUMBER.
+    _extra_map = f"{args.out_prefix}_extra_nutrient_map.tsv"
+    _reg = load_registry(_extra_map, "source_column_raw")
+    if _reg:
+        print(f"  -> reusing {len(_reg)} minted ids from {_extra_map}")
+    next_id = max([*_reg.values(), EXTRA_ID_START - 1]) + 1
     for c in nutrient_cols:
         n = normalize(c)
         # Strip trailing unit '... (mg)' style
@@ -277,6 +308,15 @@ def main():
             raw_to_id[c] = KNOWN_NUTRIENTS[n]
         elif n_base in KNOWN_NUTRIENTS:
             raw_to_id[c] = KNOWN_NUTRIENTS[n_base]
+        elif c in _reg:
+            raw_to_id[c] = _reg[c]
+            extra_rows.append({
+                "nutrient_id": _reg[c],
+                "source_db": "stfcj",
+                "source_column_raw": c,
+                "source_column_norm": n_base,
+                "note": "minted from STFCJ v2 ingester",
+            })
         else:
             raw_to_id[c] = next_id
             extra_rows.append({
@@ -300,6 +340,23 @@ def main():
     sub = master[["fdc_id"] + nutrient_cols].copy()
     for c in nutrient_cols:
         sub[c] = sub[c].apply(clean_amount)
+    # Reconcile units against FDC's for the id each column was mapped to. Only
+    # the MAPPED columns can be checked: a minted id has no canonical unit yet,
+    # so its column keeps the source's own and the unit travels in the extra
+    # nutrient table instead.
+    _fdcu = fdc_units(NUTRIENT_CSV)
+    _applied = []
+    for c in nutrient_cols:
+        nid = raw_to_id[c]
+        dst = _fdcu.get(nid)
+        if dst is None:
+            continue
+        src = UNITS_BY_COL.get(c)
+        f = conversion_factor(src, dst)
+        _applied.append((c, str(src), str(dst), f))
+        if f != 1.0:
+            sub[c] = sub[c] * f
+    unit_report(_applied)
     long = sub.melt(id_vars="fdc_id", var_name="raw_col", value_name="amount") \
               .dropna(subset=["amount"])
     long["nutrient_id"] = long["raw_col"].map(raw_to_id).astype(int)

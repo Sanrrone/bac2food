@@ -26,6 +26,7 @@ Outputs (overwrite v1's):
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import shutil
 from pathlib import Path
@@ -39,11 +40,25 @@ import sys as _sys
 from pathlib import Path as _Path
 _sys.path.insert(0, str(_Path(__file__).resolve().parent.parent))
 import fdc_blocks
+from _common.units import fdc_units, conversion_factor, report as unit_report
+from _common.minted import load_registry
+
+NUTRIENT_CSV = os.environ.get("BAC2FOOD_NUTRIENT_CSV", "/data/bac2food/nutrient.csv")
+UNIT_FIXES: List[Tuple[str, str, str, float]] = []
+_FDC_UNIT_CACHE: Dict[int, str] = {}
+
+
+def _fdc_units() -> Dict[int, str]:
+    if not _FDC_UNIT_CACHE:
+        _FDC_UNIT_CACHE.update(fdc_units(NUTRIENT_CSV))
+    return _FDC_UNIT_CACHE
 
 
 WS = re.compile(r"\s+")
 PUNCT = re.compile(r"[^a-z0-9\s]+")
 UNIT_PAREN = re.compile(r"\s*\(.*?\)\s*$")
+# the same parenthetical, unanchored, so the unit can be READ as well as stripped
+UNIT_IN_NAME = re.compile(r"\(([^)]*)\)")
 
 EXTRA_ID_START = 220_001
 
@@ -256,6 +271,9 @@ def ingest_sheet_v2(
                     "source_db": "biofoodcomp",
                     "source_human_label": human,
                     "source_column_raw": str(c),
+                    # the key the mint is REUSED on next run; without it the
+                    # registry could not find the label and re-minted the block
+                    "source_column_norm": stable_key,
                     "source_sheet": sheet,
                     "note": "minted (no FDC nutrient.csv match)",
                 })
@@ -269,6 +287,22 @@ def ingest_sheet_v2(
     wide = df[["fdc_id", "food_name", "food_category"] + mapped_cols].copy()
     for c in mapped_cols:
         wide[c] = to_numeric_series(wide[c])
+    # BioFoodComp puts the unit in the column name - "LYS(mg)", "CA(mg)" - and
+    # the amount is published under FDC's unit for whatever id the column maps
+    # to. Where the two differ the value is off by the ratio: the amino acids
+    # are mg here and G in FDC, so 7,505 rows were deposited a thousand times
+    # too high (quinoa read 873 g of leucine per 100 g).
+    _fdcu = _fdc_units()
+    for c in mapped_cols:
+        nid = col2nid[c]
+        dst = _fdcu.get(nid)
+        if dst is None:
+            continue                      # a minted id has no canonical unit
+        m = UNIT_IN_NAME.search(str(col_to_human.get(c, c))) or UNIT_IN_NAME.search(str(c))
+        f = conversion_factor(m.group(1) if m else None, dst)
+        if f != 1.0:
+            wide[c] = wide[c] * f
+            UNIT_FIXES.append((str(c), m.group(1), str(dst), f))
     long = (wide.melt(id_vars=["fdc_id", "food_name", "food_category"],
                        value_vars=mapped_cols,
                        var_name="raw_col", value_name="amount")
@@ -310,8 +344,15 @@ def main():
 
     fdc_name2id = build_fdc_nutrient_name_map(args.fdc_nutrient_csv)
     overrides = add_biofoodcomp_overrides({}, fdc_name2id)
-    minted: Dict[str, int] = {}
-    next_id_box = [EXTRA_ID_START]
+    # Seed the mint from the registry this ingester wrote last time, so a label
+    # keeps the id it was first given. Positional minting renumbered the whole
+    # block whenever a column was added or dropped, and the enzyme digest
+    # references those ids BY NUMBER.
+    _extra_map = f"{args.out_prefix}_extra_nutrient_map.tsv"
+    minted: Dict[str, int] = load_registry(_extra_map, "source_column_norm")
+    if minted:
+        print(f"  -> reusing {len(minted)} minted ids from {_extra_map}")
+    next_id_box = [max([*minted.values(), EXTRA_ID_START - 1]) + 1]
 
     all_foods, all_long, all_unmapped, all_minted = [], [], [], []
     for sh in sheets:
@@ -355,6 +396,7 @@ def main():
         pd.DataFrame(all_minted).to_csv(f"{args.out_prefix}_extra_nutrient_map.tsv",
                                           sep="\t", index=False)
     print()
+    unit_report(UNIT_FIXES)
     print(f"[OK] foods       : {len(foods_df)}")
     print(f"[OK] measurements: {len(long_df)}")
     print(f"[OK] nutrient ids: {long_df['nutrient_id'].nunique()}")

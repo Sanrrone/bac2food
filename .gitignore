@@ -28,10 +28,17 @@ food_DBs/**/*.json
 food_DBs/**/*.mdb
 food_DBs/**/*.accdb
 food_DBs/canadian_nutrientfile_canada/NUTRIENT*
-food_DBs/fooddatacentral_usa/
+# Contents, not the directory itself: git cannot re-include a file whose parent
+# directory is excluded, and that silently swallowed this folder's SOURCE.md.
+food_DBs/fooddatacentral_usa/*
 # The parsers and merge scripts in those folders ARE the software — keep them.
 !food_DBs/**/*.py
 !food_DBs/**/readme*
+# And so is the provenance: SOURCES.tsv says where each provider's file is obtained, and
+# the per-folder SOURCE.md stubs generated from it are the only thing standing in for the
+# releases these rules exclude. `food_DBs/**/*.tsv` above would otherwise swallow the table.
+!food_DBs/SOURCES.tsv
+!food_DBs/**/SOURCE.md
 !food_DBs/**/README*
 
 # ------------------------------------------------------------------- 2. cohort data

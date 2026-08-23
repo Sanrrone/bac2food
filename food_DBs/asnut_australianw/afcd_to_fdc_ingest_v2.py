@@ -28,9 +28,18 @@ from typing import Dict, List
 
 import numpy as np
 import pandas as pd
+import os
 
 THIS = Path(__file__).resolve().parent
 sys.path.insert(0, str(THIS))
+sys.path.insert(0, str(THIS.parent))          # food_DBs/, for _common
+
+from _common.units import (   # noqa: E402
+    fdc_units, conversion_factor, report as unit_report,
+)
+from _common.minted import load_registry   # noqa: E402
+
+NUTRIENT_CSV = os.environ.get("BAC2FOOD_NUTRIENT_CSV", "/data/bac2food/nutrient.csv")
 
 # Reuse v1 helpers
 from afcd_to_fdc_ingest import (   # noqa: E402
@@ -44,7 +53,9 @@ import fdc_blocks  # noqa: E402
 
 EXTRA_ID_START = 230_001
 
-META_LIKE = {"public food key", "food name", "classification", "fdc_id",
+# norm() folds an underscore to a space, so the literal "fdc_id" never matched
+# and AFCD's own key column was minted as a nutrient (id 230104, 125 rows).
+META_LIKE = {"public food key", "food name", "classification", "fdc_id", "fdc id",
              "food_category", "derivation", "biological name",
              "common name", "n", "samples"}
 
@@ -56,6 +67,12 @@ def is_mostly_numeric(s: pd.Series, min_frac: float = 0.4) -> bool:
     nums = to_numeric_series(vals.head(200))
     n_ok = nums.notna().sum()
     return n_ok / max(1, min(200, len(vals))) >= min_frac
+
+
+PER_GRAM_N_RE = re.compile(r"/\s*g\s*n\b", re.I)
+
+# Source unit per column, filled in by map_columns_with_minting.
+col2unit: Dict[str, str] = {}
 
 
 def map_columns_with_minting(
@@ -75,13 +92,23 @@ def map_columns_with_minting(
             continue
         if not is_mostly_numeric(df[c]):
             continue
-        base, _unit = parse_col_base_and_unit(c)
+        base, col_unit = parse_col_base_and_unit(c)
         base_n = norm(base)
         base_n2 = base_n.replace("dietary fibre", "fiber").replace("fibre", "fiber")
-        nid = fdc_name2id.get(base_n) or fdc_name2id.get(base_n2) \
-              or overrides.get(base_n) or overrides.get(base_n2)
+        # AFCD reports each amino acid twice: once per 100 g and once "(mg/gN)",
+        # milligrams per gram of NITROGEN. The second is a different
+        # measurement, not a different unit - it cannot be scaled onto the
+        # per-100 g basis - so it is minted rather than mapped onto the FDC id,
+        # where it would have sat beside the real value and won the MAX-union.
+        if PER_GRAM_N_RE.search(str(col_unit or "")):
+            nid = None
+        else:
+            nid = fdc_name2id.get(base_n) or fdc_name2id.get(base_n2) \
+                  or overrides.get(base_n) or overrides.get(base_n2)
         if nid is None:
-            stable = base_n2 or base_n
+            stable = (base_n2 or base_n)
+            if PER_GRAM_N_RE.search(str(col_unit or "")):
+                stable += " per g n"
             if stable in minted:
                 nid = minted[stable]
             else:
@@ -97,6 +124,7 @@ def map_columns_with_minting(
                 })
             unmapped.append(str(c).replace("\n", " "))
         col2nid[c] = int(nid)
+        col2unit[c] = col_unit
     return col2nid, new_minted, unmapped
 
 
@@ -147,8 +175,15 @@ def main():
 
     fdc_name2id = build_fdc_nutrient_name_map(args.fdc_nutrient_csv)
     overrides = build_manual_overrides(fdc_name2id)
-    minted: Dict[str, int] = {}
-    next_id_box = [EXTRA_ID_START]
+    # Seed the mint from the registry this ingester wrote last time, so a label
+    # keeps the id it was first given. Positional minting renumbered the whole
+    # block whenever a column was added or dropped, and the enzyme digest
+    # references those ids BY NUMBER.
+    _extra_map = f"{args.out_prefix}_extra_nutrient_map.tsv"
+    minted: Dict[str, int] = load_registry(_extra_map, "source_column_norm")
+    if minted:
+        print(f"  -> reusing {len(minted)} minted ids from {_extra_map}")
+    next_id_box = [max([*minted.values(), EXTRA_ID_START - 1]) + 1]
 
     col2nid, new_minted, unmapped = map_columns_with_minting(
         df, fdc_name2id, overrides, minted, next_id_box,
@@ -162,6 +197,21 @@ def main():
     wide = df[["fdc_id", "Food Name", "food_category"] + mapped_cols].copy()
     # Defensive: drop duplicate column labels just in case
     wide = wide.loc[:, ~wide.columns.duplicated()]
+    # AFCD names the unit in the column header and the amount is then published
+    # under FDC's unit for whatever id the column maps to. Where the two differ
+    # the value is off by the ratio: the amino acids are mg here and G in FDC,
+    # so 7,518 rows were deposited a thousand times too high.
+    _fdcu = fdc_units(NUTRIENT_CSV)
+    _applied = []
+    for c in mapped_cols:
+        dst = _fdcu.get(col2nid[c])
+        if dst is None:
+            continue                      # a minted id has no canonical unit
+        f = conversion_factor(col2unit.get(c), dst)
+        _applied.append((str(c).replace("\n", " "), str(col2unit.get(c)), str(dst), f))
+        if f != 1.0 and c in wide.columns:
+            wide[c] = to_numeric_series(wide[c]) * f
+    unit_report(_applied)
     for c in mapped_cols:
         if c not in wide.columns:
             continue

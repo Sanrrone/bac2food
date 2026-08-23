@@ -58,7 +58,24 @@ import fdc_blocks
 
 
 EXCEL_DEFAULT = "McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx"
-EXTRA_ID_START = 200_001        # nutrient IDs ≥ 200_001 are reserved for novel nutrients
+# 200,001 is NOT McCance's block - 38 ids there belong to another source
+# ("N-acetyl-D-glucosamine (GlcNAc)" and its neighbours), and the deposited
+# McCance ids run 260,001-260,229. Minting from 200,001 collided with them, and
+# because the enzyme digest references minted ids BY NUMBER, a re-run under the
+# wrong start silently orphaned 20 of them.
+EXTRA_ID_START = 260_001        # McCance's minted-nutrient block
+
+import os as _os
+import sys as _sys2
+from pathlib import Path as _P2
+_sys2.path.insert(0, str(_P2(__file__).resolve().parent.parent))
+from _common.units import (
+    fdc_units, conversion_factor, is_other_basis, report as unit_report,
+)
+from _common.minted import load_registry
+
+NUTRIENT_CSV = _os.environ.get("BAC2FOOD_NUTRIENT_CSV", "/data/bac2food/nutrient.csv")
+UNIT_IN_COL = re.compile(r"\(([^)]*)\)")        # nutrient IDs ≥ 200_001 are reserved for novel nutrients
 
 # Data sheets (drop "List of tables" + "1.1 Notes" — they are metadata)
 DATA_SHEETS = [
@@ -132,7 +149,10 @@ KNOWN_NUTRIENTS: dict[str, int] = {
     "thiamin (mg)": 1165,
     "riboflavin (mg)": 1166,
     "niacin (mg)": 1167,
-    "tryptophan/60 (mg)": 1210,
+    # "Tryptophan/60" is the tryptophan content DIVIDED BY 60 - McCance's
+    # protein-quality convention - so it is neither tryptophan nor on the
+    # per-100 g basis FDC's id 1210 carries. Left unmapped, it is minted.
+    #   "tryptophan/60 (mg)": 1210,
     "niacin equivalent (mg)": 1167,
     "vitamin b6 (mg)": 1175,
     "vitamin b12 (µg)": 1174,
@@ -335,21 +355,36 @@ def main():
     print("[3/5] Mapping nutrient columns to IDs...")
     raw_to_id: dict[str, int] = {}
     extra_rows: list[dict] = []      # for extra_nutrient_map.tsv
-    next_id = EXTRA_ID_START
+    # Seed the mint from the registry this ingester wrote last time, so a label
+    # keeps the id it was first given. Positional minting renumbered the whole
+    # block whenever a column was added or dropped, and the enzyme digest
+    # references those ids BY NUMBER.
+    _extra_map = "mccance_extra_nutrient_map.tsv"
+    _reg = load_registry(_extra_map, "source_column_norm")
+    if _reg:
+        print(f"  -> reusing {len(_reg)} minted ids from {_extra_map}")
+    next_id = max([*_reg.values(), EXTRA_ID_START - 1]) + 1
     for raw_norm in sorted(raw_col_to_display):
-        if raw_norm in KNOWN_NUTRIENTS:
+        # A column measured against something other than 100 g of food is a
+        # different measurement, not a different unit: McCance gives each fatty
+        # acid "/100g food" AND "/100g fa" (per 100 g of total fatty acids), and
+        # only the first belongs on the FDC id. The other is minted.
+        if raw_norm in KNOWN_NUTRIENTS and not is_other_basis(raw_norm):
             raw_to_id[raw_norm] = KNOWN_NUTRIENTS[raw_norm]
         else:
-            raw_to_id[raw_norm] = next_id
+            nid = _reg.get(raw_norm, next_id)
+            raw_to_id[raw_norm] = nid
             extra_rows.append({
-                "nutrient_id": next_id,
+                "nutrient_id": nid,
                 "source_db": "mccance",
                 "source_column_raw": raw_col_to_display[raw_norm],
                 "source_column_norm": raw_norm,
                 "source_sheet": raw_col_sheet[raw_norm],
                 "note": "minted from McCance v2 ingester (unmapped column)",
             })
-            next_id += 1
+            if raw_norm not in _reg:
+                _reg[raw_norm] = nid
+                next_id += 1
     n_known = sum(1 for k in raw_to_id if k in KNOWN_NUTRIENTS)
     print(f"  -> {n_known} known FDC IDs, {len(extra_rows)} new IDs minted "
           f"(range {EXTRA_ID_START}-{next_id - 1})")
@@ -366,6 +401,24 @@ def main():
         print(f"  [warn] dropped {n_pre - len(long_df)} measurements with no spine match")
     long_df["fdc_id"] = long_df["fdc_id"].astype(int)
     long_df["nutrient_id"] = long_df["raw_col"].map(raw_to_id).astype(int)
+    # McCance names the unit in the column - "selenium (µg)", "calcium (mg)" -
+    # and the amount is then published under FDC's unit for whatever id the
+    # column maps to. Where the two differ the value is off by the ratio.
+    _fdcu = fdc_units(NUTRIENT_CSV)
+    _applied = []
+    _factor = {}
+    for raw, nid in raw_to_id.items():
+        dst = _fdcu.get(nid)
+        if dst is None:
+            continue                      # a minted id has no canonical unit
+        m = UNIT_IN_COL.search(raw)
+        f = conversion_factor(m.group(1) if m else None, dst)
+        _applied.append((raw, m.group(1) if m else "?", str(dst), f))
+        if f != 1.0:
+            _factor[raw] = f
+    unit_report(_applied)
+    if _factor:
+        long_df["amount"] = long_df["amount"] * long_df["raw_col"].map(_factor).fillna(1.0)
     long_df = long_df[["fdc_id", "nutrient_id", "amount"]]
 
     # --- 5) Write outputs --------------------------------------------------

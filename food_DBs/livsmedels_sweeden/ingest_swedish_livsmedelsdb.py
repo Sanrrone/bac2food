@@ -217,6 +217,19 @@ def main() -> None:
     # Mint fdc_id
     df["Food Number"] = pd.to_numeric(df["Food Number"], errors="coerce")
     df = df.dropna(subset=["Food Number", "Food Name"]).copy()
+    # Livsmedelsverket's export carries the editing layer as well as the reference set.
+    # A user who copies a recipe gets a row whose name is the original plus a timestamp
+    # ("Kopia av Lentil soup 2024-10-30 10:44:05(Copy of Lentil soup(903)), 7203"), and
+    # the copy is then edited: 24002560 is filed as mashed potato but carries 6.1 g water
+    # against the original's 78.8, i.e. it was rebased onto the dry mix. The name does not
+    # describe the food and the record is not part of the national reference set, so it is
+    # dropped rather than shipped under a name no one can use.
+    _copies = df["Food Name"].astype(str).str.contains(r"^Kopia av |\(Copy of ", regex=True,
+                                                       na=False)
+    if _copies.any():
+        print(f"[INFO] Dropped {int(_copies.sum())} user-copied recipe rows "
+              f"(name carries 'Kopia av' / '(Copy of')")
+        df = df[~_copies].copy()
     df["Food Number"] = df["Food Number"].astype(int)
     df["fdc_id"] = fdc_blocks.assign("swedish", df["Food Number"].astype(int))
 

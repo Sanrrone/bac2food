@@ -18,6 +18,7 @@ Safe to re-run; creates a single timestamped backup of food.parquet at start.
 """
 from __future__ import annotations
 
+import argparse
 import shutil
 import sys
 from dataclasses import dataclass
@@ -26,6 +27,9 @@ from pathlib import Path
 import pandas as pd
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import fdc_blocks
 
 GLOBAL_FOOD = Path("/data/bac2food/food.parquet")
 GLOBAL_BUCKETS = Path("/data/bac2food/food_nutrient_bucketed")
@@ -172,11 +176,42 @@ def swap_bucketed_data(s: V2Source) -> tuple[int, int]:
 
 
 def main():
+    ap = argparse.ArgumentParser(description=__doc__,
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--only", action="append", metavar="SOURCE",
+                    help="merge only this source (repeatable). Without it every "
+                         "source is re-applied, which will REVERT any source "
+                         "whose live data has moved on from its v2 output.")
+    args = ap.parse_args()
+    global SOURCES
+    if args.only:
+        want = set(args.only)
+        unknown = want - {s.short for s in SOURCES}
+        if unknown:
+            sys.exit(f"[abort] unknown source(s): {sorted(unknown)}")
+        SOURCES = [s for s in SOURCES if s.short in want]
+
     print("==================================================")
     print("Phase 8 v2 merge")
     print("==================================================")
+    print(f"  sources: {', '.join(s.short for s in SOURCES)}")
 
     check_v2_outputs()
+
+    # The injection files predate migrate_fdc_ids.py for any source whose
+    # ingester has not been re-run since. Appending one of those puts the source
+    # back on its pre-migration ids, which collide with other sources' blocks -
+    # and nothing downstream notices until the export's block assertion fires.
+    for s in SOURCES:
+        v2 = pd.read_parquet(FOOD_DBS / s.folder / s.food_injection, columns=["fdc_id"])
+        bad = [int(i) for i in v2.fdc_id.head(500)
+               if not (fdc_blocks.base(s.short) <= int(i) < fdc_blocks.limit(s.short))]
+        if bad:
+            sys.exit(
+                f"[abort] {s.short}: {s.food_injection} carries ids outside the "
+                f"{s.short} block [{fdc_blocks.base(s.short):,}, "
+                f"{fdc_blocks.limit(s.short):,}) - e.g. {bad[:3]}. It predates the "
+                f"accession migration; re-run the ingester before merging.")
 
     # Safety check
     for s in SOURCES:

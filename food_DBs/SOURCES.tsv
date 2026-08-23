@@ -1,0 +1,30 @@
+# Where each source database is obtained. Single source of truth: food_DBs/SOURCE.md files
+# are GENERATED from this table by food_DBs/write_source_stubs.py — edit here, not there.
+#
+# The raw releases are not redistributed with this repository. Their terms differ by source
+# (some NonCommercial, some ShareAlike, NEVO by written permission covering derived values
+# only), so each is fetched from its provider. The rights themselves live in
+# 5_export/licence_tiers.csv, which is also Supplementary Table S1 of the Data Descriptor —
+# do not restate a licence here or the two will drift.
+#
+# version_used is the release THIS build ingested. A newer release usually still ingests, but
+# component columns move between versions and the ingest maps them by name, so check the
+# ingest's unmapped-column report after any upgrade.
+# download_page URLs were last confirmed 2026-08-20.
+source_db	folder	database	provider	version_used	download_page	expected_files	note
+fdc	fooddatacentral_usa	FoodData Central	USDA ARS (USA)	2025	https://fdc.nal.usda.gov/download-datasets/	food.csv, food_nutrient.csv, nutrient.csv, food_category.csv	Take the "Full Download" CSV bundle. Only nutrient.csv is kept in this folder; the rest are read from the raw drop at /data/bac2food/fdc_raw.
+ciqual	ciqual_france	CIQUAL	ANSES (France)	2025	https://ciqual.anses.fr/	Table Ciqual 2025_ENG_2025_11_03.xlsx	Use the English export; the ingest maps the ENG column headers.
+mccance	McCance_Widdowsons_uk	McCance & Widdowson's CoFID	OHID / PHE (UK)	2021 (CoFID)	https://www.gov.uk/government/publications/composition-of-foods-integrated-dataset-cofid	McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx	The 2021 integrated dataset workbook, not the "old foods" companion file.
+cnf	canadian_nutrientfile_canada	Canadian Nutrient File	Health Canada	2015	https://www.canada.ca/en/health-canada/services/food-nutrition/healthy-eating/nutrient-data/canadian-nutrient-file-2015-download-files.html	FOOD NAME.csv, FOOD GROUP.csv, FOOD SOURCE.csv, NUTRIENT AMOUNT.csv, NUTRIENT NAME.csv, NUTRIENT SOURCE.csv, MEASURE NAME.csv, CONVERSION FACTOR.csv	The relational CSV set. A 2026 release exists on open.canada.ca; this build ingested 2015.
+fineli	fineli_finland	Fineli	THL (Finland)	2023	https://fineli.fi/fineli/en/avoin-data	resultset.csv	Exported from the open-data interface rather than shipped as a fixed file, so the filename is ours.
+swedish	livsmedels_sweeden	Livsmedelsdatabasen	Livsmedelsverket (Sweden)	2024	https://www.livsmedelsverket.se/en/about-us/open-data/food-composition-data/	LivsmedelsDB_202603061604.xlsx	The export carries the source's editing layer alongside the reference set; the ingest drops the copy records (see food_DBs/_common/non_nutrients.py).
+swiss	swissfoodcompoDB_swiss	Swiss Food Composition Database	FSVO (Switzerland)	2023	https://naehrwertdaten.ch/en/downloads/	Swiss_food_composition_database.xlsx	Four language editions are offered; this build used English.
+japan	stfcj_japan	STFCJ (Standard Tables of Food Composition in Japan)	MEXT (Japan)	2020 (8th rev.)	https://www.mext.go.jp/a_menu/syokuhinseibun/	main_1374049_1r12_1.xlsx, aminoacid_1374049_2r11_1.xlsx, fatty_acid_1374049_3r11_1.xlsx, org_acid_1388558_4r12r.xlsx	Follow the 日本食品標準成分表2020年版（八訂） link, then its Excel downloads. The English mirror that served these file ids has been retired.
+frida	frida_denmark	Frida	DTU Food (Denmark)	2024	https://frida.fooddata.dk/?lang=en	Frida_5.5_Dataset.xlsx	"Download dataset" on the site; the .ods twin in this folder is the same release.
+phenol_explorer	phenol_explorer_france	Phenol-Explorer	INRAE (France)	3.6	http://phenol-explorer.eu/downloads	composition-data.tsv	Composition data only; the metabolism and processing tables are not ingested.
+afcd	asnut_australianw	AFCD / ASNUT	FSANZ (Australia)	2019 (Release 3)	https://www.foodstandards.gov.au/science-data/food-nutrient-databases/afcd/data-files	AFCD Release 3 - Nutrient profiles.xlsx	Nutrient profiles workbook, not the per-food search export.
+wafct	WAFT_AFRICA	WAFCT (Food Composition Table for Western Africa)	FAO/INFOODS	2019	https://www.fao.org/infoods/infoods/tables-and-databases/faoinfoods-databases/en/	WAFCT_2019.xlsx	Listed on the FAO/INFOODS databases page as "FAO/INFOODS Food Composition Table for Western Africa (2019)".
+biofoodcomp	FAO_onu	BioFoodComp (Food Composition Database for Biodiversity)	FAO/INFOODS	4.0	https://www.fao.org/infoods/infoods/tables-and-databases/faoinfoods-databases/en/	BioFoodComp4.0.xlsx	Same FAO/INFOODS page as PhyFoodComp and WAFCT.
+phyfoodcomp	FAO_onu	PhyFoodComp (Global Food Composition Database for Phytate)	FAO/INFOODS/IZiNCG	1.0	https://www.fao.org/infoods/infoods/tables-and-databases/faoinfoods-databases/en/	PhyFoodComp_1.0.xlsx	Same FAO/INFOODS page as BioFoodComp and WAFCT.
+nevo	NEVO_netherlands	NEVO-online	RIVM (Netherlands)	2025/9.0	https://www.rivm.nl/en/dutch-food-composition-database/use-of-nevo-online/request-dataset	NEVO2025_v9.0.xlsx	Request the dataset from RIVM; it is free. The release itself is in neither this repository nor the deposit — RIVM asked that users be sent to their download page. 5_export/reconstruct_nevo.py rebuilds the NEVO partition from it.
+synthetic_bacterial	-	curated bacterial substrates	this work	1.0	-	0_building/extra_bacterial_seeds.tsv	Authored here, not fetched: HMOs, sialic acid, fucose, xylan, arabinoxylan, dextran, pullulan, cellobiose, alginate, agarose and related substrates that composition tables omit.
