@@ -7412,6 +7412,60 @@ def refine_canons_by_nutrition(canon_groups: dict, fid_to_desc: dict,
     return refined
 
 
+class _FoodLookup:
+    """Compact stand-in for the dense fdc_id-indexed arrays.
+
+    canon_arr, plant_arr and spice_arr used to be dense over the fdc_id space. That
+    space runs to 48,002,027 because fdc_ids are block-allocated per source, while
+    only ~128,000 slots are ever populated - 0.27%. The three arrays cost 288 MB to
+    carry 1.3 MB of information, and every worker process paid it.
+
+    This keeps the live ids sorted with one parallel array per attribute and resolves
+    a whole batch with searchsorted - O(log n) vectorised rather than the O(1) gather
+    it replaces, which on a 50,000-row batch is not measurable next to the parquet read.
+
+    An fdc_id the index does not know resolves to canon -1, exactly as a dense slot
+    that was never filled did, so the `(c != -1)` guard downstream is unchanged. The
+    old `f < max_f` bound is no longer needed either: an id past the end misses instead
+    of indexing out of range.
+    """
+    __slots__ = ("ids", "canon_of", "plant_of", "spice_of")
+
+    def __init__(self, ids, canon_of, plant_of, spice_of):
+        self.ids = ids; self.canon_of = canon_of
+        self.plant_of = plant_of; self.spice_of = spice_of
+
+    def resolve(self, f):
+        """(canon, is_spice, is_plant) for a batch of fdc_ids. canon is -1 if unknown."""
+        if len(self.ids) == 0:
+            z = np.zeros(len(f), dtype=bool)
+            return np.full(len(f), -1, dtype=np.int64), z, z
+        pos = np.searchsorted(self.ids, f)
+        np.clip(pos, 0, len(self.ids) - 1, out=pos)
+        hit = self.ids[pos] == f
+        return (np.where(hit, self.canon_of[pos], -1),
+                hit & self.spice_of[pos],
+                hit & self.plant_of[pos])
+
+
+def _compact_food_arrays(c_arr, pl_arr, sp_arr):
+    """Dense fdc-indexed arrays -> the sorted-id form _FoodLookup reads."""
+    ids = np.nonzero(c_arr != -1)[0].astype(np.int64)
+    return ids, c_arr[ids].astype(np.int64), pl_arr[ids].copy(), sp_arr[ids].copy()
+
+
+def _lookup_from_static(db) -> "_FoodLookup":
+    """Build the lookup from either pickle form.
+
+    An index written before the compaction still carries the dense arrays; rather
+    than force a rebuild for a format change alone, convert it on load. The identity
+    stamp still governs whether the index is VALID - this governs only its shape.
+    """
+    if "food_ids" in db:
+        return _FoodLookup(db["food_ids"], db["food_canon"], db["food_plant"], db["food_spice"])
+    return _FoodLookup(*_compact_food_arrays(db["canon_arr"], db["plant_arr"], db["spice_arr"]))
+
+
 def build_static_food_meta(args, out_path):
     """Build a dense numpy index over the food catalog. Adapted from the query prototype."""
     print("[*] Building static food meta...", flush=True)
@@ -7682,7 +7736,12 @@ def build_static_food_meta(args, out_path):
     for n in modeled:
         u = str(unit_map.get(n) or "").upper()
         u_arr[n] = 1000.0 if u == "G" else (0.001 if u == "UG" else 1.0)
-    pickle.dump({"canon_arr":c_arr,"plant_arr":pl_arr,"spice_arr":sp_arr,"unit_arr":u_arr,
+    _ids, _can, _pl, _sp = _compact_food_arrays(c_arr, pl_arr, sp_arr)
+    print(f"[*] Food lookup: {len(_ids):,} live ids of an {len(c_arr):,}-wide fdc space "
+          f"({(c_arr.nbytes+pl_arr.nbytes+sp_arr.nbytes)/1e6:.0f} MB dense -> "
+          f"{(_ids.nbytes+_can.nbytes+_pl.nbytes+_sp.nbytes)/1e6:.1f} MB).", flush=True)
+    pickle.dump({"food_ids":_ids,"food_canon":_can,"food_plant":_pl,"food_spice":_sp,
+                 "unit_arr":u_arr,
                  "food_stats":rep_stats,"modeled":modeled,
                  "nut_name":dict(zip(nut["nutrient_id"], nut["nutrient_name"].astype(str))),
                  "rep2can":{f:c_arr[f] for f in rep_stats}}, open(out_path, "wb"))
@@ -7723,15 +7782,16 @@ def build_modeled_index(bdir, static_db, out_dir, batch_rows=750_000):
     tmp = out_dir / "_tmp_scale_parts"
     if tmp.exists(): shutil.rmtree(tmp)
     tmp.mkdir(parents=True, exist_ok=True)
-    c_arr, sp_arr, u_arr = static_db["canon_arr"], static_db["spice_arr"], static_db["unit_arr"]
-    max_f, max_u = len(c_arr), len(u_arr)
+    fl = _lookup_from_static(static_db); u_arr = static_db["unit_arr"]
+    max_u = len(u_arr)
     for bi, b in enumerate(scn.to_batches(), 1):
         f = b["fdc_id"].to_numpy().astype(np.int64, copy=False)
         n = b["nutrient_id"].to_numpy().astype(np.int32, copy=False)
         a = b["amount"].to_numpy().astype(np.float32, copy=False)
-        m = (f>=0)&(f<max_f)&(n>=0)&(n<max_u)&np.isfinite(a)
+        m = (f>=0)&(n>=0)&(n<max_u)&np.isfinite(a)
         if not m.any(): continue
-        f, n, a = f[m], n[m], a[m]; c = c_arr[f]; v = (c != -1) & (~sp_arr[f])
+        f, n, a = f[m], n[m], a[m]
+        c, _is_sp, _ = fl.resolve(f); v = (c != -1) & (~_is_sp)
         if not v.any(): continue
         f, n, a, c = f[v], n[v], a[v], c[v]; a = a*u_arr[n]
         df = pd.DataFrame({"nutrient_id":n,"canon":c,"amount_norm":a})
@@ -7778,6 +7838,7 @@ STATIC_DB, DYNAMIC_STATE = {}, {}
 def _init_w(p, d):
     global STATIC_DB, DYNAMIC_STATE
     STATIC_DB = pickle.load(open(p, "rb")); DYNAMIC_STATE = d
+    STATIC_DB["food_lookup"] = _lookup_from_static(STATIC_DB)
 
 
 def score_one_bacterium(lbl):
@@ -7815,22 +7876,22 @@ def score_one_bacterium(lbl):
         filter=ds.field("bucket").isin(sorted({n % BUCKETS for n in need})) & ds.field("nutrient_id").isin(sorted(need)),
         batch_size=50_000)
     tk_p, tk_o = TopKByNutrient(), TopKByNutrient()
-    c_arr = STATIC_DB["canon_arr"]; pl_arr = STATIC_DB["plant_arr"]
-    sp_arr = STATIC_DB["spice_arr"]; u_arr = STATIC_DB["unit_arr"]
-    max_f, max_u = len(c_arr), len(u_arr)
+    fl = STATIC_DB["food_lookup"]; u_arr = STATIC_DB["unit_arr"]
+    max_u = len(u_arr)
     for b in scn.to_batches():
         f = b["fdc_id"].to_numpy().astype(np.int64, copy=False)
         n = b["nutrient_id"].to_numpy().astype(np.int32, copy=False)
         a = b["amount"].to_numpy().astype(np.float32, copy=False)
-        m = (f>=0)&(f<max_f)&(n>=0)&(n<max_u)&np.isfinite(a)
+        m = (f>=0)&(n>=0)&(n<max_u)&np.isfinite(a)
         if not m.any(): continue
-        f, n, a = f[m], n[m], a[m]; c = c_arr[f]; v = (c != -1)
-        if not DYNAMIC_STATE["asp"]: v &= ~sp_arr[f]
+        f, n, a = f[m], n[m], a[m]
+        c, is_sp, is_pl = fl.resolve(f); v = (c != -1)
+        if not DYNAMIC_STATE["asp"]: v &= ~is_sp
         if not v.any(): continue
-        f, n, a, c = f[v], n[v], a[v], c[v]; a = a*u_arr[n]
+        n, a, c = n[v], a[v], c[v]; is_sp, is_pl = is_sp[v], is_pl[v]; a = a*u_arr[n]
         # Spices only. Everything else is compared on the 100 g basis it is
         # stored and published on, with no rescaling at all.
-        if DYNAMIC_STATE["asp"]: a = np.where(sp_arr[f], a*SPICE_SERVING_WEIGHT, a)
+        if DYNAMIC_STATE["asp"]: a = np.where(is_sp, a*SPICE_SERVING_WEIGHT, a)
         # Collapse each (nutrient, canon) to ONE value, and that value is the
         # MAXIMUM: the lexsort orders by amount within the run and the mask
         # below keeps the LAST element of it. A canon is therefore scored at
@@ -7839,9 +7900,9 @@ def score_one_bacterium(lbl):
         # one, and why the axes above exist. (build_modeled_index takes the
         # MEAN over the same members for the modeled tables; the two readers
         # disagree on purpose - see the note there.)
-        idx = np.lexsort((a, c, n)); n, c, a, f = n[idx], c[idx], a[idx], f[idx]
+        idx = np.lexsort((a, c, n)); n, c, a, is_pl = n[idx], c[idx], a[idx], is_pl[idx]
         m2 = np.empty(len(n), dtype=bool); m2[-1] = True; m2[:-1] = (n[:-1] != n[1:]) | (c[:-1] != c[1:])
-        n, c, a, ipl = n[m2], c[m2], a[m2], pl_arr[f[m2]]
+        n, c, a, ipl = n[m2], c[m2], a[m2], is_pl[m2]
         for i in range(len(n)):
             (tk_p if ipl[i] else tk_o).push(int(n[i]), int(c[i]), float(a[i]), K_PLANT if ipl[i] else K_OTHER)
 
