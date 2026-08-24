@@ -560,11 +560,17 @@ _FORTIFY_PATTERNS = [
     # itself to the food as 'milk d'.
     ("enriched", re.compile(
         r"(?<!un)(?<!non[-\s])(?<!not\s)\b(?:enriched|fortified)\b|"
+        # "ascorbic acid" is how FDC and CNF spell added vitamin C on a juice -
+        # "Apple juice, canned or bottled, unsweetened, with added ascorbic acid" -
+        # and it was absent from every alternation below, so 17 rows read as
+        # unfortified. 'apple juice' held 9 of them beside 23 plain members, and
+        # under the max the plain juice reported the fortified one's vitamin C.
         r"\bwith\s+added\s+(?:vitamins?(?:\s+[a-k]\d*\b)?|minerals?|calcium|iron|"
-        r"folate|folic\s+acid|iodine|zinc|fibre|fiber)"
+        r"folate|folic\s+acid|iodine|zinc|fibre|fiber|ascorbic\s+acid)"
         r"(?:\s*(?:,|and/or|and|or|&)\s*(?!without\b)(?:added\s+)?"
         r"(?:vitamins?(?:\s+[a-k]\d*\b)?|minerals?|"
-        r"calcium|iron|folate|folic\s+acid|iodine|zinc|fibre|fiber))*|"
+        r"calcium|iron|folate|folic\s+acid|iodine|zinc|fibre|fiber|"
+        r"ascorbic\s+acid))*|"
         # CIQUAL and NEVO write the claim WITHOUT the word "added" - "Cereal bar
         # with fruit with vitamins and minerals", "fortified w Ca and Vit B12" -
         # so the label printed but the wording stayed, and 120 canons carried the
@@ -572,9 +578,25 @@ _FORTIFY_PATTERNS = [
         # in this half: fibre is a property of the food as often as an addition.
         # "calcium sulphate" is tofu's coagulant, not a fortificant, and eating
         # the "calcium" half of it left 'tofu, sulfate' calling itself enriched
+        # Fineli and FDC drop the "with" as well as the "added" - "Orange Juice,
+        # Unsweetened, Added Calcium", "Mineral Water, Added Zinc And Vitamin E",
+        # "reduced calorie, with added vitamin E" - and the phrase was reached by
+        # neither half above, so 68 rows read as unfortified. The negatives have
+        # to be shut out by hand here: this branch has no "with" to hang a
+        # lookbehind on, so "no added iron" and "without added vitamin A" would
+        # otherwise match on their tail. _UNFORTIFIED_PHRASE_RE still owns the
+        # wording of those, and reads them before this can.
+        r"(?<!no\s)(?<!not\s)(?<!without\s)(?<!and\s)\badded\s+"
+        r"(?:vitamins?(?:\s+[a-k]\d*\b)?|minerals?|calcium|iron|folate|"
+        r"folic\s+acid|iodine|zinc|ascorbic\s+acid|thiamin[e]?|niacin|"
+        r"riboflavin|selenium|fibre|fiber)"
+        r"(?:\s*(?:,|and/or|and|or|&)\s*(?!without\b)(?:added\s+)?"
+        r"(?:vitamins?e?(?:\s+[a-k]\d*\b)?|minerals?|calcium|iron|folate|"
+        r"folic\s+acid|iodine|zinc|ascorbic\s+acid|thiamin[e]?|niacin|"
+        r"riboflavin|selenium|fibre|fiber|[a-k]\d{0,2}))*|"
         r"\bwith\s+(?:vitamins?e?(?:\s+[a-k]\d*)?|vit\.?\s*[a-k]\d*|minerals?|"
         r"(?:calcium|ca)(?!\s*(?:sulph|sulf|chlor|carbon|lact|phosph|citr|salt))|"
-        r"iron|folate|folic\s+acid|iodine|zinc)\b"
+        r"iron|folate|folic\s+acid|iodine|zinc|ascorbic\s+acid)\b"
         # the continuation has to accept a BARE letter, or "with vitamin E and
         # C" consumed only its first half and left " and c" as the food's name
         r"(?:\s*(?:,|and/or|and|or|&)\s*(?!without\b)"
@@ -592,6 +614,110 @@ _FORTIFY_PATTERNS = [
 # majority: 253 of the 261 members of 'bean, pinto, dried'. They are real
 # measurements, so they are kept and labelled rather than dropped; the label is
 # what stops a dry-matter figure standing in for the as-eaten values of the same bean.
+# Six claims below survive nowhere else, because every food that carries them
+# is a HARD cultivar strip head - lima bean, cowpea, broad bean, banana, rice
+# and wheat flour all drop every chunk after the head - so a label is the only
+# form in which they can reach the canon at all. Measured on the round-16
+# export; each count is canons holding BOTH ends of the claim as one food.
+#
+# FIBRE, as a figure and as a claim. The figure was the only nutrient
+# percentage _QUANT_RE ate: "Cheese, 13% fat" keeps its number because
+# _detect_fat reads it into a label and _append_states puts it back, while
+# "Crispbread, Rye, 17% Fibre" came out bare. Read the same way here, for the
+# same reason. "high fibre" is the wording without a number and goes with it.
+_FIBRE_PCT_RE = re.compile(r"\d+(?:[.,]\d+)?\s*%\s*fib(?:re|er)\b", re.I)
+_HIGH_FIBRE_RE = re.compile(
+    r"\bhigh[-\s]?fib(?:re|er)\b|\bfib(?:re|er)[-\s]enriched\b|"
+    r"\bfib(?:re|er)[-\s]rich\b", re.I)
+# "app." is Swedish FoodComp's approximation word - "Bread white unsweetened
+# app. 2.5% fibre" - and it sits in front of the figure exactly as "around" and
+# "approx." do in front of a fat one, where _FAT_PHRASE_RE already removes it.
+_FIBRE_PHRASE_RE = re.compile(
+    r"\s*,?\s*(?:\b(?:app|approx|about|around|env)\.?\s+)?"
+    + _FIBRE_PCT_RE.pattern + r"|\s*,?\s*(?:" + _HIGH_FIBRE_RE.pattern + r")", re.I)
+
+# HARVEST MATURITY. FDC files the green legume and the dried one as "immature
+# seeds" and "mature seeds" of the same food, and both chunks die on the strip
+# head: 'lima bean' holds 8 immature-seed rows beside 7 mature-seed ones,
+# 'cowpea' 8 beside 7, 'broad bean' 4 beside 4, 'sweet corn' 5 immature-kernel
+# rows. Raw immature lima beans carry about 4.9 g fibre and 6.8 g protein per
+# 100 g against 19 g and 21.5 g for the mature seed - a four-fold gap inside one
+# canon, and the score reports the larger of the two. Mature is left unmarked:
+# it is the unqualified bean, and _MATURITY_SKIP_RE already keeps "mature seeds"
+# out of the cheese-ageing axis for the same reason.
+_IMMATURE_RE = re.compile(
+    r"\bimmature\s+(?:seeds?|kernels?|beans?|pods?|grains?|fruits?)\b|"
+    r"(?:^|,)\s*immature\s*(?=\s*(?:,|\[|$))|\bimmature\s+green\b", re.I)
+
+# RIPENESS, which is starch against sugar and therefore the substrate question
+# this resource exists to answer. FDC measured the stages separately and named
+# them: 'banana' holds 224 rows saying ripe, 164 saying slightly ripe, 164
+# saying overripe and 15 saying green or unripe, as ONE 594-member canon, so
+# under the max a banana reports the green fruit's starch and the overripe
+# fruit's sugars at the same time. Only the off-default ends are labelled - a
+# plain "Bananas, raw" IS the ripe fruit, so printing "ripe" would split the
+# canon against itself, the same argument that makes unsalted and unsweetened
+# silent. No context gate: unlike "green", these words are never a colour, a
+# cultivar or a cut anywhere in the corpus.
+_RIPENESS_PATTERNS = [
+    ("overripe", re.compile(r"\bover[-\s]?ripe\b", re.I)),
+    ("slightly ripe", re.compile(
+        r"\bslightly\s+ripe\b|\bpartially\s+ripe\b|\bhalf[-\s]?ripe\b", re.I)),
+    ("unripe", re.compile(r"\bunripe\b|\bgreen[-\s]?mature\b", re.I)),
+]
+
+# DECAFFEINATED. Caffeine and theobromine are both nutrients in this export, so
+# a decaffeinated coffee folded into the regular one is handed the regular one's
+# caffeine outright - 19 canons, 'coffee, instant, dried' holding 6 decaf rows
+# beside 11 regular. The word is unambiguous wherever it appears.
+_DECAF_RE = re.compile(
+    r"\bdecaff?eina(?:ted|ed)?\b|\bdecaf\b|\bcaffeine[-\s]free\b", re.I)
+
+# GRAIN REFINEMENT, which is the fibre and mineral axis of every cereal and had
+# no axis at all. 'wheat flour' holds 21 whole-grain rows beside 5 refined ones
+# (Frida's "extraction rate 75%" among them) and 'rice' 12 beside 11 of
+# Phenol-Explorer's "Rice, refined"; WAFCT's three maize porridges each hold the
+# wholegrain meal beside the degermed grit, and degerming is what removes the
+# thiamin and the magnesium. Read only on a CEREAL and never on a fat, so
+# _OIL_GRADE_PATTERNS keeps "refined" for the pressing grade of an oil, which is
+# a different claim about a different food. The wholegrain end stays unmarked:
+# the sources that bother to say it usually say it in the head, where
+# _append_state already declines to print a label whose word is standing.
+_CEREAL_CONTEXT_RE = re.compile(
+    r"\b(?:flours?|breads?|rice|wheat|pastas?|noodles?|spaghetti|macaroni|"
+    r"oats?|barley|rye|maize|corn|millet|sorghum|teff|spelt|semolina|couscous|"
+    r"bulgur|crackers?|crispbread|biscuits?|cereals?|porridge|tortillas?|"
+    r"chapati|grits?|meal|bran|groats?)\b", re.I)
+_REFINED_GRAIN_RE = re.compile(
+    r"(?<!un)\brefined\b|\bdegermed\b|\bsifted\b|\bpolished\b|"
+    r"\bextraction\s+rate\b|\b\d+\s*%\s*extraction\b", re.I)
+# BOTH ends are labelled here, unlike salt and sugar where one end is silent,
+# because neither is the unmarked case: most rows state no refinement at all.
+# Labelling only "refined" would have left 'wheat flour' holding its 21
+# whole-grain rows beside 73 unstated white ones - the 3x fibre gap the axis
+# exists to separate - so the whole-grain end has to be named too. What is left
+# unlabelled is then honestly what the sources did not say.
+_WHOLEGRAIN_RE = re.compile(
+    r"\bwholemeal\b|\bwholegrain\b|\bwhole[-\s]grain\b|\bwhole[-\s]wheat\b|"
+    r"\bwholewheat\b|\bgraham\s+flour\b", re.I)
+
+# GLUTEN-FREE, which on a pasta or a bread is not a label on the same food but a
+# different grain: gluten-free pasta is rice or maize, and 'pasta' held 9 of
+# them beside 74 durum-wheat rows, 'pasta, dried' 6 beside 36. 33 canons.
+_GLUTEN_FREE_RE = re.compile(
+    r"\b(?:naturally\s+)?gluten[-\s]free\b", re.I)
+
+# The CUT of a grain is not its composition: rolled, steel-cut, quick and
+# old-fashioned oats are the same groat per 100 g. They were invisible until
+# the wholegrain wording above was lifted off the chunk in front of them, and
+# then they split one honest 'oat, wholegrain' into three - one of them named
+# 'oat, steel', because _PREP_RE eats the "cut" and leaves the adjective.
+# Deliberately short: "cracked" and "flaked" are NOT here, because cracked
+# wheat is bulgur and flaked rice is poha, and both are their own food.
+_GRAIN_FORM_RE = re.compile(
+    r"^(?:steel(?:[-\s]?cut)?|rolled|old[-\s]?fashioned|"
+    r"quick(?:[-\s]?cooking)?|pinhead|jumbo)$", re.I)
+
 _MOISTURE_PATTERNS = [
     ("0% moisture basis", re.compile(
         r"\b0\s*%\s*moisture\b|\bmoisture[-\s]free\s+basis\b|"
@@ -1055,10 +1181,40 @@ def _pack_wording(d: str) -> str:
     return ""
 
 
+# Oil and brine are media in their own right, and several sources name one
+# without ever saying "canned": Fineli files "Cheese, Feta Cheese In Oil" and
+# "Tomato, Sun-Dried, In Oil", CIQUAL "Olive, green, in brine", and Swiss
+# Generic Foods "Tuna in oil, drained". All four failed the packed-context test
+# and merged into the plain food - the same defect the comment below already
+# argues against for canned tuna, where drained tuna in oil carries about eight
+# times the fat of drained tuna in water. 8 canons.
+#
+# Water and juice are deliberately NOT admitted this way: without the packed
+# context "boiled in water" is a cooking method, which is exactly what the
+# guard was written to catch. Nor is a food that was COOKED in the oil - "Fast
+# foods, potato, french fried in vegetable oil", "Pork, Strips, Fried In Oil" -
+# where the oil is the frying medium and _detect_cook_fat owns the claim.
+# "in", never "with". Without the packed context a "with <oil>" is an
+# INGREDIENT, not a medium, and admitting it labelled four foods by something
+# they are made of: "Puddings, banana, dry mix, with added oil" came out as
+# 'pudding, banana, dried, in added oil', filled milk "with lauric acid oil" as
+# 'milk, filled, in lauric acid oil', and agutuk - which is whipped WITH seal
+# oil - as 'agutuk, in seal oil'. An explicit "added" is excluded for the same
+# reason even after "in".
+_MEDIUM_NO_CONTEXT_RE = re.compile(
+    r"\bin\s+(?!added\b)(?:\w+\s+){0,2}(?:oils?|brine)\b", re.I)
+_COOKED_IN_RE = re.compile(
+    r"\b(?:deep[-\s]?fried|pan[-\s]?fried|stir[-\s]?fried|fried|frying|"
+    r"saut(?:e|\u00e9)ed|browned|boiled|simmered|poached|blanched|heated|"
+    r"grilled|griddled|roasted|baked|cooked|stewed|braised|steamed|"
+    r"casseroled|toasted)\b", re.I)
+
+
 def _detect_pack(d: str) -> tuple[str, str]:
     """Return (packing-medium label, matched token), or ("",""). See _PACK_PATTERNS."""
     if not _PACKED_CONTEXT_RE.search(d):
-        return "", ""
+        if not (_MEDIUM_NO_CONTEXT_RE.search(d) and not _COOKED_IN_RE.search(d)):
+            return "", ""
     d = _RECONSTITUTED_RE.sub(" ", d)
     if _DRAINED_RE.search(d) and not _PACK_PATTERNS[0][1].search(d):
         # Draining pours off water and brine, so the medium stops counting. Oil
@@ -1221,6 +1377,75 @@ def _detect_fortify(d: str) -> tuple[str, str]:
     return "", ""
 
 
+def _detect_fibre(d: str) -> tuple[str, str]:
+    """Return (fibre figure or high-fibre claim, matched token), or ("","").
+
+    Mirrors the fat-percentage half of _detect_fat: the figure becomes the
+    label, so it survives a strip head the way "13% fat" does.
+    """
+    hit = _FIBRE_PCT_RE.search(d)
+    if hit and not _INGREDIENT_CTX_RE.search(d[:hit.start()]):
+        num = re.sub(r"\s*[-–]\s*", "-", hit.group(0).split("%")[0].strip().replace(",", "."))
+        num = "-".join(n[:-2] if n.endswith(".0") else n for n in num.split("-"))
+        try:
+            if any(float(n) > 0 for n in num.split("-")):
+                return f"{num}% fibre", hit.group(0)
+        except ValueError:
+            pass
+    hit = _HIGH_FIBRE_RE.search(d)
+    if hit and not _INGREDIENT_CTX_RE.search(d[:hit.start()]):
+        return "high-fibre", hit.group(0)
+    return "", ""
+
+
+def _detect_immature(d: str) -> tuple[str, str]:
+    """Return ("immature", matched token) for a pre-maturity harvest, or ("","")."""
+    hit = _IMMATURE_RE.search(d)
+    return ("immature", hit.group(0)) if hit else ("", "")
+
+
+def _detect_ripeness(d: str) -> tuple[str, str]:
+    """Return (ripeness label, matched token), or ("",""). See _RIPENESS_PATTERNS."""
+    for label, rx in _RIPENESS_PATTERNS:
+        hit = rx.search(d)
+        if hit:
+            return label, hit.group(0)
+    return "", ""
+
+
+def _detect_decaf(d: str) -> tuple[str, str]:
+    """Return ("decaffeinated", matched token), or ("","")."""
+    hit = _DECAF_RE.search(d)
+    return ("decaffeinated", hit.group(0)) if hit else ("", "")
+
+
+def _detect_refined_grain(d: str) -> tuple[str, str]:
+    """Return ("refined", matched token) for a milled cereal, or ("","").
+
+    Gated to a cereal and away from a fat: "refined" on an oil is a pressing
+    grade, which _detect_oil_grade owns.
+    """
+    if not _CEREAL_CONTEXT_RE.search(d) or _OIL_CONTEXT_RE.search(d):
+        return "", ""
+    # No ingredient guard here, unlike the fat and fibre figures: on a cereal the
+    # "from <grain>" clause names what the food IS, not something added to it -
+    # "Porridge, soft, from degermed yellow maize grit" is a degermed-maize
+    # porridge - and the guard read it as an ingredient and dropped the claim.
+    hit = _REFINED_GRAIN_RE.search(d)
+    if hit:
+        return "refined", hit.group(0)
+    hit = _WHOLEGRAIN_RE.search(d)
+    if hit:
+        return "wholegrain", hit.group(0)
+    return "", ""
+
+
+def _detect_gluten_free(d: str) -> tuple[str, str]:
+    """Return ("gluten-free", matched token), or ("","")."""
+    hit = _GLUTEN_FREE_RE.search(d)
+    return ("gluten-free", hit.group(0)) if hit else ("", "")
+
+
 def _detect_sugar(d: str) -> tuple[str, str]:
     """Return (sugar label, matched token), or ("",""). See _SUGAR_PATTERNS."""
     for label, rx in _SUGAR_PATTERNS:
@@ -1250,7 +1475,48 @@ def _is_rename(key: str, value: str) -> bool:
     "wheat, bran" into that cereal with bran on the end.
     """
     w = lambda x: {_singularize(t) for t in re.findall(r"[a-z0-9]+", x.lower())}
-    return w(key) == w(value)
+    if w(key) == w(value):
+        return True
+    # ...and a respelling that only moves a space is still a respelling. The
+    # word-set test cannot see it - {'pigeonpea'} against {'pigeon','pea'} - so
+    # 'pigeonpea' -> 'pigeon pea' and 'broadbean' -> 'broad bean' stopped firing
+    # the moment a label was appended, and the canon shipped as 'pigeonpea,
+    # immature' beside the curated 'pigeon pea'. Compared on letters alone,
+    # which is narrow enough that 'wheat' cannot reach FDC's frosted cereal.
+    flat = lambda x: re.sub(r"[^a-z0-9]", "", x.lower())
+    return flat(key) == flat(value)
+
+
+def _strip_whole_chunk(d: str, token: str) -> str:
+    """Remove a token only where it is an ENTIRE comma chunk.
+
+    The unconditional strip the fat and fortification axes use is safe because
+    their wordings are phrases in their own right. A refinement or gluten claim
+    is usually an ADJECTIVE on the food's own noun, and cutting it out of the
+    middle of a chunk destroys the name the downstream head rules read:
+    "Flour, whole grain oat" became 'flour oat' instead of 'oat flour,
+    wholegrain' (217 rows), "Bread, whole wheat-based" became 'bread-based',
+    and "Rye Bread, Wholegrain Rye, Dark Wheat Flour" became 'rye bread rye'.
+    Where the wording is NOT its own chunk it is simply left alone: either it
+    survives into the canon, and _append_state then declines to print a label
+    the name already carries, or the two-chunk rule drops it and the label
+    prints. Both outcomes are right; only cutting it out mid-chunk is wrong.
+    """
+    if not token:
+        return d
+    want = re.sub(r"[^a-z0-9]", "", token.lower())
+    if not want:
+        return d
+    out, hit = [], False
+    for c in d.split(","):
+        # the source tag has not been stripped yet where this fires, so the
+        # last chunk can be "Wholegrain [Fineli]" and still be the whole chunk
+        bare = re.sub(r"[^a-z0-9]", "", _BRACKET_TAG_RE.sub("", c).lower())
+        if not hit and bare == want:
+            hit = True
+            continue
+        out.append(c)
+    return ",".join(out) if hit and any(c.strip() for c in out) else d
 
 
 def _append_states(canon: str, *states) -> str:
@@ -1390,7 +1656,18 @@ _PAREN_CONTENT_RE = re.compile(r"\s*\([^)]*\)\s*")
 # stuffing heated" loses the filling - but only 121 rows across the corpus are
 # affected and most of those are marketing text ("100% natural italian"), so
 # the narrower forms tried against it left worse names behind than they fixed.
-_QUANT_RE = re.compile(r"\b\d+(?:\.\d+)?(?:\s*[-–]\s*\d+(?:\.\d+)?)?\s*%\s*[A-Za-z][A-Za-z\s-]{0,25}?(?=,|$)")
+# A FIBRE percentage is composition, not a qualifier, and it was the only
+# nutrient figure this rule ate: "Cheese, 13% fat" keeps its figure because
+# _FAT_PCT_RE reads it first and puts it back, while "Crispbread, Rye, 17%
+# Fibre" came out as bare 'crispbread, rye'. 57 rows lost the figure, and the
+# curated table had already ruled the other way on the same wording - the
+# override for 'crisp bread wholegrain rye 15% fibre flatbröd' spells the canon
+# 'crisp bread, wholegrain rye, 15% fibre' - so the rule was overwriting a
+# decision a curator had made by hand. Fibre is the double-weighted nutrient in
+# the score and the score takes the max, so folding a 17%-fibre crispbread into
+# the plain one hands the plain one the figure outright.
+# _FIBRE_PCT_RE is defined with the other composition axes above.
+_QUANT_RE = re.compile(r"\b\d+(?:\.\d+)?(?:\s*[-–]\s*\d+(?:\.\d+)?)?\s*%\s*(?!fib(?:re|er)\b)[A-Za-z][A-Za-z\s-]{0,25}?(?=,|$)")
 # Orphan connectives left behind by the prep strip. "Durian, raw or frozen"
 # loses "raw" and "frozen" but keeps the "or"; "Bread, with seeds" loses
 # "seeds" but keeps the "with". Either way a chunk survives that is nothing
@@ -3146,7 +3423,13 @@ _CANON_OVERRIDES = {
     'after eight chocolate mint': 'chocolate mint thins',
     "afzelia 's oil": 'afzelia seed oil',
     'afzelia africana, shelled': 'afzelia bean, shelled',
-    'akee, fruit': 'ackee fruit',
+    # Ackee is named like any other fruit - apple, banana - not "ackee fruit".
+    # Three sources, three spellings: McCance says "Ackee", PhyFoodComp says
+    # "Ackee fruit", WAFCT says "Akee, fruit". Both of the latter are pointed
+    # straight at 'ackee' rather than chained through one another, so neither
+    # depends on the single hop _consult_tables allows.
+    'ackee fruit': 'ackee',
+    'akee, fruit': 'ackee',
     'almond cake product': 'almond cake, frozen',
     'almond cookie bittersweet mandelkubb': 'almond cookie, bittersweet',
     "almond, ann's house of nut": 'almond, blanched, oil-roasted',
@@ -6778,6 +7061,17 @@ def _canonicalize_core(desc: str) -> str:
     # ("SARGENTO SHARP") has already been stripped off d by this point
     _matur = _detect_maturity(_desc0)
     _moist = _detect_moisture(_probe)
+    # read off the probe, like the fat figure: the source tag must not be in
+    # reach of the percentage, and the bracket variants are already gone
+    _fibre = _detect_fibre(_probe)
+    _immat = _detect_immature(_probe)
+    # ...but ripeness off the ORIGINAL description: FDC writes it in the caps
+    # brand chunk ("BANANAS, SLIGHTLY RIPE, MEDIUM SIZE"), which _strip_caps_brand
+    # has already taken off d by the time the probe is built
+    _ripe = _detect_ripeness(_desc0)
+    _decaf = _detect_decaf(_probe)
+    _rgrain = _detect_refined_grain(_probe)
+    _gfree = _detect_gluten_free(_probe)
     _part = _detect_part(_probe)
     _trim = _detect_trim(_probe)
     # read off the ORIGINAL description: BioFoodComp writes "Cod, wild, dorsal
@@ -6816,6 +7110,24 @@ def _canonicalize_core(desc: str) -> str:
         d = _FORT_PHRASE_RE.sub("", d)
     if _grade[0]:
         d = _GRADE_PHRASE_RE.sub("", d)
+    # Each new axis loses its wording once it has been READ, exactly as the fat
+    # and fortification phrasings do: _append_state declines a label whose own
+    # token is still standing in the name, so leaving the words in place would
+    # print the source's spelling instead of the house label and split the canon
+    # in two again ('crispbread, 17% fibre' beside 'crispbread, rye').
+    if _fibre[0]:
+        d = _FIBRE_PHRASE_RE.sub("", d)
+    if _immat[1]:
+        d = d.replace(_immat[1], ", " if _immat[1].startswith(",") else " ", 1)
+    if _ripe[1]:
+        d = re.sub(rf"\s*,?\s*{re.escape(_ripe[1])}\b", "", d, count=1, flags=re.I)
+    if _decaf[1]:
+        d = re.sub(rf"\s*,?\s*{re.escape(_decaf[1])}\b", "", d, count=1, flags=re.I)
+    # whole chunk only, for the reason set out on _strip_whole_chunk
+    if _rgrain[1]:
+        d = _strip_whole_chunk(d, _rgrain[1])
+    if _gfree[1]:
+        d = _strip_whole_chunk(d, _gfree[1])
     # Only the FARMED half loses its wording. Striking "wild" would rename the
     # species that are called wild - 'wild rice' would become 'rice, wild' and
     # sit beside the grain - so it is left in place and _append_state declines
@@ -6895,6 +7207,9 @@ def _canonicalize_core(desc: str) -> str:
     chunks = [c for c in chunks
               if not _PUNCT_ONLY_RE.match(c) and not _LABEL_ONLY_RE.match(c)
               and not _VENUE_CHUNK_RE.match(c)]
+    # ...and the grain form, on a cereal head only. See _GRAIN_FORM_RE.
+    if chunks and _CEREAL_CONTEXT_RE.search(chunks[0]):
+        chunks = chunks[:1] + [c for c in chunks[1:] if not _GRAIN_FORM_RE.match(c)]
     # ...but never the FIRST chunk: "Ice cream bar or stick, chocolate coated"
     # is an ice cream, and dropping the head left the canon 'chocolate coated'.
     chunks = chunks[:1] + [c for c in chunks[1:] if not _FORM_ALTERNATION_RE.match(c)]
@@ -6929,7 +7244,7 @@ def _canonicalize_core(desc: str) -> str:
     _protected = (len(chunks) > 1
                   and chunks[1] in _PART_PRESERVE.get(chunks[0], frozenset()))
     if chunks[0] in _CULTIVAR_STRIP_HEADS and not _protected:
-        return _append_states(_fold_plural(chunks[0]), _flav, _matur, _cut, _organ, _colour, _state, _trim, _pack, _salt, _sugar, _fat, _fort, _moist, _part, _grade, _prov, _cfat)
+        return _append_states(_fold_plural(chunks[0]), _flav, _matur, _cut, _organ, _colour, _state, _trim, _pack, _salt, _sugar, _fat, _fort, _moist, _part, _grade, _prov, _cfat, _fibre, _immat, _ripe, _decaf, _rgrain, _gfree)
     # For preserve heads, walk chunks[1:] and drop any that look like
     # cultivar codes ([Oryza sativa], 'CDC Blaze', var. SLS1, ADT-21,
     # angus x holstein-friesian, etc.); keep the first chunk that doesn't
@@ -6941,7 +7256,7 @@ def _canonicalize_core(desc: str) -> str:
             continue
         kept.append(c)
         break
-    return _append_states(", ".join(_fold_plural(c) for c in [chunks[0]] + kept[:1]), _flav, _matur, _cut, _organ, _colour, _state, _trim, _pack, _salt, _sugar, _fat, _fort, _moist, _part, _grade, _prov, _cfat)
+    return _append_states(", ".join(_fold_plural(c) for c in [chunks[0]] + kept[:1]), _flav, _matur, _cut, _organ, _colour, _state, _trim, _pack, _salt, _sugar, _fat, _fort, _moist, _part, _grade, _prov, _cfat, _fibre, _immat, _ripe, _decaf, _rgrain, _gfree)
 
 
 load_smart    = lambda p: pd.read_parquet(str(p)) if str(p).lower().endswith((".parquet",".pq")) else pd.read_csv(str(p), low_memory=False)
@@ -7905,6 +8220,9 @@ def _canonicalizer_fingerprint() -> str:
                _detect_state, _detect_salt, _detect_sugar, _detect_fat, _detect_fortify,
                _detect_moisture, _detect_part, _detect_oil_grade, _detect_colour, _detect_organ, _detect_cut, _detect_flavour, _detect_maturity,
                _detect_pack, _detect_trim, _append_state, _append_states,
+               _strip_whole_chunk, _is_rename,
+               _detect_fibre, _detect_immature, _detect_ripeness, _detect_decaf,
+               _detect_refined_grain, _detect_gluten_free,
                _is_spelling_alias, _edit_distance_le, _clean_variant_name,
                _strip_panel_prefix, _strip_venue):
         try:
@@ -7921,6 +8239,11 @@ def _canonicalizer_fingerprint() -> str:
     parts.append(repr([(lab, rx.pattern) for lab, rx in _FAT_PATTERNS]))
     parts.append(repr([(lab, rx.pattern) for lab, rx in _FORTIFY_PATTERNS]))
     parts.append(repr([(lab, rx.pattern) for lab, rx in _MOISTURE_PATTERNS]))
+    parts.append(repr([(lab, rx.pattern) for lab, rx in _RIPENESS_PATTERNS]))
+    for _rx in (_FIBRE_PCT_RE, _HIGH_FIBRE_RE, _IMMATURE_RE, _DECAF_RE,
+                _CEREAL_CONTEXT_RE, _REFINED_GRAIN_RE, _WHOLEGRAIN_RE,
+                _GLUTEN_FREE_RE, _GRAIN_FORM_RE):
+        parts.append(_rx.pattern)
     parts.append(repr([(lab, rx.pattern) for lab, rx in _PART_PATTERNS]))
     parts.append(_LEAF_IS_DEFAULT_RE.pattern)
     parts.append(repr([(lab, rx.pattern) for lab, rx in _OIL_GRADE_PATTERNS]))
@@ -7941,6 +8264,8 @@ def _canonicalizer_fingerprint() -> str:
     parts.append(repr([(lab, rx.pattern) for lab, rx in _PACK_PATTERNS]))
     parts.append(repr([(lab, rx.pattern) for lab, rx in _TRIM_PATTERNS]))
     parts.append(_PACKED_CONTEXT_RE.pattern)
+    parts.append(_MEDIUM_NO_CONTEXT_RE.pattern)
+    parts.append(_COOKED_IN_RE.pattern)
     for rx in (_PREP_RE, _CULTIVAR_CODE_RE, _PACK_MEDIUM_RE, _PREPARED_WITH_RE,
                _DRY_MIX_RE, _BRACKET_VARIANT_RE, _BRACKET_TAG_RE,
                _VENUE_PREFIX_RE, _VENUE_GENERIC_RE, _VENUE_CHUNK_RE, _LABEL_ONLY_RE, _PUNCT_ONLY_RE,

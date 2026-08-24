@@ -542,8 +542,32 @@ EXPECTED = {
     # into the one fewer do, and each of those was the form that reads as a
     # run-on or puts the material before its food - 'flour soy' for soy flour,
     # 'sausage chorizo', 'nutmeg ground', 'cheese stilton', 'radish black'.
+    # 22,094 -> 22,344 in round 17 (2026-08-24), from a recall audit of the axes:
+    # for each one, a deliberately broad "the source states this" detector was run over
+    # every canon's members and the canons where the claim was stated but no label
+    # printed were counted. That found missing WORDINGS rather than missing axes.
+    # Six axes added - a fibre figure and claim (57 rows; "13% fat" survived _QUANT_RE
+    # and "17% Fibre" did not), harvest maturity (FDC's "immature seeds" against "mature
+    # seeds": raw immature lima beans carry 4.9 g fibre against 19 g for the mature seed,
+    # in ONE canon), ripeness ('banana' was one 594-member canon holding 224 ripe, 168
+    # slightly ripe, 315 overripe and 15 green), grain refinement ('wheat flour' held 21
+    # whole-grain rows beside 5 refined), decaffeinated (caffeine is a nutrient here, so
+    # decaf coffee was handed regular coffee's caffeine) and gluten-free. Three widened -
+    # the fortification wordings (159 rows: "Added Calcium" with no "with", "with added
+    # ascorbic acid", which no alternation listed), the oil/brine medium named without
+    # "canned", and _is_rename, which compared word SETS and so could not see that
+    # 'pigeonpea' -> 'pigeon pea' is a respelling; fixing it also revived the curated
+    # 'kiwifruit' -> 'kiwi fruit' for 183 rows.
+    # rows, foods and nutrients do NOT move, and that is the check on the whole round:
+    # the audit regroups foods, so a change in any of the other three would mean a value
+    # or a record had been lost rather than re-filed.
+    # 22,344 -> 22,343 (2026-08-24): 'ackee fruit' folded into 'ackee'. Three sources
+    # spell it three ways - McCance "Ackee", PhyFoodComp "Ackee fruit", WAFCT "Akee,
+    # fruit" - and a fruit is named the way apple and banana are, without the word
+    # "fruit" after it. One canon, three foods, and it ranks nowhere: absent from both
+    # cohort arms, every panel and the figure data, so no measured number moves with it.
     "food_nutrients.tsv": {"rows": 1_929_627, "foods": 116_053, "nutrients": 1_749,
-                           "canon": 22_094, "canon_blank": 8},
+                           "canon": 22_343, "canon_blank": 8},
 }
 
 # Exactly what the deposit should contain. Anything else in the directory ships with

@@ -153,3 +153,8 @@ __pycache__/
 # The reasoning that put those patterns in .git/info/exclude rather than here still stands
 # for the next source in that position: this file is published, so a pattern spelling a
 # withheld provider's name leaks the very string being withheld.
+
+# In-place edit backups (bac2food_predict.py.pre_round17 and friends). These are
+# near-identical copies of a 550 KB source file; two of them nearly went into a
+# commit. Kept outside the repo in /data/bac2food/code_backups/ instead.
+*.pre_*
