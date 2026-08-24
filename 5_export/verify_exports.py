@@ -48,7 +48,17 @@ SCHEMA = {
 
 # Figures quoted in the manuscript (Data Records / Technical Validation).
 EXPECTED = {
-    "species_enzymes.tsv": {"rows": 20_557_730, "organisms": 10_751, "ec": 4_819},
+    # 20,557,730 -> 8,041,365 rows and 4,819 -> 1,861 EC (2026-08-24): the resource now
+    # publishes only what spans food -> nutrient -> enzyme -> organism, so an EC that acts
+    # on nothing the food table measures is not carried. ORGANISMS DO NOT MOVE (10,751),
+    # and that is the check on this half: every organism retains at least one food-reaching
+    # enzyme, so the prune removed edges and not a single node.
+    #
+    # Read from the eggNOG v7 layer of record. The legacy v6 bact_ec.tsv reaches 4,291 EC
+    # against v7's 4,819 and is not what ships; export_resources.py now requires
+    # --species_from_bact_ec to use it, because reading it by default silently downgraded
+    # this file once already.
+    "species_enzymes.tsv": {"rows": 8_041_365, "organisms": 10_751, "ec": 1_861},
     # in_model 4,199 -> 4,342 -> 4,094 on 2026-08-05. Two changes to the nutrient->EC map, both in
     # 0_building/ and both deliberate: INFOODS mineral tagnames stopped resolving to
     # dipeptides (-271 links, ALL from columns like K(mg), NA(mg), FE(mg)), and the ChEBI
@@ -566,8 +576,20 @@ EXPECTED = {
     # fruit" - and a fruit is named the way apple and banana are, without the word
     # "fruit" after it. One canon, three foods, and it ranks nowhere: absent from both
     # cohort arms, every panel and the figure data, so no measured number moves with it.
-    "food_nutrients.tsv": {"rows": 1_929_627, "foods": 116_053, "nutrients": 1_749,
-                           "canon": 22_343, "canon_blank": 8},
+    # The chain prune, 2026-08-24. Only foods with at least one value an enzyme can act on
+    # are published, and only those values:
+    #   rows      1,929,627 -> 876,893    nutrients 1,749 -> 598
+    #   foods       116,053 -> 81,404     canon    22,343 -> 21,053
+    # What leaves is the aggregate and computed fields - total dietary fibre, energy,
+    # protein, carbohydrate by difference - which are mixtures with no single ChEBI
+    # referent. The SPECIFIC fibres stay (inulin, pectin, beta-glucan, cellulose,
+    # hemicellulose, resistant starch), which is the distinction the resource exists to
+    # draw, and is why fiber_weight in the predictor still has 15 of its 24 nutrients.
+    #
+    # canon falls by only 5.8% while rows fall by 54.6%: the foods dropped are concentrated
+    # in canons that keep other members, so the grouping survives the prune nearly intact.
+    "food_nutrients.tsv": {"rows": 876_893, "foods": 81_404, "nutrients": 598,
+                           "canon": 21_053, "canon_blank": 8},
 }
 
 # Exactly what the deposit should contain. Anything else in the directory ships with

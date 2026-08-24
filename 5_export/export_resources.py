@@ -53,6 +53,43 @@ from _common.non_nutrients import (COPY_RECORD_RE, NON_NUTRIENT_IDS,  # noqa: E4
                                    source_of_bucket_file)
 
 
+# ------------------------------------------------------------------------------
+# The chain filter: only what reaches food -> nutrient -> enzyme -> organism
+# ------------------------------------------------------------------------------
+# 3_nutrient_to_ec.tsv is the SAME file the predictor loads (bac2food_predict.
+# PATH_NUTRIENT_TO_EC), so the released tables and the scorer cannot disagree about
+# what "reaches" means. Deriving the set here from a second source would recreate
+# exactly the drift the module docstring warns about, where the two readers of the
+# bucketed store apply different exclusion policies.
+#
+# Both directions of the filter are the same statement read from opposite ends:
+#   * a nutrient is kept when at least one EC acts on it;
+#   * an EC is kept when it acts on at least one nutrient the food table measures.
+# A row failing either could never take part in a prediction - the scorer filters to
+# the EC-linked nutrient set before it reads a single amount - so pruning them removes
+# unreachable records, not usable ones.
+#
+# What this DOES cost, and it is a real cost: the aggregate composition fields go.
+# "Dietary fibre, total", "Energy", "Protein" and "Carbohydrate by difference" are
+# mixtures or computed values with no single ChEBI referent, so none of them survives.
+# The specific fibres do - inulin, pectin, beta-glucan, cellulose, hemicellulose,
+# resistant starch - which is the distinction the resource exists to make. The
+# unpruned table remains reproducible with --span_chain keep.
+PATH_NUTRIENT_TO_EC = REPO / "0_building" / "3_nutrient_to_ec.tsv"
+
+
+def chain_linked_ids(path=None) -> tuple[set[int], set[str]]:
+    """(nutrient_ids reached by >=1 EC, EC numbers reaching >=1 nutrient)."""
+    src = Path(path or PATH_NUTRIENT_TO_EC)
+    m = pd.read_csv(src, sep="\t", usecols=["nutrient_id", "ec_number"],
+                    dtype={"nutrient_id": "int64", "ec_number": "string"})
+    nut = set(m["nutrient_id"].dropna().astype(int).tolist())
+    ec = set(m["ec_number"].dropna().astype(str).tolist())
+    print(f"[*] chain map {src.name}: {len(nut):,} nutrients reach an EC; "
+          f"{len(ec):,} EC reach a nutrient.", flush=True)
+    return nut, ec
+
+
 def assert_fdc_blocks(fdc_ids: pd.Series) -> None:
     """Fail the export if any fdc_id sits outside its source's block.
 
@@ -217,16 +254,56 @@ def export_species_enzymes(args) -> None:
     out = Path(args.out_dir) / "species_enzymes.tsv"
     print(f"[*] Building {out.name} ...", flush=True)
 
-    df = read_bact_ec(args.bact_ec)
+    # Which organism->EC layer is the source of record.
+    #
+    # There are two, they carry the same filename, and picking the wrong one silently
+    # DOWNGRADES the resource. The published layer is the eggNOG v7 build (4,819 EC,
+    # routed through KEGG KO by eggnog/6.1_eggnog7_species_enzymes.py). The legacy v6
+    # route parsed a direct EC annotation into bact_ec.tsv and reaches only 4,291 EC,
+    # covering 75.9% of nutrient-reaching EC against v7's 82.1%.
+    #
+    # This function used to read the v6 file unconditionally, so `--only species` quietly
+    # replaced a v7 export with a v6 one - the hazard the module docstring names but did
+    # not defend against. It now reads the v7 layer by default and the v6 route has to be
+    # asked for. The v7 PIPELINE cannot currently be re-run (e7.taxid_info.tsv.gz is not
+    # on disk), which is exactly why its output is kept as a file of record rather than
+    # regenerated on demand.
+    if args.species_from_bact_ec:
+        print(f"[!] Reading the LEGACY v6 layer {args.bact_ec} - 4,291 EC against v7's "
+              f"4,819. This is not what the deposit ships.", flush=True)
+        df = read_bact_ec(args.bact_ec)
+    else:
+        src = Path(args.species_source)
+        if not src.exists():
+            raise SystemExit(f"ERROR: v7 organism->EC layer not found at {src}. Pass "
+                             f"--species_source, or --species_from_bact_ec to accept the "
+                             f"v6 downgrade deliberately.")
+        df = pd.read_csv(src, sep="\t", dtype="string")
+        print(f"[*] v7 organism->EC layer: {len(df):,} rows, "
+              f"{df['ec_number'].nunique():,} EC from {src}", flush=True)
     df["organism"] = _sanitize(df["organism"])
 
-    # Parse each distinct organism once (~3k), then broadcast back over the 9.6M rows.
-    orgs = pd.DataFrame({"organism": df["organism"].unique()})
-    parsed = orgs["organism"].map(split_organism)
-    orgs["genus"], orgs["species"], orgs["strain"] = (parsed.str[i] for i in range(3))
-    df = df.merge(orgs, on="organism", how="left")
+    # The v7 layer already carries genus/species/strain - it was written with them - so
+    # re-deriving them here would collide on the merge (genus_x/genus_y) and, worse,
+    # would overwrite the pipeline's own taxonomy with a re-parse of the display name.
+    # Only the v6 route arrives as bare (organism, EC) and needs the split.
+    if not {"genus", "species", "strain"} <= set(df.columns):
+        # Parse each distinct organism once (~3k), then broadcast back over the 9.6M rows.
+        orgs = pd.DataFrame({"organism": df["organism"].unique()})
+        parsed = orgs["organism"].map(split_organism)
+        orgs["genus"], orgs["species"], orgs["strain"] = (parsed.str[i] for i in range(3))
+        df = df.merge(orgs, on="organism", how="left")
     for c in ("genus", "species", "strain"):
         df[c] = _sanitize(df[c])
+
+    if args.span_chain == "require":
+        _, keep_ec = chain_linked_ids()
+        n0, ec0 = len(df), df["ec_number"].nunique()
+        df = df[df["ec_number"].isin(keep_ec)]
+        print(f"[*] Excluded {n0 - len(df):,} rows carrying an EC that reaches no nutrient "
+              f"({ec0:,} -> {df['ec_number'].nunique():,} EC); an organism-to-enzyme edge "
+              f"with no enzyme-to-food edge cannot take part in a prediction. "
+              f"Pass --span_chain keep to retain them.", flush=True)
 
     key = _ec_sort_key(df["ec_number"])
     df = df.assign(**{f"_k{i}": key[i] for i in key.columns}).sort_values(
@@ -413,6 +490,23 @@ def export_food_nutrients(args) -> None:
         tbl = tbl.filter(pc.invert(pc.is_in(tbl["fdc_id"],
                                             value_set=pa.array(sorted(_redundant)))))
 
+    if args.span_chain == "require":
+        keep_nut, _ = chain_linked_ids()
+        n0 = tbl.num_rows
+        tbl = tbl.filter(pc.is_in(tbl["nutrient_id"],
+                                  value_set=pa.array(sorted(keep_nut), type=tbl["nutrient_id"].type)))
+        print(f"[*] Excluded {n0 - tbl.num_rows:,} rows whose nutrient reaches no EC "
+              f"(aggregate and computed fields: total dietary fibre, energy, protein, "
+              f"carbohydrate by difference). The specific fibres are retained.", flush=True)
+        # A food whose every value has just been dropped is no longer a food this
+        # resource says anything about, so it leaves the food table too - otherwise
+        # the header count and the row count describe different sets.
+        live = set(tbl["fdc_id"].to_pylist())
+        n_food = len(food)
+        food = food[food["fdc_id"].isin(live)]
+        print(f"[*] Excluded {n_food - len(food):,} foods left with no value that reaches "
+              f"an EC ({len(food):,} foods retained).", flush=True)
+
     label_arr = np.array(labels, dtype=object)
     total = tbl.num_rows
     print(f"[*] {total:,} food_nutrient rows; joining metadata and writing ...", flush=True)
@@ -576,6 +670,19 @@ def main() -> None:
                     help="keep FDC survey_fndds_food entries. Excluded by default: recipe-"
                          "modelled for dietary-survey coding, 0%% carry a sample count or a "
                          "derivation record, 65 components (see export_food_nutrients)")
+    ap.add_argument("--species_source", default=str(DATA / "species_enzymes_v7_full.tsv"),
+                    help="the unpruned eggNOG v7 organism->EC layer, the source of record "
+                         "for species_enzymes.tsv")
+    ap.add_argument("--species_from_bact_ec", action="store_true",
+                    help="build the organism->EC layer from the LEGACY v6 bact_ec.tsv "
+                         "instead (4,291 EC vs v7's 4,819). Not what the deposit ships.")
+    ap.add_argument("--span_chain", choices=["require", "keep"], default="require",
+                    help="require (default): publish only records that span "
+                         "food->nutrient->enzyme->organism. Nutrients no EC acts on, foods "
+                         "left with no such value, and EC that reach no nutrient are "
+                         "excluded - none of them can take part in a prediction. "
+                         "keep: the unfiltered resource, including the aggregate "
+                         "composition fields (energy, protein, total dietary fibre).")
     ap.add_argument("--chunk_rows", type=int, default=2_000_000,
                     help="rows per write chunk for the food table (default: %(default)s)")
     args = ap.parse_args()
