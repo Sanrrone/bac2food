@@ -9321,6 +9321,15 @@ def main():
             so, k = classify_rule(str(r).strip().lower())
             prox.setdefault(int(s), []).append((int(g), float(div_map.get((int(g), r), 1.0)), so, k))
     for t in [1017,1021,1022,1403,2058,1071,1019]: prox.setdefault(t, []).append((1079, 1.0, True, "form"))
+    # 250014 is the same measurement as 1079 under STFCJ's spelling, and STFCJ is the
+    # ONLY source that uses it - its foods carry no 1079 at all. Naming just 1079 here
+    # gave 27,060 rows across eleven sources a total-fibre fallback for any unmeasured
+    # specific fibre and gave 2,068 Japanese rows none, so a Japanese food scored as if
+    # the substrate were absent rather than merely unresolved. Listing both is not
+    # double counting: a food carries one spelling or the other, never both.
+    # FDC's 2033 is deliberately NOT here - it is a different assay (AOAC 2011.25), and
+    # the foods that report it already report 1079.
+    for t in [1017,1021,1022,1403,2058,1071,1019]: prox.setdefault(t, []).append((250014, 1.0, True, "form"))
     for t in [1015,1016,1020]:                    prox.setdefault(t, []).append((1009, 1.0, True, "form"))
     for t in [1181,1182,1042]:                    prox.setdefault(t, []).append((99999, 1.0, True, "form"))
 

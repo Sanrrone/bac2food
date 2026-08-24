@@ -406,12 +406,24 @@ def export_food_nutrients(args) -> None:
                              .fillna(fcid.where(~is_num)))
     # `canon` folds preparation FORM and spelling variants of one food onto a single name
     # ("Carrots, sliced, frozen, unprepared" and "carrot, raw" both -> "carrot"), so a user
-    # can group rows the way the predictor does without reimplementing the rules. It does
-    # NOT fold preparation STATE: drying, juicing, frying and sweetening change per-100 g
-    # composition, so "Carrot, dried" keeps a canon of its own instead of handing the
-    # carrot group a dehydrated food's values. It is a grouping key, NOT an identity
-    # claim: it is derived from `description` alone and never crosses sources
-    # deliberately. 116,053 foods fold to 22,094 canon names
+    # can group rows MOSTLY the way the predictor does, without reimplementing the rules.
+    # MOSTLY, and the gap is measured rather than hoped: this column is the canonicalizer
+    # alone, while the predictor additionally runs refine_canons_by_nutrition, which
+    # SPLITS a canon whose members' nutrient profiles disagree and names the split-out
+    # member after its raw description - `strawberry, oso grande` where this column says
+    # `strawberry`, `juice, lemon` where it says `lemon juice`. Measured against the
+    # round-18 index: 21,275 of 21,513 shared representatives agree, 238 (1.1%) do not.
+    # A further 1,193 of the predictor's representatives are absent here entirely,
+    # because the bucketed store it reads never had the branded / modelled / re-listing
+    # exclusions applied - only this table does. So the column reproduces the predictor's
+    # grouping for 98.9% of canons and its food set for a smaller share, and anyone
+    # needing exact agreement has to run the predictor's index build.
+    #
+    # It does NOT fold preparation STATE: drying, juicing, frying and sweetening change
+    # per-100 g composition, so "Carrot, dried" keeps a canon of its own instead of
+    # handing the carrot group a dehydrated food's values. It is a grouping key, NOT an
+    # identity claim: it is derived from `description` alone and never crosses sources
+    # deliberately. 90,228 foods fold to 21,582 canon names
     # (the 8 blank-description foods carry no canon and are not among them).
     # Computed on the distinct descriptions, not per row: 2.1M rows, 52k distinct names.
     _canon_of = {d: canonicalize_food_name(d) for d in food["description"].dropna().unique()}

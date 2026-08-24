@@ -597,7 +597,14 @@ EXPECTED = {
     #
     # canon falls by only 5.8% while rows fall by 54.6%: the foods dropped are concentrated
     # in canons that keep other members, so the grouping survives the prune nearly intact.
-    "food_nutrients.tsv": {"rows": 1_063_877, "foods": 90_228, "nutrients": 632,
+    # +2,068 rows and +1 nutrient (2026-08-24): STFCJ's total-fibre spelling (250014)
+    # joins the keep-set as a kernel substitute. It is the only source that uses it and
+    # its foods carry no 1079, so Japanese foods were scored as if a fibre substrate
+    # were absent rather than merely unresolved, while 27,060 rows from eleven other
+    # sources got the fallback. Foods and canon do NOT move: the rows land on foods the
+    # table already carried, which is the check that this added a value rather than a
+    # record.
+    "food_nutrients.tsv": {"rows": 1_065_945, "foods": 90_228, "nutrients": 633,
                            "canon": 21_582, "canon_blank": 8},
 }
 

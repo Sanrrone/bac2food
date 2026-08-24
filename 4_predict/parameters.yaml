@@ -21,7 +21,11 @@ paths:
   nutrient_csv:   /data/bac2food/nutrient.csv            # --nutrient
   food:           /data/bac2food/food.parquet            # --food
   food_category:  /data/bac2food/food_category.csv       # --food_category
-  bucketed_dir:   /data/bac2food/food_nutrient_bucketed  # --food_nutrient
+  # The PRUNED store - the same records the deposit ships. export_resources.py still
+  # reads the unpruned food_nutrient_bucketed and applies the chain filter itself, so
+  # the full store stays on disk as the exporter's input; the predictor must not read
+  # it, or it would score foods and nutrients the published table does not contain.
+  bucketed_dir:   /data/bac2food/food_nutrient_bucketed_pruned  # --food_nutrient
   index_dir:      /data/bac2food/index_modeled           # --index_dir
   nutrient_alias: ../0_building/1_expanded_nutrients.tsv # --nutrient_alias
   # Bacteria -> EC reference. The exported resource itself (eggNOG v7, built via KEGG KO

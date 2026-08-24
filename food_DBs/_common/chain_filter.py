@@ -37,6 +37,11 @@ from pathlib import Path
 # "a food missing <target> may be scored on <generic> instead".
 _FORM_ALIASES: list[tuple[list[int], int]] = [
     ([1017, 1021, 1022, 1403, 2058, 1071, 1019], 1079),
+    # STFCJ's spelling of the same total-fibre measurement. It is the only source that
+    # uses it and its foods carry no 1079, so omitting it denied Japanese foods the
+    # fallback every other source gets. Must stay in step with the prox construction
+    # in bac2food_predict.py: a substitute the kernel reaches for has to survive here.
+    ([1017, 1021, 1022, 1403, 2058, 1071, 1019], 250014),
     ([1015, 1016, 1020], 1009),
     ([1181, 1182, 1042], 99999),
 ]
