@@ -51,6 +51,7 @@ from bac2food_predict import canonicalize_food_name  # noqa: E402
 from _common.non_nutrients import (COPY_RECORD_RE, NON_NUTRIENT_IDS,  # noqa: E402
                                    find_exact_relistings, relisting_candidates,
                                    source_of_bucket_file)
+from _common.chain_filter import chain_ec, chain_nutrients, chain_targets  # noqa: E402
 
 
 # ------------------------------------------------------------------------------
@@ -69,24 +70,36 @@ from _common.non_nutrients import (COPY_RECORD_RE, NON_NUTRIENT_IDS,  # noqa: E4
 # the EC-linked nutrient set before it reads a single amount - so pruning them removes
 # unreachable records, not usable ones.
 #
-# What this DOES cost, and it is a real cost: the aggregate composition fields go.
-# "Dietary fibre, total", "Energy", "Protein" and "Carbohydrate by difference" are
-# mixtures or computed values with no single ChEBI referent, so none of them survives.
+# What this DOES cost, and it is a real cost: most aggregate composition fields go.
+# "Energy", "Protein" and "Carbohydrate by difference" are mixtures or computed values
+# with no single ChEBI referent and no role as a substitute, so they do not survive.
+# Total fibre is the exception and deserves care: FDC's "Fiber, total dietary" (1079)
+# IS retained, because the kernel falls back to it when a specific fibre is unmeasured.
+# Its Japanese-source twin "Dietary fiber, total" (250014) is not named in that alias
+# table and so is dropped - the same measurement, 2,068 rows, losing the fallback that
+# 27,060 rows from other sources keep. That asymmetry is in the alias table, not here.
 # The specific fibres do - inulin, pectin, beta-glucan, cellulose, hemicellulose,
 # resistant starch - which is the distinction the resource exists to make. The
 # unpruned table remains reproducible with --span_chain keep.
 PATH_NUTRIENT_TO_EC = REPO / "0_building" / "3_nutrient_to_ec.tsv"
+PATH_NUTRIENT_ALIAS = REPO / "0_building" / "1_expanded_nutrients.tsv"
 
 
 def chain_linked_ids(path=None) -> tuple[set[int], set[str]]:
-    """(nutrient_ids reached by >=1 EC, EC numbers reaching >=1 nutrient)."""
+    """(nutrients that reach the chain, EC numbers reaching >=1 nutrient).
+
+    The nutrient half is NOT just the EC map's nutrient_ids. It also carries the
+    generics the scoring kernel substitutes when a target is missing from a food -
+    Pentosan for Xylan, Starch for Pullulan - which carry no EC of their own. The
+    first cut of this filter published only the 598 targets, and the 69 missing
+    substitutes cut one sample's candidate pool by 46%. _common/chain_filter.py is
+    the single definition, shared with prune_bucketed_store.py.
+    """
     src = Path(path or PATH_NUTRIENT_TO_EC)
-    m = pd.read_csv(src, sep="\t", usecols=["nutrient_id", "ec_number"],
-                    dtype={"nutrient_id": "int64", "ec_number": "string"})
-    nut = set(m["nutrient_id"].dropna().astype(int).tolist())
-    ec = set(m["ec_number"].dropna().astype(str).tolist())
-    print(f"[*] chain map {src.name}: {len(nut):,} nutrients reach an EC; "
-          f"{len(ec):,} EC reach a nutrient.", flush=True)
+    nut = chain_nutrients(src, PATH_NUTRIENT_ALIAS)
+    ec = chain_ec(src)
+    print(f"[*] chain map {src.name}: {len(chain_targets(src)):,} nutrients are EC targets, "
+          f"{len(nut):,} with substitutes; {len(ec):,} EC reach a nutrient.", flush=True)
     return nut, ec
 
 
@@ -495,9 +508,11 @@ def export_food_nutrients(args) -> None:
         n0 = tbl.num_rows
         tbl = tbl.filter(pc.is_in(tbl["nutrient_id"],
                                   value_set=pa.array(sorted(keep_nut), type=tbl["nutrient_id"].type)))
-        print(f"[*] Excluded {n0 - tbl.num_rows:,} rows whose nutrient reaches no EC "
-              f"(aggregate and computed fields: total dietary fibre, energy, protein, "
-              f"carbohydrate by difference). The specific fibres are retained.", flush=True)
+        print(f"[*] Excluded {n0 - tbl.num_rows:,} rows whose nutrient neither is an EC "
+              f"target nor substitutes for one: energy, protein and carbohydrate by "
+              f"difference go; the specific fibres stay as targets, and FDC's "
+              f"'Fiber, total dietary' (1079) stays as the kernel's fibre fallback.",
+              flush=True)
         # A food whose every value has just been dropped is no longer a food this
         # resource says anything about, so it leaves the food table too - otherwise
         # the header count and the row count describe different sets.

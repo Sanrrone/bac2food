@@ -158,3 +158,9 @@ __pycache__/
 # near-identical copies of a 550 KB source file; two of them nearly went into a
 # commit. Kept outside the repo in /data/bac2food/code_backups/ instead.
 *.pre_*
+
+# Scratch predictor configs (_tmp_params_nofiber.yaml, _tmp_params_pruned.yaml).
+# They must live beside parameters.yaml -- _resolve_cfg_path resolves relative
+# entries against the config's own directory -- so they land inside the repo and
+# would otherwise be committed. The ablation chain writes and deletes them.
+_tmp_params_*.yaml

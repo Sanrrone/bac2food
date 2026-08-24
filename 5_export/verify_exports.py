@@ -578,8 +578,17 @@ EXPECTED = {
     # cohort arms, every panel and the figure data, so no measured number moves with it.
     # The chain prune, 2026-08-24. Only foods with at least one value an enzyme can act on
     # are published, and only those values:
-    #   rows      1,929,627 -> 876,893    nutrients 1,749 -> 598
-    #   foods       116,053 -> 81,404     canon    22,343 -> 21,053
+    #   rows      1,929,627 -> 1,063,877  nutrients 1,749 -> 632
+    #   foods       116,053 -> 90,228     canon    22,343 -> 21,582
+    #
+    # The keep-set is 667 nutrients, not the 598 an EC acts on directly, and 632 of those
+    # 667 have a measured value. The extra 69 are the generics the scoring kernel
+    # substitutes when a target is unmeasured in a food. They carry no EC of their own,
+    # so the first cut of this filter deleted them - and one cohort sample's candidate
+    # pool fell from 64,387 rows to 35,066, a 46% loss that read as a result. The
+    # definition now lives once, in food_DBs/_common/chain_filter.py, shared with
+    # prune_bucketed_store.py so the deposit and the store the predictor reads cannot
+    # disagree about what exists.
     # What leaves is the aggregate and computed fields - total dietary fibre, energy,
     # protein, carbohydrate by difference - which are mixtures with no single ChEBI
     # referent. The SPECIFIC fibres stay (inulin, pectin, beta-glucan, cellulose,
@@ -588,8 +597,8 @@ EXPECTED = {
     #
     # canon falls by only 5.8% while rows fall by 54.6%: the foods dropped are concentrated
     # in canons that keep other members, so the grouping survives the prune nearly intact.
-    "food_nutrients.tsv": {"rows": 876_893, "foods": 81_404, "nutrients": 598,
-                           "canon": 21_053, "canon_blank": 8},
+    "food_nutrients.tsv": {"rows": 1_063_877, "foods": 90_228, "nutrients": 632,
+                           "canon": 21_582, "canon_blank": 8},
 }
 
 # Exactly what the deposit should contain. Anything else in the directory ships with
